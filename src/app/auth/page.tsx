@@ -2,9 +2,12 @@
 
 import { createClient } from '@/lib/supabase/client'
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Github } from 'lucide-react'
 
 export default function AuthPage() {
+  const searchParams = useSearchParams()
+  const next = searchParams.get('next')
   const [loading, setLoading] = useState<'github' | 'google' | null>(null)
   const supabase = createClient()
 
@@ -12,7 +15,7 @@ export default function AuthPage() {
     setLoading(provider)
     await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${location.origin}/auth/callback` },
+      options: { redirectTo: `${location.origin}/auth/callback${next ? '?next=' + encodeURIComponent(next) : ''}` },
     })
   }
 

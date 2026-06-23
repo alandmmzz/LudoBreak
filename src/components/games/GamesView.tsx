@@ -8,11 +8,12 @@ import { cn } from '@/lib/utils'
 import Avatar from '@/components/ui/Avatar'
 
 interface Props {
+  groupId: string
   games: (GameCache & { owner: Profile | null })[]
   currentUser: Profile
 }
 
-export default function GamesView({ games, currentUser }: Props) {
+export default function GamesView({ games, currentUser, groupId }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [query, setQuery] = useState('')
@@ -44,7 +45,7 @@ export default function GamesView({ games, currentUser }: Props) {
       await fetch('/api/games', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bggId }),
+        body: JSON.stringify({ bggId, groupId }),
       })
       setShowAdd(false)
       setBggResults([])

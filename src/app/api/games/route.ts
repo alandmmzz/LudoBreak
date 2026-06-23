@@ -6,11 +6,13 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { bggId } = await request.json()
+  const { bggId, groupId } = await request.json()
   if (!bggId) return NextResponse.json({ error: 'bggId required' }, { status: 400 })
+  if (!groupId) return NextResponse.json({ error: 'groupId required' }, { status: 400 })
 
-  // Check cache
-  const { data: existing } = await supabase.from('games_cache').select('bgg_id').eq('bgg_id', bggId).single()
+  // Check cache within the group
+  const { data: existing } = await supabase
+    .from('games_cache').select('bgg_id').eq('bgg_id', bggId).eq('group_id', groupId).single()
   if (existing) return NextResponse.json({ ok: true, cached: true })
 
   // Fetch from BGG
@@ -31,16 +33,11 @@ export async function POST(request: NextRequest) {
 
   const { error } = await supabase.from('games_cache').insert({
     bgg_id: bggId,
-    name,
-    description,
-    image_url: image,
-    thumbnail_url: thumbnail,
-    min_players: minPlayers,
-    max_players: maxPlayers,
-    year_published: year,
-    avg_rating: avgRating,
-    categories,
+    name, description, image_url: image, thumbnail_url: thumbnail,
+    min_players: minPlayers, max_players: maxPlayers,
+    year_published: year, avg_rating: avgRating, categories,
     owner_id: user.id,
+    group_id: groupId,
     updated_at: new Date().toISOString(),
   })
 

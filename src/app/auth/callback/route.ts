@@ -4,13 +4,13 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
+  const next = searchParams.get('next') ?? '/poll'
 
   if (code) {
     const supabase = createClient()
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.user) {
-      // Upsert profile
       await supabase.from('profiles').upsert({
         id: data.user.id,
         email: data.user.email!,
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
         provider: data.user.app_metadata?.provider || 'github',
       }, { onConflict: 'id' })
 
-      return NextResponse.redirect(`${origin}/poll`)
+      return NextResponse.redirect(`${origin}${next}`)
     }
   }
 

@@ -9,6 +9,7 @@ import { format } from 'date-fns'
 import Avatar from '@/components/ui/Avatar'
 
 interface Props {
+  groupId: string
   games: GameCache[]
   attendees: Profile[]
   currentUser: Profile
@@ -16,7 +17,7 @@ interface Props {
   onSaved: () => void
 }
 
-export default function SessionForm({ games, attendees, currentUser, onClose, onSaved }: Props) {
+export default function SessionForm({ games, attendees, currentUser, onClose, onSaved, groupId }: Props) {
   const supabase = createClient()
   const [gameId, setGameId] = useState(games[0]?.bgg_id ?? '')
   const [players, setPlayers] = useState<string[]>([currentUser.id])
@@ -40,6 +41,7 @@ export default function SessionForm({ games, attendees, currentUser, onClose, on
       players,
       winner_id: winnerId || null,
       created_by: currentUser.id,
+      group_id: groupId,
     })
     setSaving(false)
     if (err) setError('No se pudo guardar. Intentá de nuevo.')

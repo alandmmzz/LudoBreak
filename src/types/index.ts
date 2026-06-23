@@ -73,3 +73,24 @@ export interface StatsData {
   topWinners: { name: string; wins: number; profile: Profile }[]
   recentSessions: (GameSession & { game: GameCache; winner: Profile | null })[]
 }
+
+export interface Group {
+  id: string
+  name: string
+  emoji: string
+  invite_code: string
+  created_by: string
+  created_at: string
+}
+
+export interface GroupMember {
+  group_id: string
+  user_id: string
+  role: 'admin' | 'member'
+  joined_at: string
+  profile?: Profile
+}
+
+export interface GroupWithMembers extends Group {
+  members: (GroupMember & { profile: Profile })[]
+}

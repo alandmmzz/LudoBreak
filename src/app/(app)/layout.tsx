@@ -13,5 +13,21 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     .eq('id', user.id)
     .single()
 
-  return <AppShell profile={profile}>{children}</AppShell>
+  // Get all groups this user belongs to
+  const { data: memberships } = await supabase
+    .from('group_members')
+    .select('group:groups(id, name, emoji)')
+    .eq('user_id', user.id)
+
+  const allGroups = (memberships ?? [])
+    .map((m: any) => m.group)
+    .filter(Boolean) as { id: string; name: string; emoji: string }[]
+
+  const activeGroup = allGroups.find(g => g.id === profile?.active_group_id) ?? null
+
+  return (
+    <AppShell profile={profile} activeGroup={activeGroup} allGroups={allGroups}>
+      {children}
+    </AppShell>
+  )
 }

@@ -19,9 +19,10 @@ interface Props {
   currentUser: Profile
   isAttending: boolean
   myVote: (Vote & { game: GameCache }) | null
+  groupId: string
 }
 
-export default function PollView({ poll, attendees, votes, games, currentUser, isAttending: initAttending, myVote: initVote }: Props) {
+export default function PollView({ poll, attendees, votes, games, currentUser, isAttending: initAttending, myVote: initVote, groupId }: Props) {
   const router = useRouter()
   const supabase = createClient()
   const [isPending, startTransition] = useTransition()
@@ -182,6 +183,7 @@ export default function PollView({ poll, attendees, votes, games, currentUser, i
 
       {showSessionForm && (
         <SessionForm
+          groupId={groupId}
           games={games}
           attendees={attendees.map(a => a.profile)}
           currentUser={currentUser}
