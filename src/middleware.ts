@@ -6,12 +6,23 @@ export const config = {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const isPublic = pathname.startsWith('/auth') || pathname.startsWith('/join')
 
-  if (isPublic) return NextResponse.next()
+  // Siempre permitir estas rutas
+  if (
+    pathname.startsWith('/auth') ||
+    pathname.startsWith('/join') ||
+    pathname === '/'
+  ) {
+    return NextResponse.next()
+  }
 
-  // Check for supabase auth cookie (any sb- cookie = logged in)
-  const hasSession = request.cookies.getAll().some(c => c.name.startsWith('sb-'))
+  // Buscar cualquier cookie de sesión de Supabase
+  const cookies = request.cookies.getAll()
+  const hasSession = cookies.some(c =>
+    c.name.startsWith('sb-') ||
+    c.name.includes('supabase') ||
+    c.name.includes('auth-token')
+  )
 
   if (!hasSession) {
     const url = request.nextUrl.clone()
