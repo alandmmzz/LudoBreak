@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand: #7F77DD;
+    --brand-light: #EEEDFE;
+    --brand-dark: #534AB7;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    @apply bg-neutral-50 text-neutral-900 antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  ::selection {
+    background: #CECBF6;
+    color: #26215C;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white border border-neutral-200/60 rounded-xl;
+  }
+
+  .btn-primary {
+    @apply bg-brand-600 hover:bg-brand-800 text-white font-medium text-sm px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-brand-50 hover:bg-brand-100 text-brand-800 font-medium text-sm px-4 py-2 rounded-lg transition-colors border border-brand-200;
+  }
+
+  .btn-ghost {
+    @apply hover:bg-neutral-100 text-neutral-600 font-medium text-sm px-3 py-2 rounded-lg transition-colors;
+  }
+
+  .input {
+    @apply w-full border border-neutral-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-400/40 focus:border-brand-400 transition-all placeholder:text-neutral-400;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+
+  .badge-brand {
+    @apply badge bg-brand-50 text-brand-800;
+  }
+
+  .badge-teal {
+    @apply badge bg-teal-50 text-teal-800;
+  }
+
+  .badge-amber {
+    @apply badge bg-amber-50 text-amber-600;
+  }
+
+  .badge-neutral {
+    @apply badge bg-neutral-100 text-neutral-600;
+  }
+
+  .nav-icon {
+    @apply flex items-center justify-center w-10 h-10 rounded-xl text-neutral-500 hover:bg-brand-50 hover:text-brand-600 transition-all cursor-pointer;
+  }
+
+  .nav-icon.active {
+    @apply bg-brand-50 text-brand-600;
+  }
+
+  .section-label {
+    @apply text-[11px] font-semibold tracking-widest text-neutral-400 uppercase mb-3;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e2e2e2; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #c8c8c8; }
+
+/* Smooth scroll for main content */
+.scroll-smooth { scroll-behavior: smooth; }
