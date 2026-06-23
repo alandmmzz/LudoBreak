@@ -1,32 +1,41 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import AppShell from '@/components/layout/AppShell'
 
+const GUEST_PROFILE = {
+  id: 'guest',
+  email: '',
+  name: 'Invitado',
+  avatar_url: null,
+  provider: 'github' as const,
+  created_at: new Date().toISOString(),
+  active_group_id: null,
+}
+
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/auth')
+  let profile = GUEST_PROFILE
+  let allGroups: { id: string; name: string; emoji: string }[] = []
+  let activeGroup = null
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  try {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-  // Get all groups this user belongs to
-  const { data: memberships } = await supabase
-    .from('group_members')
-    .select('group:groups(id, name, emoji)')
-    .eq('user_id', user.id)
+    if (user) {
+      const { data: p } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      if (p) profile = p
 
-  const allGroups = (memberships ?? [])
-    .map((m: any) => m.group)
-    .filter(Boolean) as { id: string; name: string; emoji: string }[]
+      const { data: memberships } = await supabase
+        .from('group_members')
+        .select('group:groups(id, name, emoji)')
+        .eq('user_id', user.id)
 
-  const activeGroup = allGroups.find(g => g.id === profile?.active_group_id) ?? null
+      allGroups = (memberships ?? []).map((m: any) => m.group).filter(Boolean)
+      activeGroup = allGroups.find(g => g.id === profile?.active_group_id) ?? null
+    }
+  } catch {}
 
   return (
-    <AppShell profile={profile} activeGroup={activeGroup} allGroups={allGroups}>
+    <AppShell profile={profile} activeGroup={activeGroup} allGroups={allGroups} isGuest={profile.id === 'guest'}>
       {children}
     </AppShell>
   )
