@@ -7,21 +7,17 @@ export const config = {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Siempre permitir estas rutas
-  if (
-    pathname.startsWith('/auth') ||
-    pathname.startsWith('/join') ||
-    pathname === '/'
-  ) {
+  // Rutas públicas — siempre dejar pasar
+  if (pathname.startsWith('/auth') || pathname.startsWith('/join') || pathname === '/') {
     return NextResponse.next()
   }
 
-  // Buscar cualquier cookie de sesión de Supabase
+  // Para rutas protegidas, checar cookie de sesión
   const cookies = request.cookies.getAll()
   const hasSession = cookies.some(c =>
-    c.name.startsWith('sb-') ||
-    c.name.includes('supabase') ||
-    c.name.includes('auth-token')
+    c.name.includes('auth-token') ||
+    c.name.includes('access-token') ||
+    c.name.startsWith('sb-')
   )
 
   if (!hasSession) {

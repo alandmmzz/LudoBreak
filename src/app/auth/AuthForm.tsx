@@ -8,23 +8,37 @@ import { Github } from 'lucide-react'
 export default function AuthForm() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
 
   useEffect(() => {
+    const supabase = createClient()
+    // Detecta sesión existente
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) router.replace('/poll')
     })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) router.replace('/poll')
+    // Escucha cuando el token llega en el hash (implicit flow)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        // Crear perfil
+        await supabase.from('profiles').upsert({
+          id: session.user.id,
+          email: session.user.email!,
+          name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email!.split('@')[0],
+          avatar_url: session.user.user_metadata?.avatar_url || null,
+          provider: session.user.app_metadata?.provider || 'github',
+        }, { onConflict: 'id' })
+        router.replace('/poll')
+      }
     })
     return () => subscription.unsubscribe()
   }, [])
 
   async function signIn(provider: 'github' | 'google') {
     setLoading(true)
+    const supabase = createClient()
+    // redirectTo apunta a la misma página — Supabase procesa el hash automáticamente
     await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: window.location.origin + '/auth/callback' },
+      options: { redirectTo: window.location.origin + '/auth' },
     })
   }
 
