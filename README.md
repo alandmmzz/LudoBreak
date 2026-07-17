@@ -1,85 +1,43 @@
-# 🎲 Ludo Break
+# LudoBreak
 
-¿Qué jugamos hoy? — Votá, jugá, y llevá el score del grupo.
+Versión mínima: una sola pantalla donde cualquiera que entre puede votar
+qué juego de mesa se juega hoy, entre una lista fija de opciones. Sin
+login. El voto queda guardado en Supabase y no se puede cambiar una vez
+enviado.
 
-## Setup rápido
+## Setup
 
-### 1. Cloná e instalá
+1. Instalar dependencias:
+   ```
+   npm install
+   ```
 
-```bash
-git clone https://github.com/TU_USUARIO/ludo-break
-cd ludo-break
-npm install
-```
+2. Crear un proyecto en [supabase.com](https://supabase.com) (o reusar el
+   que ya tenías) y correr `supabase/migration.sql` en el SQL Editor.
 
-### 2. Configurá Supabase
+3. Copiar `.env.local.example` a `.env.local` y completar con la URL y
+   la anon key de tu proyecto de Supabase (Project Settings → API).
 
-1. Creá un proyecto en [supabase.com](https://supabase.com)
-2. Andá a **SQL Editor** y corré todo el contenido de `supabase/migration.sql`
-3. En **Authentication → Providers**, activá **GitHub** y **Google**:
-   - **GitHub**: creá una OAuth App en github.com/settings/developers  
-     - Callback URL: `https://TU_PROJECT.supabase.co/auth/v1/callback`
-   - **Google**: creá credenciales en console.cloud.google.com  
-     - Callback URL: `https://TU_PROJECT.supabase.co/auth/v1/callback`
-4. Copiá las keys desde **Project Settings → API**
+4. Correr en local:
+   ```
+   npm run dev
+   ```
 
-### 3. Variables de entorno
+## Cómo agregar/cambiar los juegos
 
-```bash
-cp .env.local.example .env.local
-# Editá .env.local con tus valores de Supabase
-```
+Están hardcodeados en `src/lib/games.ts`. Agregar un objeto al array
+alcanza — no hace falta tocar la base de datos para eso todavía.
 
-### 4. Corré localmente
+## Qué quedó afuera (a propósito)
 
-```bash
-npm run dev
-# → http://localhost:3000
-```
+Se sacó todo lo que traía el proyecto original: login, grupos, códigos
+de invitación, integración con BGG y el dashboard de stats. La idea es
+reconstruir eso de a poco, ahora que hay una base simple que funciona.
+Los votos ya están quedando guardados en la tabla `votes`, así que el
+dashboard del próximo paso puede leer de ahí directamente.
 
-### 5. Deploy en Vercel
+## Deploy
 
-```bash
-# Push a GitHub primero
-git add . && git commit -m "init" && git push
-
-# En vercel.com: importá el repo y agregá las env vars:
-# NEXT_PUBLIC_SUPABASE_URL
-# NEXT_PUBLIC_SUPABASE_ANON_KEY
-```
-
-En Supabase → Authentication → URL Configuration, agregá tu URL de Vercel como **Site URL**.
-
----
-
-## Stack
-
-- **Next.js 14** — App Router + Server Components
-- **Supabase** — Postgres + Auth OAuth + Realtime
-- **BoardGameGeek API** — catálogo de juegos
-- **Recharts** — gráficos de estadísticas
-- **Tailwind CSS** — estilos
-- **Vercel** — deploy
-
-## Estructura
-
-```
-src/
-  app/
-    auth/          → Login con GitHub/Google
-    (app)/
-      poll/        → Poll del día + votos
-      stats/       → Charts y leaderboard  
-      games/       → Catálogo con búsqueda BGG
-    api/
-      games/       → POST agregar juego, GET search BGG
-  components/
-    layout/        → AppShell (sidebar + bottom bar)
-    poll/          → PollView, SessionForm
-    stats/         → StatsView con Recharts
-    games/         → GamesView con búsqueda
-    ui/            → Avatar, etc.
-  lib/
-    supabase/      → client, server, middleware
-    bgg.ts         → BGG API helper
-```
+Pensado para Vercel (`vercel.json` ya está configurado). Solo hay que
+setear las mismas variables de entorno de `.env.local` en el proyecto
+de Vercel.
