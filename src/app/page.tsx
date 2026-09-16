@@ -1,11 +1,66 @@
-import VoteForm from '@/components/VoteForm'
+'use client'
 
-export default function HomePage() {
+import { useState } from 'react'
+import { GameBoxCarousel } from '@/components/game-box-carousel'
+
+const games = [
+  { title: 'Quest', genre: 'Hidden roles · 5–10 players', time: '30–45 min', votes: 7, accent: 'gold', cover: '/games/quest.png', backdrop: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=2200&q=85' },
+  { title: 'Exploding Kittens', genre: 'Party · 2–5 players', time: '15–20 min', votes: 4, accent: 'red', cover: '/games/exploding-kittens.png', backdrop: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=2200&q=85' },
+  { title: 'Secret Hitler', genre: 'Hidden roles · 5–10 players', time: '45–60 min', votes: 3, accent: 'orange', cover: '/games/secret-hitler.png', backdrop: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2200&q=85' },
+  { title: 'Saboteur 2', genre: 'Bluffing · 2–12 players', time: '30–45 min', votes: 2, accent: 'teal', cover: '/games/saboteur-2.png', backdrop: 'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=2200&q=85' },
+]
+
+export default function Home() {
+  const [active, setActive] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [selectedVotes, setSelectedVotes] = useState<number[]>([])
+  const voted = selectedVotes.includes(active)
+  const toggleVote = () => setSelectedVotes((votes) => votes.includes(active) ? votes.filter((vote) => vote !== active) : [...votes, active])
+  const submitVotes = () => setSelectedVotes([])
+  const [transition, setTransition] = useState<'next' | 'previous'>('next')
+  const [transitionKey, setTransitionKey] = useState(0)
+  const game = games[active]
+  const changeGame = (direction: 'next' | 'previous', index: number) => {
+    setTransition(direction)
+    setTransitionKey((key) => key + 1)
+    setActive(index)
+  }
+  const previous = () => changeGame('previous', (active - 1 + games.length) % games.length)
+  const next = () => changeGame('next', (active + 1) % games.length)
+
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md">
-        <VoteForm />
-      </div>
+    <main className="night-app" style={{ '--backdrop': `url(${game.backdrop})` } as React.CSSProperties}>
+      <div key={transitionKey} className="backdrop backdrop-enter" aria-hidden="true" />
+      <header className="night-header">
+        <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
+        <div className="night-logo"><b>LB</b><span>LudoBreak</span></div>
+        <div className="header-group"><i /> Los jueves <span>4 jugadores</span></div>
+        <button className="profile-pill" aria-label="Abrir perfil"><span>A</span><b>Aland</b></button>
+      </header>
+
+      <aside className={`night-menu ${menuOpen ? 'open' : ''}`}>
+        <p>Tu mesa</p>
+        {['Inicio', 'Mi biblioteca', 'Partidas', 'Estadísticas'].map((item, index) => <button className={index === 0 ? 'selected' : ''} key={item} onClick={() => { setMenuOpen(false); if (index === 1) changeGame('next', 2) }}><span>{['⌂', '▦', '◷', '⌁'][index]}</span>{item}</button>)}
+        <div className="menu-rule" />
+        <p>Comunidad</p>
+        <button onClick={() => setMenuOpen(false)}><span>♧</span>Invitar amigos</button>
+        <button onClick={() => setMenuOpen(false)}><span>⚙</span>Ajustes</button>
+      </aside>
+
+      <section className="hero-content">
+        <div className="group-kicker"><span /> GROUP <span /></div>
+        <h1>GAME NIGHT CREW</h1>
+        <p className="hero-subtitle">PICK YOUR GAME</p>
+        <div className="carousel-meta"><span>{game.genre}</span><b>•</b><span>{game.time}</span></div>
+        <div className="game-carousel three-game-carousel">
+          <button className="carousel-arrow left" onClick={previous} aria-label="Juego anterior">←</button>
+          <GameBoxCarousel games={games} active={active} selectedVotes={selectedVotes} onSelect={(index) => changeGame(index > active ? 'next' : 'previous', index)} />
+          <button className="carousel-arrow right" onClick={next} aria-label="Siguiente juego">→</button>
+        </div>
+        <div className="carousel-dots">{games.map((item, index) => <button key={item.title} className={index === active ? 'active' : ''} onClick={() => changeGame(index > active ? 'next' : 'previous', index)} aria-label={`Ver ${item.title}`} />)}</div>
+        <div className="vote-area"><button className={`vote-button ${voted ? 'confirmed' : ''}`} onClick={toggleVote}>{voted ? 'VOTED' : 'VOTE'} <span>· {game.votes + (voted ? 1 : 0)} votes</span></button><button className="submit-votes" onClick={submitVotes} disabled={selectedVotes.length === 0} style={{ border: '1px solid rgba(216,170,54,.65)', background: 'rgba(216,170,54,.12)', color: '#f4d98b', padding: '10px 15px', fontSize: 10, letterSpacing: '1.5px' }}>SUBMIT VOTES <span>({selectedVotes.length})</span></button><p>{selectedVotes.length ? `${selectedVotes.length} juego${selectedVotes.length === 1 ? '' : 's'} seleccionado${selectedVotes.length === 1 ? '' : 's'}` : 'Vote for what we play tonight'}</p></div>
+      </section>
+      <footer className="night-footer"><span>FRI 24 OCT · 20:00</span><span>GAME NIGHT #18</span><span>© LUDOBREAK</span></footer>
     </main>
   )
 }
