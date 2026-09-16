@@ -13,7 +13,10 @@ const games = [
 export default function Home() {
   const [active, setActive] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [voted, setVoted] = useState(false)
+  const [selectedVotes, setSelectedVotes] = useState<number[]>([])
+  const voted = selectedVotes.includes(active)
+  const toggleVote = () => setSelectedVotes((votes) => votes.includes(active) ? votes.filter((vote) => vote !== active) : [...votes, active])
+  const submitVotes = () => setSelectedVotes([])
   const [transition, setTransition] = useState<'next' | 'previous'>('next')
   const [transitionKey, setTransitionKey] = useState(0)
   const game = games[active]
@@ -21,7 +24,6 @@ export default function Home() {
     setTransition(direction)
     setTransitionKey((key) => key + 1)
     setActive(index)
-    setVoted(false)
   }
   const previous = () => changeGame('previous', (active - 1 + games.length) % games.length)
   const next = () => changeGame('next', (active + 1) % games.length)
@@ -52,11 +54,11 @@ export default function Home() {
         <div className="carousel-meta"><span>{game.genre}</span><b>•</b><span>{game.time}</span></div>
         <div className="game-carousel three-game-carousel">
           <button className="carousel-arrow left" onClick={previous} aria-label="Juego anterior">←</button>
-          <GameBoxCarousel games={games} active={active} voted={voted} onSelect={(index) => changeGame(index > active ? 'next' : 'previous', index)} />
+          <GameBoxCarousel games={games} active={active} selectedVotes={selectedVotes} onSelect={(index) => changeGame(index > active ? 'next' : 'previous', index)} />
           <button className="carousel-arrow right" onClick={next} aria-label="Siguiente juego">→</button>
         </div>
         <div className="carousel-dots">{games.map((item, index) => <button key={item.title} className={index === active ? 'active' : ''} onClick={() => changeGame(index > active ? 'next' : 'previous', index)} aria-label={`Ver ${item.title}`} />)}</div>
-        <div className="vote-area"><button className={`vote-button ${voted ? 'confirmed' : ''}`} onClick={() => setVoted(true)}>{voted ? 'VOTED' : 'VOTE'} <span>· {game.votes + (voted ? 1 : 0)} votes</span></button><p>{voted ? `Tu voto por ${game.title} quedó registrado` : 'Vote for what we play tonight'}</p></div>
+        <div className="vote-area"><button className={`vote-button ${voted ? 'confirmed' : ''}`} onClick={toggleVote}>{voted ? 'VOTED' : 'VOTE'} <span>· {game.votes + (voted ? 1 : 0)} votes</span></button><button className="submit-votes" onClick={submitVotes} disabled={selectedVotes.length === 0} style={{ border: '1px solid rgba(216,170,54,.65)', background: 'rgba(216,170,54,.12)', color: '#f4d98b', padding: '10px 15px', fontSize: 10, letterSpacing: '1.5px' }}>SUBMIT VOTES <span>({selectedVotes.length})</span></button><p>{selectedVotes.length ? `${selectedVotes.length} juego${selectedVotes.length === 1 ? '' : 's'} seleccionado${selectedVotes.length === 1 ? '' : 's'}` : 'Vote for what we play tonight'}</p></div>
       </section>
       <footer className="night-footer"><span>FRI 24 OCT · 20:00</span><span>GAME NIGHT #18</span><span>© LUDOBREAK</span></footer>
     </main>

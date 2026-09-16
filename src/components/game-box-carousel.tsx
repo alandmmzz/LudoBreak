@@ -14,7 +14,7 @@ type Game = {
 type GameBoxCarouselProps = {
   games: Game[]
   active: number
-  voted: boolean
+  selectedVotes: number[]
   onSelect: (index: number) => void
 }
 
@@ -30,12 +30,26 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
   const isCenter = Math.abs(offset) < 0.12
   const rotation = offset * -0.18
   const x = offset * 1.5
-  const y = 0.18 + distance * distance * 0.14 + (selected && voted ? 0.62 : 0)
-  const z = -0.08 - distance * distance * 0.12 + (selected && voted ? 0.3 : 0)
-  const scale = THREE.MathUtils.clamp(0.98 - distance * 0.24, 0.28, 0.98) + (selected && voted ? 0.1 : 0)
+  const y = 0.18 + distance * distance * 0.14 + (voted ? 0.62 : 0)
+  const z = -0.08 - distance * distance * 0.12 + (voted ? 0.3 : 0)
+  const scale = THREE.MathUtils.clamp(0.98 - distance * 0.24, 0.28, 0.98) + (voted ? 0.1 : 0)
   const opacity = THREE.MathUtils.clamp(1 - distance * 0.3, 0, 1)
-  const color = accentColors[game.accent] ?? '#a98150'
+  const color = new THREE.Color(accentColors[game.accent] ?? '#a98150').lerp(new THREE.Color('#182020'), THREE.MathUtils.clamp(distance * 0.18, 0, 0.58)).getStyle()
   const edge = useMemo(() => new THREE.Color(color).multiplyScalar(0.62), [color])
+  const glowTexture = useMemo(() => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 128
+    canvas.height = 128
+    const context = canvas.getContext('2d')!
+    const gradient = context.createRadialGradient(64, 64, 4, 64, 64, 64)
+    const glowColor = new THREE.Color(color).getStyle()
+    gradient.addColorStop(0, glowColor.replace('rgb', 'rgba').replace(')', ', 0.8)'))
+    gradient.addColorStop(0.3, glowColor.replace('rgb', 'rgba').replace(')', ', 0.35)'))
+    gradient.addColorStop(1, glowColor.replace('rgb', 'rgba').replace(')', ', 0)'))
+    context.fillStyle = gradient
+    context.fillRect(0, 0, 128, 128)
+    return new THREE.CanvasTexture(canvas)
+  }, [color])
   const groupRef = useRef<THREE.Group>(null)
 
   useFrame((_, delta) => {
@@ -57,11 +71,11 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
 
   return (
     <group ref={groupRef} position={[x, y, z]} rotation={[0, rotation, offset * -0.08]} scale={scale} onClick={onSelect}>
-      {selected && voted && <>
+      {voted && <>
         <pointLight position={[0, 0.2, -0.5]} color={color} intensity={3.5} distance={4.5} decay={2} />
         <mesh position={[0, 0, -0.7]} rotation={[0, 0, 0]}>
-          <circleGeometry args={[1.25, 48]} />
-          <meshBasicMaterial color={color} transparent opacity={0.045} depthWrite={false} blending={THREE.AdditiveBlending} />
+          <planeGeometry args={[3.4, 2.3]} />
+          <meshBasicMaterial map={glowTexture} transparent opacity={0.9} depthWrite={false} blending={THREE.AdditiveBlending} />
         </mesh>
       </>}
       <mesh castShadow receiveShadow>
@@ -86,7 +100,7 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
   )
 }
 
-export function GameBoxCarousel({ games, active, voted, onSelect }: GameBoxCarouselProps) {
+export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: GameBoxCarouselProps) {
   const [dragStart, setDragStart] = useState<number | null>(null)
   const [dragOffset, setDragOffset] = useState(0)
   const dragged = useRef(false)
@@ -132,6 +146,7 @@ export function GameBoxCarousel({ games, active, voted, onSelect }: GameBoxCarou
       }}
     >
       <Canvas shadows camera={{ position: [0, 2.55, 8.6], fov: 32 }} dpr={[1, 1.5]}>
+        <fog attach="fog" args={['#111817', 6.5, 11.5]} />
         <ambientLight intensity={1.8} />
         <directionalLight position={[0, 6, 5]} intensity={3} castShadow shadow-mapSize={[1024, 1024]} />
         <pointLight position={[-5, 2, 2]} intensity={1.2} color="#f6d28c" />
@@ -140,7 +155,7 @@ export function GameBoxCarousel({ games, active, voted, onSelect }: GameBoxCarou
             const index = ((active + slot) % games.length + games.length) % games.length
             const offset = slot + dragOffset
             const game = games[index]
-            return <BoardGameBox key={`${game.title}-${slot}`} game={game} offset={offset} selected={slot === 0} voted={voted} onSelect={() => onSelect(index)} />
+            return <BoardGameBox key={`${game.title}-${slot}`} game={game} offset={offset} selected={slot === 0} voted={selectedVotes.includes(index)} onSelect={() => onSelect(index)} />
           })}
         </group>
         <ContactShadows position={[0, -0.72, 0]} opacity={0.28} scale={12} blur={2.6} far={5} />
