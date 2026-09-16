@@ -2,8 +2,9 @@
 
 import { Canvas } from '@react-three/fiber'
 import { ContactShadows, OrbitControls, Text } from '@react-three/drei'
-import { useMemo } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
+import { useFrame } from '@react-three/fiber'
 
 type Game = {
   title: string
@@ -24,7 +25,7 @@ const accentColors: Record<string, string> = {
   red: '#9f403b',
 }
 
-function BoardGameBox({ game, offset, index, onSelect }: { game: Game; offset: number; index: number; onSelect: () => void }) {
+function BoardGameBox({ game, offset, onSelect }: { game: Game; offset: number; onSelect: () => void }) {
   const distance = Math.abs(offset)
   const rotation = offset * -0.13
   const x = offset * 1.16
@@ -33,9 +34,19 @@ function BoardGameBox({ game, offset, index, onSelect }: { game: Game; offset: n
   const opacity = 1 - distance * 0.16
   const color = accentColors[game.accent] ?? '#a98150'
   const edge = useMemo(() => new THREE.Color(color).multiplyScalar(0.62), [color])
+  const groupRef = useRef<THREE.Group>(null)
+
+  useFrame((_, delta) => {
+    if (!groupRef.current) return
+    const easing = 1 - Math.exp(-delta * 9)
+    groupRef.current.position.lerp(new THREE.Vector3(x, y, -distance * 0.14), easing)
+    groupRef.current.rotation.y = THREE.MathUtils.damp(groupRef.current.rotation.y, rotation, 9, delta)
+    groupRef.current.rotation.z = THREE.MathUtils.damp(groupRef.current.rotation.z, offset * -0.035, 9, delta)
+    groupRef.current.scale.lerp(new THREE.Vector3(scale, scale, scale), easing)
+  })
 
   return (
-    <group position={[x, y, -distance * 0.14]} rotation={[0, rotation, offset * -0.035]} scale={scale} onClick={onSelect}>
+    <group ref={groupRef} position={[x, y, -distance * 0.14]} rotation={[0, rotation, offset * -0.035]} scale={scale} onClick={onSelect}>
       <mesh castShadow receiveShadow>
         <boxGeometry args={[2.45, 0.72, 1.7]} />
         <meshStandardMaterial color="#b98c5d" roughness={0.82} transparent opacity={opacity} />
@@ -59,8 +70,43 @@ function BoardGameBox({ game, offset, index, onSelect }: { game: Game; offset: n
 }
 
 export function GameBoxCarousel({ games, active, onSelect }: GameBoxCarouselProps) {
+  const [dragStart, setDragStart] = useState<number | null>(null)
+  const dragged = useRef(false)
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    setDragStart(event.clientX)
+    dragged.current = false
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (dragStart === null) return
+    if (Math.abs(event.clientX - dragStart) > 8) dragged.current = true
+  }
+
+  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (dragStart === null) return
+    const distance = event.clientX - dragStart
+    setDragStart(null)
+    if (Math.abs(distance) < 55) return
+    onSelect((active + (distance < 0 ? 1 : -1) + games.length) % games.length)
+  }
+
   return (
-    <div className="three-carousel" aria-label="Carrusel 3D de juegos">
+    <div
+      className="three-carousel"
+      aria-label="Carrusel 3D de juegos"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={() => setDragStart(null)}
+      onClickCapture={(event) => {
+        if (dragged.current) {
+          event.stopPropagation()
+          dragged.current = false
+        }
+      }}
+    >
       <Canvas shadows camera={{ position: [0, 3.6, 8.2], fov: 34 }} dpr={[1, 1.5]}>
         <ambientLight intensity={1.8} />
         <directionalLight position={[0, 6, 5]} intensity={3} castShadow shadow-mapSize={[1024, 1024]} />
@@ -68,7 +114,7 @@ export function GameBoxCarousel({ games, active, onSelect }: GameBoxCarouselProp
         <group position={[0, 0.72, 0]}>
           {positions.map((offset) => {
             const index = ((active + offset) % games.length + games.length) % games.length
-            return <BoardGameBox key={`${offset}-${active}`} game={games[index]} offset={offset} index={index} onSelect={() => onSelect(index)} />
+            return <BoardGameBox key={offset} game={games[index]} offset={offset} onSelect={() => onSelect(index)} />
           })}
         </group>
         <ContactShadows position={[0, -0.72, 0]} opacity={0.28} scale={12} blur={2.6} far={5} />
