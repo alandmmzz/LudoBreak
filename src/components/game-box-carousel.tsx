@@ -56,18 +56,18 @@ function BoardGameBox({ game, offset, onSelect }: { game: Game; offset: number; 
   return (
     <group ref={groupRef} position={[x, y, z]} rotation={[0, rotation, offset * -0.08]} scale={scale} onClick={onSelect}>
       <mesh castShadow receiveShadow>
-        <boxGeometry args={[2.25, 0.42, 1.28]} />
+        <boxGeometry args={[2.25, 0.72, 1.28]} />
         <meshStandardMaterial color="#b98c5d" roughness={0.82} transparent opacity={opacity} />
       </mesh>
-      <mesh position={[0, 0.27, 0]} castShadow>
+      <mesh position={[0, 0.42, 0]} castShadow>
         <boxGeometry args={[2.38, 0.07, 1.4]} />
         <meshStandardMaterial color={color} roughness={0.72} transparent opacity={opacity} />
       </mesh>
       <mesh position={[0, 0, 0.66]}>
-        <planeGeometry args={[2.2, 0.31]} />
+        <planeGeometry args={[2.2, 0.58]} />
         <meshStandardMaterial color={edge} roughness={0.8} transparent opacity={opacity} />
       </mesh>
-      <Text position={[0, 0.02, 0.67]} fontSize={0.22} maxWidth={2.05} anchorX="center" anchorY="middle" color="#f7ead1" fillOpacity={opacity} outlineWidth={0.008} outlineColor="#5a3925">
+      <Text position={[0, 0.02, 0.67]} fontSize={0.2} maxWidth={2.08} anchorX="center" anchorY="middle" color="#f7ead1" fillOpacity={opacity} outlineWidth={0.008} outlineColor="#5a3925">
         {game.title.toUpperCase()}
       </Text>
       <Text position={[0, 0.31, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.13} maxWidth={2.1} anchorX="center" anchorY="middle" color="#fff2d1" fillOpacity={opacity * 0.9}>
