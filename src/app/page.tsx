@@ -1,30 +1,59 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
-type Game = { title: string; meta: string; players: string; image: string; status: string }
-
-const games: Game[] = [
-  { title: 'Catan', meta: '1995 · Klaus Teuber', players: '3–4 jugadores', image: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=800&q=85', status: 'Propio' },
-  { title: 'Wingspan', meta: '2019 · Elizabeth Hargrave', players: '1–5 jugadores', image: 'https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?auto=format&fit=crop&w=800&q=85', status: 'Propio' },
-  { title: 'Root', meta: '2018 · Cole Wehrle', players: '2–4 jugadores', image: 'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=800&q=85', status: 'Prestado' },
-  { title: 'Azul', meta: '2017 · Michael Kiesling', players: '2–4 jugadores', image: 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?auto=format&fit=crop&w=800&q=85', status: 'Propio' },
+const games = [
+  { title: 'Pandemic', genre: 'Co-op · 2–4 players', time: '45–60 min', votes: 7, accent: 'gold', cover: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=900&q=85', backdrop: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=2200&q=85' },
+  { title: 'Wingspan', genre: 'Engine builder · 1–5 players', time: '40–70 min', votes: 4, accent: 'orange', cover: 'https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?auto=format&fit=crop&w=900&q=85', backdrop: 'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=2200&q=85' },
+  { title: 'Ticket to Ride', genre: 'Family · 2–5 players', time: '30–60 min', votes: 3, accent: 'teal', cover: 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?auto=format&fit=crop&w=900&q=85', backdrop: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2200&q=85' },
+  { title: 'Codenames', genre: 'Party · 4–8 players', time: '15–30 min', votes: 2, accent: 'red', cover: 'https://images.unsplash.com/photo-1611891487122-207579d67d98?auto=format&fit=crop&w=900&q=85', backdrop: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=2200&q=85' },
 ]
-const activity = [{ name: 'Aland', action: 'registró una partida de', game: 'Catan', time: 'Hace 2 h', avatar: 'A' }, { name: 'Juan', action: 'se unió al grupo', game: 'Los jueves', time: 'Ayer', avatar: 'J' }, { name: 'Agus', action: 'votó en', game: '¿Qué jugamos?', time: 'Ayer', avatar: 'A' }]
 
 export default function Home() {
-  const [active, setActive] = useState('Inicio')
-  const [query, setQuery] = useState('')
-  const [voted, setVoted] = useState<string | null>(null)
-  const [showAll, setShowAll] = useState(false)
-  const filtered = useMemo(() => games.filter((game) => game.title.toLowerCase().includes(query.toLowerCase())), [query])
-  return <main className="app-shell">
-    <aside className="sidebar"><div className="brand"><span className="brand-mark">LB</span><span>LudoBreak</span></div><div className="profile-card"><div className="avatar avatar-lilac">A</div><div><strong>Aland</strong><span>Mi espacio</span></div><span className="chevron">⌄</span></div><nav aria-label="Navegación principal"><p className="nav-label">Espacio personal</p>{['Inicio', 'Mi biblioteca', 'Mis partidas'].map((item) => <button key={item} className={`nav-item ${active === item ? 'active' : ''}`} onClick={() => setActive(item)}><span className="nav-dot">{item === 'Inicio' ? '⌂' : item === 'Mi biblioteca' ? '▦' : '◷'}</span>{item}</button>)}<p className="nav-label nav-spaced">Comunidad</p>{['Grupos', 'Estadísticas'].map((item) => <button key={item} className={`nav-item ${active === item ? 'active' : ''}`} onClick={() => setActive(item)}><span className="nav-dot">{item === 'Grupos' ? '♧' : '⌁'}</span>{item}</button>)}</nav><div className="sidebar-bottom"><button className="nav-item"><span className="nav-dot">?</span>Ayuda</button><button className="nav-item"><span className="nav-dot">⚙</span>Ajustes</button></div></aside>
-    <section className="content"><header className="topbar"><div className="mobile-brand"><span className="brand-mark">LB</span>LudoBreak</div><div className="search-wrap"><span>⌕</span><input aria-label="Buscar" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar en tu colección..." /><kbd>⌘ K</kbd></div><button className="icon-button" aria-label="Notificaciones">♧<i /></button><div className="avatar avatar-lilac">A</div></header>
-      <div className="page-heading"><div><p className="eyebrow">MI ESPACIO</p><h1>{active === 'Inicio' ? 'Hola, Aland' : active}</h1><p className="subtitle">{active === 'Inicio' ? 'Todo listo para tu próxima partida.' : 'Gestioná tu colección y tus partidas.'}</p></div><button className="primary-button" onClick={() => setActive('Mi biblioteca')}><span>＋</span> Agregar juego</button></div>
-      <div className="stats-row"><div className="stat-card"><span className="stat-icon peach">▦</span><div><strong>24</strong><span>juegos en tu colección</span></div><small>+3 este mes</small></div><div className="stat-card"><span className="stat-icon lilac">◷</span><div><strong>86</strong><span>partidas registradas</span></div><small>+12 este mes</small></div><div className="stat-card"><span className="stat-icon mint">♧</span><div><strong>3</strong><span>grupos activos</span></div><small>2 votaciones abiertas</small></div></div>
-      <div className="main-grid"><section className="panel collection-panel"><div className="panel-header"><div><h2>Tu colección</h2><p>Los juegos que tenés disponibles</p></div><button className="text-button" onClick={() => setShowAll(!showAll)}>{showAll ? 'Ver menos' : 'Ver todos'} <span>→</span></button></div><div className="game-grid">{filtered.slice(0, showAll ? 4 : 3).map((game) => <article className="game-card" key={game.title}><div className="game-image"><img src={game.image} alt={`Caja de ${game.title}`} /><span className={`game-status ${game.status === 'Prestado' ? 'borrowed' : ''}`}>{game.status}</span></div><div className="game-info"><h3>{game.title}</h3><p>{game.meta}</p><div><span>{game.players}</span><span className="rating">★ 8.2</span></div></div></article>)}</div></section>
-        <section className="panel vote-panel"><div className="panel-header"><div><h2>¿Qué jugamos?</h2><p>Votá para la próxima partida</p></div><span className="live-badge"><i /> Abierta</span></div><div className="vote-meta"><strong>Los jueves</strong><span>·</span><span>4 jugadores</span><span className="vote-time">Cierra mañana</span></div><div className="vote-list">{['Wingspan', 'Catan', 'Root'].map((title, index) => <button key={title} className={`vote-option ${voted === title ? 'selected' : ''}`} onClick={() => setVoted(title)}><span className="radio">{voted === title ? '✓' : ''}</span><span>{title}</span><em>{[7, 5, 3][index]} votos</em></button>)}</div><button className="vote-button" disabled={!voted} onClick={() => setVoted('sent')}>{voted === 'sent' ? 'Voto enviado' : 'Enviar mi voto'}</button><p className="vote-note">Podés votar una sola vez.</p></section></div>
-      <div className="bottom-grid"><section className="panel activity-panel"><div className="panel-header"><div><h2>Actividad reciente</h2><p>Lo que pasa en tus grupos</p></div><button className="text-button">Ver todo <span>→</span></button></div><div className="activity-list">{activity.map((item) => <div className="activity-item" key={item.name + item.game}><div className={`avatar ${item.avatar === 'J' ? 'avatar-peach' : 'avatar-mint'}`}>{item.avatar}</div><p><strong>{item.name}</strong> {item.action} <b>{item.game}</b><span>{item.time}</span></p><span className="activity-arrow">→</span></div>)}</div></section><section className="panel next-panel"><p className="eyebrow">PRÓXIMA PARTIDA</p><div className="next-date"><strong>JUE</strong><b>24</b><span>OCT</span></div><div><h2>Los jueves</h2><p>En 3 días · 20:00</p><div className="member-stack"><span>A</span><span>J</span><span>+</span><small>4 confirmados</small></div></div><button className="outline-button">Ver grupo <span>→</span></button></section></div><footer><span>© 2024 LudoBreak</span><span>Hecho para jugar más, organizar menos.</span><span>Privacidad · Términos</span></footer></section>
-  </main>
+  const [active, setActive] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [voted, setVoted] = useState(false)
+  const game = games[active]
+  const previous = () => setActive((active - 1 + games.length) % games.length)
+  const next = () => setActive((active + 1) % games.length)
+
+  return (
+    <main className="night-app" style={{ '--backdrop': `url(${game.backdrop})` } as React.CSSProperties}>
+      <div className="backdrop" aria-hidden="true" />
+      <header className="night-header">
+        <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
+        <div className="night-logo"><b>LB</b><span>LudoBreak</span></div>
+        <div className="header-group"><i /> Los jueves <span>4 jugadores</span></div>
+        <button className="profile-pill" aria-label="Abrir perfil"><span>A</span><b>Aland</b></button>
+      </header>
+
+      <aside className={`night-menu ${menuOpen ? 'open' : ''}`}>
+        <p>Tu mesa</p>
+        {['Inicio', 'Mi biblioteca', 'Partidas', 'Estadísticas'].map((item, index) => <button className={index === 0 ? 'selected' : ''} key={item} onClick={() => { setMenuOpen(false); if (index === 1) setActive(2) }}><span>{['⌂', '▦', '◷', '⌁'][index]}</span>{item}</button>)}
+        <div className="menu-rule" />
+        <p>Comunidad</p>
+        <button onClick={() => setMenuOpen(false)}><span>♧</span>Invitar amigos</button>
+        <button onClick={() => setMenuOpen(false)}><span>⚙</span>Ajustes</button>
+      </aside>
+
+      <section className="hero-content">
+        <div className="group-kicker"><span /> GROUP <span /></div>
+        <h1>GAME NIGHT CREW</h1>
+        <p className="hero-subtitle">PICK YOUR GAME</p>
+        <div className="carousel-meta"><span>{game.genre}</span><b>•</b><span>{game.time}</span></div>
+        <div className="game-carousel">
+          <button className="carousel-arrow left" onClick={previous} aria-label="Juego anterior">←</button>
+          <div className="side-box far-left" onClick={previous}><div className="box-face"><img src={games[(active + 2) % games.length].cover} alt="" /><strong>{games[(active + 2) % games.length].title}</strong></div></div>
+          <div className="side-box near-left" onClick={previous}><div className="box-face"><img src={games[(active + 3) % games.length].cover} alt="" /><strong>{games[(active + 3) % games.length].title}</strong></div></div>
+          <div className={`hero-box ${game.accent}`}><div className="box-face"><img src={game.cover} alt={`Caja de ${game.title}`} /><div className="box-overlay" /><strong>{game.title}</strong><small>{game.genre.split(' · ')[0].toUpperCase()}</small></div><div className="box-side"><span>{game.title}</span></div></div>
+          <div className="side-box near-right" onClick={next}><div className="box-face"><img src={games[(active + 1) % games.length].cover} alt="" /><strong>{games[(active + 1) % games.length].title}</strong></div></div>
+          <div className="side-box far-right" onClick={next}><div className="box-face"><img src={games[(active + 2) % games.length].cover} alt="" /><strong>{games[(active + 2) % games.length].title}</strong></div></div>
+          <button className="carousel-arrow right" onClick={next} aria-label="Siguiente juego">→</button>
+        </div>
+        <div className="carousel-dots">{games.map((item, index) => <button key={item.title} className={index === active ? 'active' : ''} onClick={() => setActive(index)} aria-label={`Ver ${item.title}`} />)}</div>
+        <div className="vote-area"><button className={`vote-button ${voted ? 'confirmed' : ''}`} onClick={() => setVoted(true)}>{voted ? 'VOTED' : 'VOTE'} <span>· {game.votes + (voted ? 1 : 0)} votes</span></button><p>{voted ? `Tu voto por ${game.title} quedó registrado` : 'Vote for what we play tonight'}</p></div>
+      </section>
+      <footer className="night-footer"><span>FRI 24 OCT · 20:00</span><span>GAME NIGHT #18</span><span>© LUDOBREAK</span></footer>
+    </main>
+  )
 }
