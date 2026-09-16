@@ -28,9 +28,9 @@ function BoardGameBox({ game, offset, onSelect }: { game: Game; offset: number; 
   const distance = Math.abs(offset)
   const rotation = offset * -0.18
   const x = offset * 1.18
-  const y = -Math.abs(offset) * 0.08 + (Math.abs(offset) < 0.2 ? 0.22 : 0)
+  const y = Math.abs(offset) * 0.16 + (Math.abs(offset) < 0.2 ? 0.22 : 0)
   const z = -distance * 0.22
-  const scale = THREE.MathUtils.clamp(0.78 - distance * 0.075, 0.48, 0.78)
+  const scale = THREE.MathUtils.clamp(0.98 - distance * 0.18, 0.34, 0.98)
   const opacity = THREE.MathUtils.clamp(1 - distance * 0.3, 0, 1)
   const color = accentColors[game.accent] ?? '#a98150'
   const edge = useMemo(() => new THREE.Color(color).multiplyScalar(0.62), [color])
