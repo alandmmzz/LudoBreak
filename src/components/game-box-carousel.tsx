@@ -42,11 +42,14 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
     canvas.width = 128
     canvas.height = 128
     const context = canvas.getContext('2d')!
-    const gradient = context.createRadialGradient(64, 64, 4, 64, 64, 64)
+    const gradient = context.createRadialGradient(64, 64, 0, 64, 64, 64)
     const glowColor = new THREE.Color(color).getStyle()
-    gradient.addColorStop(0, glowColor.replace('rgb', 'rgba').replace(')', ', 0.8)'))
-    gradient.addColorStop(0.3, glowColor.replace('rgb', 'rgba').replace(')', ', 0.35)'))
-    gradient.addColorStop(1, glowColor.replace('rgb', 'rgba').replace(')', ', 0)'))
+    const rgba = glowColor.replace('rgb', 'rgba').replace(')', ', 1)')
+    const transparent = glowColor.replace('rgb', 'rgba').replace(')', ', 0)')
+    gradient.addColorStop(0, rgba)
+    gradient.addColorStop(0.18, glowColor.replace('rgb', 'rgba').replace(')', ', 0.72)'))
+    gradient.addColorStop(0.52, glowColor.replace('rgb', 'rgba').replace(')', ', 0.25)'))
+    gradient.addColorStop(1, transparent)
     context.fillStyle = gradient
     context.fillRect(0, 0, 128, 128)
     return new THREE.CanvasTexture(canvas)
@@ -74,14 +77,14 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
     <group ref={groupRef} position={[x, y, z]} rotation={[0, rotation, offset * -0.08]} scale={scale} onClick={onSelect}>
       {voted && <>
         <pointLight position={[0, 0.2, -0.5]} color={color} intensity={3.5} distance={4.5} decay={2} />
-        <group position={[0, 0.05, -0.72]} renderOrder={-1}>
-          <mesh userData={{ isVoteGlow: true }} rotation={[0, 0, 0]}>
-            <planeGeometry args={[4.8, 3.2]} />
-            <meshBasicMaterial map={glowTexture} transparent opacity={0.28} depthTest={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+        <group position={[0, 0.05, -0.9]} renderOrder={10}>
+          <mesh userData={{ isVoteGlow: true }} renderOrder={10}>
+            <planeGeometry args={[5.2, 3.6]} />
+            <meshBasicMaterial map={glowTexture} transparent opacity={0.62} depthTest={false} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
           </mesh>
-          <mesh userData={{ isVoteGlow: true }} position={[0, 0, 0.01]} rotation={[0, 0, 0]}>
-            <planeGeometry args={[3.2, 2.15]} />
-            <meshBasicMaterial map={glowTexture} transparent opacity={0.24} depthTest={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+          <mesh userData={{ isVoteGlow: true }} position={[0, 0, 0.01]} renderOrder={11}>
+            <planeGeometry args={[3.4, 2.4]} />
+            <meshBasicMaterial map={glowTexture} transparent opacity={0.42} depthTest={false} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
           </mesh>
         </group>
       </>}
