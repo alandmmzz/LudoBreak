@@ -149,7 +149,8 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
     const distance = event.clientX - dragStart
     setDragStart(null)
     setDragOffset(0)
-    if (Math.abs(distance) < 55) return
+    // A short drag only previews the track; commit one full step once the gesture is intentional.
+    if (Math.abs(distance) < 90) return
     onSelect((active + (distance > 0 ? -1 : 1) + games.length) % games.length)
   }
 
