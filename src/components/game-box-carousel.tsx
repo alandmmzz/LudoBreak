@@ -27,11 +27,11 @@ const accentColors: Record<string, string> = {
 
 function BoardGameBox({ game, offset, onSelect }: { game: Game; offset: number; onSelect: () => void }) {
   const distance = Math.abs(offset)
-  const rotation = offset * -0.13
-  const x = offset * 1.16
-  const y = -Math.abs(offset) * 0.14 + (offset === 0 ? 0.08 : 0)
-  const scale = 1 - distance * 0.08
-  const opacity = 1 - distance * 0.16
+  const rotation = offset * -0.22
+  const x = offset * 0.98
+  const y = -Math.abs(offset) * 0.12 + (Math.abs(offset) < 0.2 ? 0.08 : 0)
+  const scale = 0.82 - distance * 0.055
+  const opacity = 1 - distance * 0.13
   const color = accentColors[game.accent] ?? '#a98150'
   const edge = useMemo(() => new THREE.Color(color).multiplyScalar(0.62), [color])
   const groupRef = useRef<THREE.Group>(null)
@@ -48,7 +48,7 @@ function BoardGameBox({ game, offset, onSelect }: { game: Game; offset: number; 
   return (
     <group ref={groupRef} position={[x, y, -distance * 0.14]} rotation={[0, rotation, offset * -0.035]} scale={scale} onClick={onSelect}>
       <mesh castShadow receiveShadow>
-        <boxGeometry args={[2.45, 0.72, 1.7]} />
+        <boxGeometry args={[2.05, 0.62, 1.42]} />
         <meshStandardMaterial color="#b98c5d" roughness={0.82} transparent opacity={opacity} />
       </mesh>
       <mesh position={[0, 0.37, 0]} castShadow>
@@ -71,6 +71,7 @@ function BoardGameBox({ game, offset, onSelect }: { game: Game; offset: number; 
 
 export function GameBoxCarousel({ games, active, onSelect }: GameBoxCarouselProps) {
   const [dragStart, setDragStart] = useState<number | null>(null)
+  const [dragOffset, setDragOffset] = useState(0)
   const dragged = useRef(false)
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -81,13 +82,16 @@ export function GameBoxCarousel({ games, active, onSelect }: GameBoxCarouselProp
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     if (dragStart === null) return
-    if (Math.abs(event.clientX - dragStart) > 8) dragged.current = true
+    const distance = event.clientX - dragStart
+    if (Math.abs(distance) > 8) dragged.current = true
+    setDragOffset(THREE.MathUtils.clamp(-distance / 180, -0.95, 0.95))
   }
 
   const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
     if (dragStart === null) return
     const distance = event.clientX - dragStart
     setDragStart(null)
+    setDragOffset(0)
     if (Math.abs(distance) < 55) return
     onSelect((active + (distance < 0 ? 1 : -1) + games.length) % games.length)
   }
@@ -99,7 +103,10 @@ export function GameBoxCarousel({ games, active, onSelect }: GameBoxCarouselProp
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
-      onPointerCancel={() => setDragStart(null)}
+      onPointerCancel={() => {
+        setDragStart(null)
+        setDragOffset(0)
+      }}
       onClickCapture={(event) => {
         if (dragged.current) {
           event.stopPropagation()
@@ -114,7 +121,7 @@ export function GameBoxCarousel({ games, active, onSelect }: GameBoxCarouselProp
         <group position={[0, 0.72, 0]}>
           {positions.map((offset) => {
             const index = ((active + offset) % games.length + games.length) % games.length
-            return <BoardGameBox key={offset} game={games[index]} offset={offset} onSelect={() => onSelect(index)} />
+            return <BoardGameBox key={offset} game={games[index]} offset={offset + dragOffset} onSelect={() => onSelect(index)} />
           })}
         </group>
         <ContactShadows position={[0, -0.72, 0]} opacity={0.28} scale={12} blur={2.6} far={5} />
