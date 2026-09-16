@@ -51,11 +51,28 @@ export default function Home() {
         <div className="carousel-meta"><span>{game.genre}</span><b>•</b><span>{game.time}</span></div>
         <div className="game-carousel">
           <button className="carousel-arrow left" onClick={previous} aria-label="Juego anterior">←</button>
-          <div className="side-box far-left" onClick={previous}><div className="box-face"><img src={games[(active + 2) % games.length].cover} alt="" /><strong>{games[(active + 2) % games.length].title}</strong></div></div>
-          <div className="side-box near-left" onClick={previous}><div className="box-face"><img src={games[(active + 3) % games.length].cover} alt="" /><strong>{games[(active + 3) % games.length].title}</strong></div></div>
-          <div key={`${game.title}-${transitionKey}`} className={`hero-box ${game.accent} hero-box-enter-${transition}`}><div className="box-face"><img src={game.cover} alt={`Caja de ${game.title}`} /><div className="box-overlay" /><strong>{game.title}</strong><small>{game.genre.split(' · ')[0].toUpperCase()}</small></div><div className="box-side"><span>{game.title}</span></div></div>
-          <div className="side-box near-right" onClick={next}><div className="box-face"><img src={games[(active + 1) % games.length].cover} alt="" /><strong>{games[(active + 1) % games.length].title}</strong></div></div>
-          <div className="side-box far-right" onClick={next}><div className="box-face"><img src={games[(active + 2) % games.length].cover} alt="" /><strong>{games[(active + 2) % games.length].title}</strong></div></div>
+          <div className="arc-track">
+            {[-2, -1, 0, 1, 2].map((pos) => {
+              const arcGame = games[(((active + pos) % games.length) + games.length) % games.length]
+              const isCenter = pos === 0
+              return (
+                <div
+                  key={`${pos}-${transitionKey}`}
+                  data-pos={pos}
+                  className={`arc-box${isCenter ? ` hero-box ${arcGame.accent} hero-box-enter-${transition}` : ''}`}
+                  onClick={pos < 0 ? previous : pos > 0 ? next : undefined}
+                >
+                  <div className="box-face">
+                    <img src={arcGame.cover} alt={isCenter ? `Caja de ${arcGame.title}` : ''} />
+                    {isCenter && <div className="box-overlay" />}
+                    <strong>{arcGame.title}</strong>
+                    {isCenter && <small>{arcGame.genre.split(' · ')[0].toUpperCase()}</small>}
+                  </div>
+                  {isCenter && <div className="box-side"><span>{arcGame.title}</span></div>}
+                </div>
+              )
+            })}
+          </div>
           <button className="carousel-arrow right" onClick={next} aria-label="Siguiente juego">→</button>
         </div>
         <div className="carousel-dots">{games.map((item, index) => <button key={item.title} className={index === active ? 'active' : ''} onClick={() => changeGame(index > active ? 'next' : 'previous', index)} aria-label={`Ver ${item.title}`} />)}</div>
