@@ -27,7 +27,7 @@ const accentColors: Record<string, string> = {
 function BoardGameBox({ game, offset, onSelect }: { game: Game; offset: number; onSelect: () => void }) {
   const distance = Math.abs(offset)
   const rotation = offset * -0.22
-  const x = offset * 0.98
+  const x = offset * 1.28
   const y = -Math.abs(offset) * 0.12 + (Math.abs(offset) < 0.2 ? 0.08 : 0)
   const scale = THREE.MathUtils.clamp(0.84 - distance * 0.17, 0.14, 0.84)
   const opacity = THREE.MathUtils.clamp(1 - distance * 0.3, 0, 1)
@@ -126,13 +126,11 @@ export function GameBoxCarousel({ games, active, onSelect }: GameBoxCarouselProp
         <directionalLight position={[0, 6, 5]} intensity={3} castShadow shadow-mapSize={[1024, 1024]} />
         <pointLight position={[-5, 2, 2]} intensity={1.2} color="#f6d28c" />
         <group position={[0, 0.72, 0]}>
-          {games.map((game, index) => {
-            let offset = index - active
-            if (offset > games.length / 2) offset -= games.length
-            if (offset < -games.length / 2) offset += games.length
-            offset += dragOffset
-            if (Math.abs(offset) > 3.6) return null
-            return <BoardGameBox key={game.title} game={game} offset={offset} onSelect={() => onSelect(index)} />
+          {[-2, -1, 0, 1, 2].map((slot) => {
+            const index = ((active + slot) % games.length + games.length) % games.length
+            const offset = slot + dragOffset
+            const game = games[index]
+            return <BoardGameBox key={`${game.title}-${slot}`} game={game} offset={offset} onSelect={() => onSelect(index)} />
           })}
         </group>
         <ContactShadows position={[0, -0.72, 0]} opacity={0.28} scale={12} blur={2.6} far={5} />

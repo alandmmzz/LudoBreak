@@ -4,10 +4,10 @@ import { useState } from 'react'
 import { GameBoxCarousel } from '@/components/game-box-carousel'
 
 const games = [
-  { title: 'Outbreak', genre: 'Co-op · 2–4 players', time: '45–60 min', votes: 7, accent: 'gold', cover: '/games/box-outbreak.png', backdrop: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=2200&q=85' },
-  { title: 'Aviary', genre: 'Engine builder · 1–5 players', time: '40–70 min', votes: 4, accent: 'orange', cover: '/games/box-aviary.png', backdrop: 'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=2200&q=85' },
-  { title: 'Railway', genre: 'Family · 2–5 players', time: '30–60 min', votes: 3, accent: 'teal', cover: '/games/box-railway.png', backdrop: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2200&q=85' },
-  { title: 'Cipher', genre: 'Party · 4–8 players', time: '15–30 min', votes: 2, accent: 'red', cover: '/games/box-cipher.png', backdrop: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=2200&q=85' },
+  { title: 'Quest', genre: 'Hidden roles · 5–10 players', time: '30–45 min', votes: 7, accent: 'gold', cover: '/games/quest.png', backdrop: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=2200&q=85' },
+  { title: 'Exploding Kittens', genre: 'Party · 2–5 players', time: '15–20 min', votes: 4, accent: 'red', cover: '/games/exploding-kittens.png', backdrop: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=2200&q=85' },
+  { title: 'Secret Hitler', genre: 'Hidden roles · 5–10 players', time: '45–60 min', votes: 3, accent: 'orange', cover: '/games/secret-hitler.png', backdrop: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2200&q=85' },
+  { title: 'Saboteur 2', genre: 'Bluffing · 2–12 players', time: '30–45 min', votes: 2, accent: 'teal', cover: '/games/saboteur-2.png', backdrop: 'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=2200&q=85' },
 ]
 
 export default function Home() {
