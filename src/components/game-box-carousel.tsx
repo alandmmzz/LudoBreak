@@ -148,10 +148,21 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
     if (dragStart === null) return
     const distance = event.clientX - dragStart
     setDragStart(null)
-    setDragOffset(0)
-    // A short drag only previews the track; commit one full step once the gesture is intentional.
-    if (Math.abs(distance) < 90) return
-    onSelect((active + (distance > 0 ? -1 : 1) + games.length) % games.length)
+    // A short drag returns through the same interpolated track animation.
+    if (Math.abs(distance) < 90) {
+      setDragOffset(0)
+      return
+    }
+
+    // Finish the gesture by carrying the next box all the way into the center.
+    // The active index changes only after that motion, so the scene never jumps.
+    const direction = distance > 0 ? 1 : -1
+    const nextIndex = (active + (distance > 0 ? -1 : 1) + games.length) % games.length
+    setDragOffset(direction)
+    window.setTimeout(() => {
+      onSelect(nextIndex)
+      setDragOffset(0)
+    }, 420)
   }
 
   return (
