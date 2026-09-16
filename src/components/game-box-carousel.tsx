@@ -141,7 +141,7 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
     if (dragStart === null) return
     const distance = event.clientX - dragStart
     if (Math.abs(distance) > 8) dragged.current = true
-    setDragOffset(THREE.MathUtils.clamp(-distance / 180, -0.95, 0.95))
+    setDragOffset(THREE.MathUtils.clamp(distance / 180, -0.95, 0.95))
   }
 
   const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -150,7 +150,7 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
     setDragStart(null)
     setDragOffset(0)
     if (Math.abs(distance) < 55) return
-    onSelect((active + (distance > 0 ? 1 : -1) + games.length) % games.length)
+    onSelect((active + (distance > 0 ? -1 : 1) + games.length) % games.length)
   }
 
   return (
