@@ -13,13 +13,21 @@ export default function Home() {
   const [active, setActive] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
   const [voted, setVoted] = useState(false)
+  const [transition, setTransition] = useState<'next' | 'previous'>('next')
+  const [transitionKey, setTransitionKey] = useState(0)
   const game = games[active]
-  const previous = () => setActive((active - 1 + games.length) % games.length)
-  const next = () => setActive((active + 1) % games.length)
+  const changeGame = (direction: 'next' | 'previous', index: number) => {
+    setTransition(direction)
+    setTransitionKey((key) => key + 1)
+    setActive(index)
+    setVoted(false)
+  }
+  const previous = () => changeGame('previous', (active - 1 + games.length) % games.length)
+  const next = () => changeGame('next', (active + 1) % games.length)
 
   return (
     <main className="night-app" style={{ '--backdrop': `url(${game.backdrop})` } as React.CSSProperties}>
-      <div className="backdrop" aria-hidden="true" />
+      <div key={transitionKey} className="backdrop backdrop-enter" aria-hidden="true" />
       <header className="night-header">
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
         <div className="night-logo"><b>LB</b><span>LudoBreak</span></div>
@@ -29,7 +37,7 @@ export default function Home() {
 
       <aside className={`night-menu ${menuOpen ? 'open' : ''}`}>
         <p>Tu mesa</p>
-        {['Inicio', 'Mi biblioteca', 'Partidas', 'Estadísticas'].map((item, index) => <button className={index === 0 ? 'selected' : ''} key={item} onClick={() => { setMenuOpen(false); if (index === 1) setActive(2) }}><span>{['⌂', '▦', '◷', '⌁'][index]}</span>{item}</button>)}
+        {['Inicio', 'Mi biblioteca', 'Partidas', 'Estadísticas'].map((item, index) => <button className={index === 0 ? 'selected' : ''} key={item} onClick={() => { setMenuOpen(false); if (index === 1) changeGame('next', 2) }}><span>{['⌂', '▦', '◷', '⌁'][index]}</span>{item}</button>)}
         <div className="menu-rule" />
         <p>Comunidad</p>
         <button onClick={() => setMenuOpen(false)}><span>♧</span>Invitar amigos</button>
@@ -45,12 +53,12 @@ export default function Home() {
           <button className="carousel-arrow left" onClick={previous} aria-label="Juego anterior">←</button>
           <div className="side-box far-left" onClick={previous}><div className="box-face"><img src={games[(active + 2) % games.length].cover} alt="" /><strong>{games[(active + 2) % games.length].title}</strong></div></div>
           <div className="side-box near-left" onClick={previous}><div className="box-face"><img src={games[(active + 3) % games.length].cover} alt="" /><strong>{games[(active + 3) % games.length].title}</strong></div></div>
-          <div className={`hero-box ${game.accent}`}><div className="box-face"><img src={game.cover} alt={`Caja de ${game.title}`} /><div className="box-overlay" /><strong>{game.title}</strong><small>{game.genre.split(' · ')[0].toUpperCase()}</small></div><div className="box-side"><span>{game.title}</span></div></div>
+          <div key={`${game.title}-${transitionKey}`} className={`hero-box ${game.accent} hero-box-enter-${transition}`}><div className="box-face"><img src={game.cover} alt={`Caja de ${game.title}`} /><div className="box-overlay" /><strong>{game.title}</strong><small>{game.genre.split(' · ')[0].toUpperCase()}</small></div><div className="box-side"><span>{game.title}</span></div></div>
           <div className="side-box near-right" onClick={next}><div className="box-face"><img src={games[(active + 1) % games.length].cover} alt="" /><strong>{games[(active + 1) % games.length].title}</strong></div></div>
           <div className="side-box far-right" onClick={next}><div className="box-face"><img src={games[(active + 2) % games.length].cover} alt="" /><strong>{games[(active + 2) % games.length].title}</strong></div></div>
           <button className="carousel-arrow right" onClick={next} aria-label="Siguiente juego">→</button>
         </div>
-        <div className="carousel-dots">{games.map((item, index) => <button key={item.title} className={index === active ? 'active' : ''} onClick={() => setActive(index)} aria-label={`Ver ${item.title}`} />)}</div>
+        <div className="carousel-dots">{games.map((item, index) => <button key={item.title} className={index === active ? 'active' : ''} onClick={() => changeGame(index > active ? 'next' : 'previous', index)} aria-label={`Ver ${item.title}`} />)}</div>
         <div className="vote-area"><button className={`vote-button ${voted ? 'confirmed' : ''}`} onClick={() => setVoted(true)}>{voted ? 'VOTED' : 'VOTE'} <span>· {game.votes + (voted ? 1 : 0)} votes</span></button><p>{voted ? `Tu voto por ${game.title} quedó registrado` : 'Vote for what we play tonight'}</p></div>
       </section>
       <footer className="night-footer"><span>FRI 24 OCT · 20:00</span><span>GAME NIGHT #18</span><span>© LUDOBREAK</span></footer>
