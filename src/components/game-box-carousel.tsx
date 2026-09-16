@@ -30,8 +30,8 @@ function BoardGameBox({ game, offset, onSelect }: { game: Game; offset: number; 
   const rotation = offset * -0.22
   const x = offset * 0.98
   const y = -Math.abs(offset) * 0.12 + (Math.abs(offset) < 0.2 ? 0.08 : 0)
-  const scale = 0.82 - distance * 0.055
-  const opacity = 1 - distance * 0.13
+  const scale = Math.max(0.42, 0.84 - distance * 0.14)
+  const opacity = THREE.MathUtils.clamp(1 - distance * 0.22, 0.08, 1)
   const color = accentColors[game.accent] ?? '#a98150'
   const edge = useMemo(() => new THREE.Color(color).multiplyScalar(0.62), [color])
   const groupRef = useRef<THREE.Group>(null)
@@ -43,6 +43,14 @@ function BoardGameBox({ game, offset, onSelect }: { game: Game; offset: number; 
     groupRef.current.rotation.y = THREE.MathUtils.damp(groupRef.current.rotation.y, rotation, 9, delta)
     groupRef.current.rotation.z = THREE.MathUtils.damp(groupRef.current.rotation.z, offset * -0.035, 9, delta)
     groupRef.current.scale.lerp(new THREE.Vector3(scale, scale, scale), easing)
+    groupRef.current.traverse((child) => {
+      if (!(child instanceof THREE.Mesh)) return
+      const materials = Array.isArray(child.material) ? child.material : [child.material]
+      materials.forEach((material) => {
+        material.transparent = true
+        material.opacity = THREE.MathUtils.damp(material.opacity, opacity, 10, delta)
+      })
+    })
   })
 
   return (
