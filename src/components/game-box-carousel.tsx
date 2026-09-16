@@ -39,36 +39,51 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
   const edge = useMemo(() => new THREE.Color(color).multiplyScalar(0.62), [color])
   const glowTexture = useMemo(() => {
     const canvas = document.createElement('canvas')
-    canvas.width = 128
-    canvas.height = 128
+    canvas.width = 256
+    canvas.height = 256
     const context = canvas.getContext('2d')!
-    const gradient = context.createRadialGradient(64, 64, 0, 64, 64, 64)
-    const glowColor = new THREE.Color(color).getStyle()
-    const rgba = glowColor.replace('rgb', 'rgba').replace(')', ', 1)')
-    const transparent = glowColor.replace('rgb', 'rgba').replace(')', ', 0)')
-    gradient.addColorStop(0, rgba)
-    gradient.addColorStop(0.18, glowColor.replace('rgb', 'rgba').replace(')', ', 0.9)'))
-    gradient.addColorStop(0.52, glowColor.replace('rgb', 'rgba').replace(')', ', 0.42)'))
-    gradient.addColorStop(1, transparent)
+    const gradient = context.createRadialGradient(128, 128, 0, 128, 128, 128)
+    const base = new THREE.Color(color)
+    const stops = [
+      [0, 0.65],
+      [0.22, 0.55],
+      [0.42, 0.38],
+      [0.62, 0.2],
+      [0.8, 0.07],
+      [1, 0],
+    ] as const
+    stops.forEach(([offsetStop, alpha]) => {
+      gradient.addColorStop(offsetStop, `rgba(${Math.round(base.r * 255)}, ${Math.round(base.g * 255)}, ${Math.round(base.b * 255)}, ${alpha})`)
+    })
     context.fillStyle = gradient
-    context.fillRect(0, 0, 128, 128)
-    return new THREE.CanvasTexture(canvas)
+    context.fillRect(0, 0, 256, 256)
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.needsUpdate = true
+    return texture
   }, [color])
   const groupRef = useRef<THREE.Group>(null)
   const lightRef = useRef<THREE.PointLight>(null)
   const glowRef = useRef<THREE.Mesh>(null)
+  const initialized = useRef(false)
 
   useFrame((_, delta) => {
     if (!groupRef.current) return
-    const easing = 1 - Math.exp(-delta * 9)
-    groupRef.current.position.lerp(new THREE.Vector3(x, y, z), easing)
-    groupRef.current.rotation.y = THREE.MathUtils.damp(groupRef.current.rotation.y, rotation, 9, delta)
-    groupRef.current.rotation.z = THREE.MathUtils.damp(groupRef.current.rotation.z, offset * -0.035, 9, delta)
-    groupRef.current.scale.lerp(new THREE.Vector3(scale, scale, scale), easing)
-    if (lightRef.current) lightRef.current.intensity = THREE.MathUtils.damp(lightRef.current.intensity, voted ? 5.5 : 0, 7, delta)
+    if (!initialized.current) {
+      groupRef.current.position.set(x, y, z)
+      groupRef.current.rotation.set(0, rotation, offset * -0.08)
+      groupRef.current.scale.set(scale, scale, scale)
+      initialized.current = true
+    } else {
+      const easing = 1 - Math.exp(-delta * 9)
+      groupRef.current.position.lerp(new THREE.Vector3(x, y, z), easing)
+      groupRef.current.rotation.y = THREE.MathUtils.damp(groupRef.current.rotation.y, rotation, 9, delta)
+      groupRef.current.rotation.z = THREE.MathUtils.damp(groupRef.current.rotation.z, offset * -0.035, 9, delta)
+      groupRef.current.scale.lerp(new THREE.Vector3(scale, scale, scale), easing)
+    }
+    if (lightRef.current) lightRef.current.intensity = THREE.MathUtils.damp(lightRef.current.intensity, voted ? 3.2 : 0, 7, delta)
     if (glowRef.current) {
       const material = glowRef.current.material as THREE.MeshBasicMaterial
-      material.opacity = THREE.MathUtils.damp(material.opacity, voted ? 1 : 0, 7, delta)
+      material.opacity = THREE.MathUtils.damp(material.opacity, voted ? 0.85 : 0, 7, delta)
     }
     groupRef.current.traverse((child) => {
       if (!(child instanceof THREE.Mesh) || child.userData.isVoteGlow) return
@@ -81,11 +96,11 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
   })
 
   return (
-    <group ref={groupRef} position={[x, y, z]} rotation={[0, rotation, offset * -0.08]} scale={scale} onClick={onSelect}>
-      <pointLight ref={lightRef} position={[0, 0.1, -1.05]} color={color} intensity={0} distance={4.8} decay={2} />
-      <mesh ref={glowRef} position={[0, 0.08, -0.9]} userData={{ isVoteGlow: true }} renderOrder={-1}>
-        <planeGeometry args={[6.2, 4.1]} />
-        <meshBasicMaterial map={glowTexture} transparent opacity={0} depthTest depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+    <group ref={groupRef} onClick={onSelect}>
+      <pointLight ref={lightRef} position={[0, 0.15, -0.85]} color={color} intensity={0} distance={4} decay={2} />
+      <mesh ref={glowRef} position={[0, 0.1, -0.72]} userData={{ isVoteGlow: true }} renderOrder={-1}>
+        <planeGeometry args={[4.6, 3.4]} />
+        <meshBasicMaterial map={glowTexture} transparent opacity={0} depthTest={false} depthWrite={false} toneMapped={false} />
       </mesh>
       <mesh castShadow receiveShadow>
         <boxGeometry args={[2.25, 0.72, 1.28]} />
@@ -113,6 +128,8 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
   const [dragStart, setDragStart] = useState<number | null>(null)
   const [dragOffset, setDragOffset] = useState(0)
   const dragged = useRef(false)
+  const activeVoted = selectedVotes.includes(active)
+  const activeColor = accentColors[games[active]?.accent] ?? '#a98150'
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     setDragStart(event.clientX)
@@ -137,39 +154,46 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
   }
 
   return (
-    <div
-      className="three-carousel"
-      aria-label="Carrusel 3D de juegos"
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={() => {
-        setDragStart(null)
-        setDragOffset(0)
-      }}
-      onClickCapture={(event) => {
-        if (dragged.current) {
-          event.stopPropagation()
-          dragged.current = false
-        }
-      }}
-    >
-      <Canvas shadows camera={{ position: [0, 2.55, 8.6], fov: 32 }} dpr={[1, 1.5]}>
-        <fog attach="fog" args={['#111817', 6.5, 11.5]} />
-        <ambientLight intensity={1.8} />
-        <directionalLight position={[0, 6, 5]} intensity={3} castShadow shadow-mapSize={[1024, 1024]} />
-        <pointLight position={[-5, 2, 2]} intensity={1.2} color="#f6d28c" />
-        <group position={[0, 0.72, 0]}>
-          {[-2, -1, 0, 1, 2].map((slot) => {
-            const index = ((active + slot) % games.length + games.length) % games.length
-            const offset = slot + dragOffset
-            const game = games[index]
-            return <BoardGameBox key={`${game.title}-${slot}`} game={game} offset={offset} selected={slot === 0} voted={selectedVotes.includes(index)} onSelect={() => onSelect(index)} />
-          })}
-        </group>
-        <ContactShadows position={[0, -0.72, 0]} opacity={0.28} scale={12} blur={2.6} far={5} />
-        <OrbitControls enablePan={false} enableZoom={false} enableRotate={false} />
-      </Canvas>
+    <div className="three-carousel-wrap">
+      <div
+        className={`vote-backlight ${activeVoted ? 'active' : ''}`}
+        style={{ '--glow': activeColor } as React.CSSProperties}
+        aria-hidden="true"
+      />
+      <div
+        className="three-carousel"
+        aria-label="Carrusel 3D de juegos"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={() => {
+          setDragStart(null)
+          setDragOffset(0)
+        }}
+        onClickCapture={(event) => {
+          if (dragged.current) {
+            event.stopPropagation()
+            dragged.current = false
+          }
+        }}
+      >
+        <Canvas shadows camera={{ position: [0, 2.55, 8.6], fov: 32 }} dpr={[1, 1.5]}>
+          <fog attach="fog" args={['#111817', 6.5, 11.5]} />
+          <ambientLight intensity={1.8} />
+          <directionalLight position={[0, 6, 5]} intensity={3} castShadow shadow-mapSize={[1024, 1024]} />
+          <pointLight position={[-5, 2, 2]} intensity={1.2} color="#f6d28c" />
+          <group position={[0, 0.72, 0]}>
+            {[-2, -1, 0, 1, 2].map((slot) => {
+              const index = ((active + slot) % games.length + games.length) % games.length
+              const offset = slot + dragOffset
+              const game = games[index]
+              return <BoardGameBox key={`${game.title}-${slot}`} game={game} offset={offset} selected={slot === 0} voted={selectedVotes.includes(index)} onSelect={() => onSelect(index)} />
+            })}
+          </group>
+          <ContactShadows position={[0, -0.72, 0]} opacity={0.28} scale={12} blur={2.6} far={5} />
+          <OrbitControls enablePan={false} enableZoom={false} enableRotate={false} />
+        </Canvas>
+      </div>
     </div>
   )
 }
