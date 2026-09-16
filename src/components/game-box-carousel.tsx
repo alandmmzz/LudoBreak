@@ -17,7 +17,6 @@ type GameBoxCarouselProps = {
   onSelect: (index: number) => void
 }
 
-const positions = [-3, -2, -1, 0, 1, 2, 3]
 const accentColors: Record<string, string> = {
   gold: '#d8aa36',
   orange: '#c87832',
@@ -30,8 +29,8 @@ function BoardGameBox({ game, offset, onSelect }: { game: Game; offset: number; 
   const rotation = offset * -0.22
   const x = offset * 0.98
   const y = -Math.abs(offset) * 0.12 + (Math.abs(offset) < 0.2 ? 0.08 : 0)
-  const scale = Math.max(0.42, 0.84 - distance * 0.14)
-  const opacity = THREE.MathUtils.clamp(1 - distance * 0.22, 0.08, 1)
+  const scale = THREE.MathUtils.clamp(0.84 - distance * 0.17, 0.14, 0.84)
+  const opacity = THREE.MathUtils.clamp(1 - distance * 0.3, 0, 1)
   const color = accentColors[game.accent] ?? '#a98150'
   const edge = useMemo(() => new THREE.Color(color).multiplyScalar(0.62), [color])
   const groupRef = useRef<THREE.Group>(null)
@@ -127,9 +126,13 @@ export function GameBoxCarousel({ games, active, onSelect }: GameBoxCarouselProp
         <directionalLight position={[0, 6, 5]} intensity={3} castShadow shadow-mapSize={[1024, 1024]} />
         <pointLight position={[-5, 2, 2]} intensity={1.2} color="#f6d28c" />
         <group position={[0, 0.72, 0]}>
-          {positions.map((offset) => {
-            const index = ((active + offset) % games.length + games.length) % games.length
-            return <BoardGameBox key={offset} game={games[index]} offset={offset + dragOffset} onSelect={() => onSelect(index)} />
+          {games.map((game, index) => {
+            let offset = index - active
+            if (offset > games.length / 2) offset -= games.length
+            if (offset < -games.length / 2) offset += games.length
+            offset += dragOffset
+            if (Math.abs(offset) > 3.6) return null
+            return <BoardGameBox key={game.title} game={game} offset={offset} onSelect={() => onSelect(index)} />
           })}
         </group>
         <ContactShadows position={[0, -0.72, 0]} opacity={0.28} scale={12} blur={2.6} far={5} />
