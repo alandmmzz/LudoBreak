@@ -93,7 +93,7 @@ export function GameBoxCarousel({ games, active, onSelect }: GameBoxCarouselProp
     setDragStart(null)
     setDragOffset(0)
     if (Math.abs(distance) < 55) return
-    onSelect((active + (distance < 0 ? 1 : -1) + games.length) % games.length)
+    onSelect((active + (distance > 0 ? 1 : -1) + games.length) % games.length)
   }
 
   return (
