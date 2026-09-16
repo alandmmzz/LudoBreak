@@ -26,10 +26,11 @@ const accentColors: Record<string, string> = {
 
 function BoardGameBox({ game, offset, onSelect }: { game: Game; offset: number; onSelect: () => void }) {
   const distance = Math.abs(offset)
-  const rotation = offset * -0.22
-  const x = offset * 1.28
-  const y = -Math.abs(offset) * 0.12 + (Math.abs(offset) < 0.2 ? 0.08 : 0)
-  const scale = THREE.MathUtils.clamp(0.84 - distance * 0.17, 0.14, 0.84)
+  const rotation = offset * -0.18
+  const x = offset * 1.18
+  const y = -Math.abs(offset) * 0.08 + (Math.abs(offset) < 0.2 ? 0.22 : 0)
+  const z = -distance * 0.22
+  const scale = THREE.MathUtils.clamp(0.78 - distance * 0.075, 0.48, 0.78)
   const opacity = THREE.MathUtils.clamp(1 - distance * 0.3, 0, 1)
   const color = accentColors[game.accent] ?? '#a98150'
   const edge = useMemo(() => new THREE.Color(color).multiplyScalar(0.62), [color])
@@ -38,7 +39,7 @@ function BoardGameBox({ game, offset, onSelect }: { game: Game; offset: number; 
   useFrame((_, delta) => {
     if (!groupRef.current) return
     const easing = 1 - Math.exp(-delta * 9)
-    groupRef.current.position.lerp(new THREE.Vector3(x, y, -distance * 0.14), easing)
+    groupRef.current.position.lerp(new THREE.Vector3(x, y, z), easing)
     groupRef.current.rotation.y = THREE.MathUtils.damp(groupRef.current.rotation.y, rotation, 9, delta)
     groupRef.current.rotation.z = THREE.MathUtils.damp(groupRef.current.rotation.z, offset * -0.035, 9, delta)
     groupRef.current.scale.lerp(new THREE.Vector3(scale, scale, scale), easing)
@@ -53,23 +54,23 @@ function BoardGameBox({ game, offset, onSelect }: { game: Game; offset: number; 
   })
 
   return (
-    <group ref={groupRef} position={[x, y, -distance * 0.14]} rotation={[0, rotation, offset * -0.035]} scale={scale} onClick={onSelect}>
+    <group ref={groupRef} position={[x, y, z]} rotation={[0, rotation, offset * -0.08]} scale={scale} onClick={onSelect}>
       <mesh castShadow receiveShadow>
-        <boxGeometry args={[2.05, 0.62, 1.42]} />
+        <boxGeometry args={[2.25, 0.42, 1.28]} />
         <meshStandardMaterial color="#b98c5d" roughness={0.82} transparent opacity={opacity} />
       </mesh>
-      <mesh position={[0, 0.37, 0]} castShadow>
-        <boxGeometry args={[2.5, 0.07, 1.75]} />
+      <mesh position={[0, 0.27, 0]} castShadow>
+        <boxGeometry args={[2.38, 0.07, 1.4]} />
         <meshStandardMaterial color={color} roughness={0.72} transparent opacity={opacity} />
       </mesh>
-      <mesh position={[0, 0, 0.86]}>
-        <planeGeometry args={[2.08, 0.48]} />
+      <mesh position={[0, 0, 0.66]}>
+        <planeGeometry args={[2.2, 0.31]} />
         <meshStandardMaterial color={edge} roughness={0.8} transparent opacity={opacity} />
       </mesh>
-      <Text position={[0, 0.02, 0.87]} fontSize={0.25} maxWidth={1.9} anchorX="center" anchorY="middle" color="#f7ead1" fillOpacity={opacity} outlineWidth={0.008} outlineColor="#5a3925">
+      <Text position={[0, 0.02, 0.67]} fontSize={0.22} maxWidth={2.05} anchorX="center" anchorY="middle" color="#f7ead1" fillOpacity={opacity} outlineWidth={0.008} outlineColor="#5a3925">
         {game.title.toUpperCase()}
       </Text>
-      <Text position={[0, 0.41, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.16} maxWidth={2.1} anchorX="center" anchorY="middle" color="#fff2d1" fillOpacity={opacity * 0.9}>
+      <Text position={[0, 0.31, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.13} maxWidth={2.1} anchorX="center" anchorY="middle" color="#fff2d1" fillOpacity={opacity * 0.9}>
         GAME NIGHT
       </Text>
     </group>
@@ -121,7 +122,7 @@ export function GameBoxCarousel({ games, active, onSelect }: GameBoxCarouselProp
         }
       }}
     >
-      <Canvas shadows camera={{ position: [0, 3.6, 8.2], fov: 34 }} dpr={[1, 1.5]}>
+      <Canvas shadows camera={{ position: [0, 2.55, 8.6], fov: 32 }} dpr={[1, 1.5]}>
         <ambientLight intensity={1.8} />
         <directionalLight position={[0, 6, 5]} intensity={3} castShadow shadow-mapSize={[1024, 1024]} />
         <pointLight position={[-5, 2, 2]} intensity={1.2} color="#f6d28c" />
