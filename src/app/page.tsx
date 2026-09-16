@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { GameBoxCarousel } from '@/components/game-box-carousel'
 
 const games = [
   { title: 'Outbreak', genre: 'Co-op · 2–4 players', time: '45–60 min', votes: 7, accent: 'gold', cover: '/games/box-outbreak.png', backdrop: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=2200&q=85' },
@@ -8,8 +9,6 @@ const games = [
   { title: 'Railway', genre: 'Family · 2–5 players', time: '30–60 min', votes: 3, accent: 'teal', cover: '/games/box-railway.png', backdrop: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2200&q=85' },
   { title: 'Cipher', genre: 'Party · 4–8 players', time: '15–30 min', votes: 2, accent: 'red', cover: '/games/box-cipher.png', backdrop: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=2200&q=85' },
 ]
-
-const arcPositions = [-3, -2, -1, 0, 1, 2, 3]
 
 export default function Home() {
   const [active, setActive] = useState(0)
@@ -51,30 +50,9 @@ export default function Home() {
         <h1>GAME NIGHT CREW</h1>
         <p className="hero-subtitle">PICK YOUR GAME</p>
         <div className="carousel-meta"><span>{game.genre}</span><b>•</b><span>{game.time}</span></div>
-        <div className="game-carousel">
+        <div className="game-carousel three-game-carousel">
           <button className="carousel-arrow left" onClick={previous} aria-label="Juego anterior">←</button>
-          <div className="arc-track">
-            {arcPositions.map((pos) => {
-              const arcGame = games[(((active + pos) % games.length) + games.length) % games.length]
-              const isCenter = pos === 0
-              return (
-                <div
-                  key={`${pos}-${transitionKey}`}
-                  data-pos={pos}
-                  className={`arc-box${isCenter ? ` hero-box ${arcGame.accent} hero-box-enter-${transition}` : ''}`}
-                  onClick={pos < 0 ? previous : pos > 0 ? next : undefined}
-                >
-                  <div className="box-face">
-                    <img src={arcGame.cover} alt={isCenter ? `Caja de ${arcGame.title}` : ''} />
-                    {isCenter && <div className="box-overlay" />}
-                    <strong>{arcGame.title}</strong>
-                    {isCenter && <small>{arcGame.genre.split(' · ')[0].toUpperCase()}</small>}
-                  </div>
-                  {isCenter && <div className="box-side"><span>{arcGame.title}</span></div>}
-                </div>
-              )
-            })}
-          </div>
+          <GameBoxCarousel games={games} active={active} onSelect={(index) => changeGame(index > active ? 'next' : 'previous', index)} />
           <button className="carousel-arrow right" onClick={next} aria-label="Siguiente juego">→</button>
         </div>
         <div className="carousel-dots">{games.map((item, index) => <button key={item.title} className={index === active ? 'active' : ''} onClick={() => changeGame(index > active ? 'next' : 'previous', index)} aria-label={`Ver ${item.title}`} />)}</div>
