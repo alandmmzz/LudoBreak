@@ -194,9 +194,9 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
           <ambientLight intensity={1.8} />
           <directionalLight position={[0, 6, 5]} intensity={3} castShadow shadow-mapSize={[1024, 1024]} />
           <pointLight position={[-5, 2, 2]} intensity={1.2} color="#f6d28c" />
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.62, 0]} receiveShadow>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.36, 0]} receiveShadow>
             <planeGeometry args={[12, 5]} />
-            <shadowMaterial transparent opacity={0.28} />
+            <shadowMaterial transparent opacity={0.6} />
           </mesh>
           <group position={[0, 0.72, 0]}>
             {[-2, -1, 0, 1, 2].map((slot) => {
@@ -206,7 +206,7 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
               return <BoardGameBox key={`${game.title}-${slot}`} game={game} offset={offset} selected={slot === 0} voted={selectedVotes.includes(index)} onSelect={() => onSelect(index)} />
             })}
           </group>
-          <ContactShadows position={[0, -0.42, 0]} opacity={0.42} scale={6.8} blur={5.4} far={3.2} resolution={1024} frames={1} />
+          <ContactShadows position={[0, -0.335, 0]} opacity={0.85} scale={5.4} blur={3.2} far={1.8} resolution={1024} frames={1} color="#000000" />
           <OrbitControls enablePan={false} enableZoom={false} enableRotate={false} />
         </Canvas>
       </div>
