@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { GameBoxCarousel } from '@/components/game-box-carousel'
 
-const BACKDROP_SETTLE_DELAY = 900
+const BACKDROP_SETTLE_DELAY = 550
 
 const games = [
   { title: 'Quest', genre: 'Hidden roles · 5–10 players', time: '30–45 min', votes: 7, accent: 'gold', cover: '/games/quest.png', backdrop: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=2200&q=85' },
