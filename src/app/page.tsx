@@ -6,7 +6,12 @@ import { GameBoxCarousel } from '@/components/game-box-carousel'
 import { AdminGamePanel } from '@/components/admin-game-panel'
 
 const BACKDROP_SETTLE_DELAY = 650
-const fetcher = (url: string) => fetch(url).then((response) => response.json())
+const fetcher = async (url: string) => {
+  const response = await fetch(url)
+  const payload = await response.json()
+  if (!response.ok || !Array.isArray(payload) || payload.length === 0) throw new Error('No se pudo cargar el catálogo')
+  return payload
+}
 
 const fallbackGames = [
   { id: 1, title: 'Quest', genre: 'Hidden roles · 5–10 players', time: '30–45 min', votes: 7, accent: 'gold', cover: '/games/quest.png', backdrop: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=2200&q=85' },
@@ -16,7 +21,8 @@ const fallbackGames = [
 ]
 
 export default function Home() {
-  const { data: games = fallbackGames, mutate } = useSWR<typeof fallbackGames>('/api/games', fetcher, { fallbackData: fallbackGames })
+  const { data: loadedGames, mutate } = useSWR<typeof fallbackGames>('/api/games', fetcher, { fallbackData: fallbackGames })
+  const games = Array.isArray(loadedGames) && loadedGames.length > 0 ? loadedGames : fallbackGames
   const [active, setActive] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
   const [adminOpen, setAdminOpen] = useState(false)
@@ -29,7 +35,8 @@ export default function Home() {
   const [previousBackdrop, setPreviousBackdrop] = useState(games[0].backdrop)
   const [backdropIndex, setBackdropIndex] = useState(0)
   const lastDirection = useRef<'next' | 'previous'>('next')
-  const game = games[active]
+  const safeActive = active < games.length ? active : 0
+  const game = games[safeActive]
   const changeGame = (direction: 'next' | 'previous', index: number) => {
     lastDirection.current = direction
     setActive(index)
