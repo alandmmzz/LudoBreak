@@ -32,8 +32,8 @@ export default function Home() {
 
   return (
     <main className="night-app" style={{ '--backdrop': `url(${game.backdrop})` } as React.CSSProperties}>
-      <div className="backdrop backdrop-previous" style={{ '--backdrop': `url(${previousBackdrop})` } as React.CSSProperties} aria-hidden="true" />
-      <div key={transitionKey} className="backdrop backdrop-current" style={{ '--backdrop': `url(${game.backdrop})` } as React.CSSProperties} aria-hidden="true" />
+      <div key={`previous-${transitionKey}`} className="backdrop backdrop-previous" style={{ '--backdrop': `url(${previousBackdrop})` } as React.CSSProperties} aria-hidden="true" />
+      <div key={`current-${transitionKey}`} className="backdrop backdrop-current" style={{ '--backdrop': `url(${game.backdrop})` } as React.CSSProperties} aria-hidden="true" />
       <header className="night-header">
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
         <div className="night-logo"><b>LB</b><span>LudoBreak</span></div>
