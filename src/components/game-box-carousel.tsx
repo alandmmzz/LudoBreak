@@ -102,11 +102,11 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
         <planeGeometry args={[4.6, 3.4]} />
         <meshBasicMaterial map={glowTexture} transparent opacity={0} depthTest={false} depthWrite={false} toneMapped={false} />
       </mesh>
-      <mesh castShadow receiveShadow>
+      <mesh>
         <boxGeometry args={[2.25, 0.72, 1.28]} />
         <meshStandardMaterial color="#b98c5d" roughness={0.82} transparent opacity={opacity} />
       </mesh>
-      <mesh position={[0, 0.42, 0]} castShadow>
+      <mesh position={[0, 0.42, 0]}>
         <boxGeometry args={[2.38, 0.07, 1.4]} />
         <meshStandardMaterial color={color} roughness={0.72} transparent opacity={opacity} />
       </mesh>
@@ -192,12 +192,8 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
         <Canvas shadows camera={{ position: [0, 2.55, 8.6], fov: 32 }} dpr={[1, 1.5]}>
           <fog attach="fog" args={['#111817', 6.5, 11.5]} />
           <ambientLight intensity={1.8} />
-          <directionalLight position={[0, 6, 5]} intensity={3} castShadow shadow-mapSize={[1024, 1024]} />
+          <directionalLight position={[0, 6, 5]} intensity={3} />
           <pointLight position={[-5, 2, 2]} intensity={1.2} color="#f6d28c" />
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.36, 0]} receiveShadow>
-            <planeGeometry args={[12, 5]} />
-            <shadowMaterial transparent opacity={0.6} />
-          </mesh>
           <group position={[0, 0.72, 0]}>
             {[-2, -1, 0, 1, 2].map((slot) => {
               const index = ((active + slot) % games.length + games.length) % games.length
@@ -206,7 +202,7 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
               return <BoardGameBox key={`${game.title}-${slot}`} game={game} offset={offset} selected={slot === 0} voted={selectedVotes.includes(index)} onSelect={() => onSelect(index)} />
             })}
           </group>
-          <ContactShadows position={[0, -0.335, 0]} opacity={0.85} scale={5.4} blur={3.2} far={1.8} resolution={1024} frames={1} color="#000000" />
+          <ContactShadows position={[0, -0.335, 0]} opacity={0.95} scale={4.4} blur={2.4} far={1.1} resolution={1024} frames={1} color="#000000" />
           <OrbitControls enablePan={false} enableZoom={false} enableRotate={false} />
         </Canvas>
       </div>
