@@ -1,6 +1,6 @@
 'use client'
 
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useLoader } from '@react-three/fiber'
 import { ContactShadows, OrbitControls, Text } from '@react-three/drei'
 import { useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
@@ -9,6 +9,7 @@ import { useFrame } from '@react-three/fiber'
 type Game = {
   title: string
   accent: string
+  cover: string
 }
 
 type GameBoxCarouselProps = {
@@ -28,6 +29,8 @@ const accentColors: Record<string, string> = {
 function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game; offset: number; selected: boolean; voted: boolean; onSelect: () => void }) {
   const distance = Math.abs(offset)
   const isCenter = Math.abs(offset) < 0.12
+  const coverTexture = useLoader(THREE.TextureLoader, game.cover)
+  coverTexture.colorSpace = THREE.SRGBColorSpace
   const rotation = offset * -0.18
   const intermediateSpread = Math.sign(offset) * 0.42 * Math.max(0, 1 - Math.abs(distance - 1) * 2)
   const x = offset * 1.95 + intermediateSpread
@@ -114,7 +117,11 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
         <planeGeometry args={[2.2, 0.58]} />
         <meshStandardMaterial color={edge} roughness={0.8} transparent opacity={opacity} />
       </mesh>
-      <Text position={[0, 0.02, 0.67]} fontSize={0.2} maxWidth={2.08} anchorX="center" anchorY="middle" color="#f7ead1" fillOpacity={opacity} outlineWidth={0.008} outlineColor="#5a3925">
+      <mesh position={[0, 0, 0.675]} renderOrder={1}>
+        <planeGeometry args={[2.08, 0.54]} />
+        <meshBasicMaterial map={coverTexture} transparent opacity={opacity * 0.92} toneMapped={false} />
+      </mesh>
+      <Text position={[0, 0.02, 0.69]} fontSize={0.2} maxWidth={2.08} anchorX="center" anchorY="middle" color="#f7ead1" fillOpacity={opacity} outlineWidth={0.008} outlineColor="#5a3925">
         {game.title.toUpperCase()}
       </Text>
       <Text position={[0, 0.31, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.13} maxWidth={2.1} anchorX="center" anchorY="middle" color="#fff2d1" fillOpacity={opacity * 0.9}>
