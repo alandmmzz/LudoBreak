@@ -196,7 +196,7 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
           <pointLight position={[-5, 2, 2]} intensity={1.2} color="#f6d28c" />
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.62, 0]} receiveShadow>
             <planeGeometry args={[12, 5]} />
-            <shadowMaterial transparent opacity={0.24} />
+            <shadowMaterial transparent opacity={0.16} />
           </mesh>
           <group position={[0, 0.72, 0]}>
             {[-2, -1, 0, 1, 2].map((slot) => {
@@ -206,7 +206,7 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
               return <BoardGameBox key={`${game.title}-${slot}`} game={game} offset={offset} selected={slot === 0} voted={selectedVotes.includes(index)} onSelect={() => onSelect(index)} />
             })}
           </group>
-          <ContactShadows position={[0, -0.58, 0]} opacity={0.42} scale={8.5} blur={2.2} far={4.5} resolution={1024} frames={1} />
+          <ContactShadows position={[0, -0.58, 0]} opacity={0.3} scale={8.5} blur={3.8} far={4.5} resolution={1024} frames={1} />
           <OrbitControls enablePan={false} enableZoom={false} enableRotate={false} />
         </Canvas>
       </div>
