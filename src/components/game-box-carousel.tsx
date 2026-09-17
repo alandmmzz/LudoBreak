@@ -1,6 +1,6 @@
 'use client'
 
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useLoader } from '@react-three/fiber'
 import { ContactShadows, OrbitControls, Text } from '@react-three/drei'
 import { useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
@@ -9,6 +9,7 @@ import { useFrame } from '@react-three/fiber'
 type Game = {
   title: string
   accent: string
+  cover: string
 }
 
 type GameBoxCarouselProps = {
@@ -28,6 +29,8 @@ const accentColors: Record<string, string> = {
 function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game; offset: number; selected: boolean; voted: boolean; onSelect: () => void }) {
   const distance = Math.abs(offset)
   const isCenter = Math.abs(offset) < 0.12
+  const coverTexture = useLoader(THREE.TextureLoader, game.cover)
+  coverTexture.colorSpace = THREE.SRGBColorSpace
   const rotation = offset * -0.18
   const intermediateSpread = Math.sign(offset) * 0.42 * Math.max(0, 1 - Math.abs(distance - 1) * 2)
   const x = offset * 1.95 + intermediateSpread
@@ -102,11 +105,11 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
         <planeGeometry args={[4.6, 3.4]} />
         <meshBasicMaterial map={glowTexture} transparent opacity={0} depthTest={false} depthWrite={false} toneMapped={false} />
       </mesh>
-      <mesh castShadow receiveShadow>
+      <mesh>
         <boxGeometry args={[2.25, 0.72, 1.28]} />
         <meshStandardMaterial color="#b98c5d" roughness={0.82} transparent opacity={opacity} />
       </mesh>
-      <mesh position={[0, 0.42, 0]} castShadow>
+      <mesh position={[0, 0.42, 0]}>
         <boxGeometry args={[2.38, 0.07, 1.4]} />
         <meshStandardMaterial color={color} roughness={0.72} transparent opacity={opacity} />
       </mesh>
@@ -114,9 +117,13 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
         <planeGeometry args={[2.2, 0.58]} />
         <meshStandardMaterial color={edge} roughness={0.8} transparent opacity={opacity} />
       </mesh>
-      <Text position={[0, 0.02, 0.67]} fontSize={0.2} maxWidth={2.08} anchorX="center" anchorY="middle" color="#f7ead1" fillOpacity={opacity} outlineWidth={0.008} outlineColor="#5a3925">
+      <mesh position={[0, 0, 0.675]} renderOrder={1}>
+        <planeGeometry args={[2.08, 0.54]} />
+        <meshBasicMaterial map={coverTexture} transparent opacity={opacity * 0.92} toneMapped={false} />
+      </mesh>
+      {!game.cover && <Text position={[0, 0.02, 0.69]} fontSize={0.2} maxWidth={2.08} anchorX="center" anchorY="middle" color="#f7ead1" fillOpacity={opacity} outlineWidth={0.008} outlineColor="#5a3925">
         {game.title.toUpperCase()}
-      </Text>
+      </Text>}
       <Text position={[0, 0.31, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.13} maxWidth={2.1} anchorX="center" anchorY="middle" color="#fff2d1" fillOpacity={opacity * 0.9}>
         GAME NIGHT
       </Text>
@@ -148,9 +155,21 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
     if (dragStart === null) return
     const distance = event.clientX - dragStart
     setDragStart(null)
-    setDragOffset(0)
-    if (Math.abs(distance) < 55) return
-    onSelect((active + (distance > 0 ? -1 : 1) + games.length) % games.length)
+    // A short drag returns through the same interpolated track animation.
+    if (Math.abs(distance) < 90) {
+      setDragOffset(0)
+      return
+    }
+
+    // Finish the gesture by carrying the next box all the way into the center.
+    // The active index changes only after that motion, so the scene never jumps.
+    const direction = distance > 0 ? 1 : -1
+    const nextIndex = (active + (distance > 0 ? -1 : 1) + games.length) % games.length
+    setDragOffset(direction)
+    window.setTimeout(() => {
+      onSelect(nextIndex)
+      setDragOffset(0)
+    }, 420)
   }
 
   return (
@@ -180,7 +199,7 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
         <Canvas shadows camera={{ position: [0, 2.55, 8.6], fov: 32 }} dpr={[1, 1.5]}>
           <fog attach="fog" args={['#111817', 6.5, 11.5]} />
           <ambientLight intensity={1.8} />
-          <directionalLight position={[0, 6, 5]} intensity={3} castShadow shadow-mapSize={[1024, 1024]} />
+          <directionalLight position={[0, 6, 5]} intensity={3} />
           <pointLight position={[-5, 2, 2]} intensity={1.2} color="#f6d28c" />
           <group position={[0, 0.72, 0]}>
             {[-2, -1, 0, 1, 2].map((slot) => {
@@ -189,8 +208,9 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
               const game = games[index]
               return <BoardGameBox key={`${game.title}-${slot}`} game={game} offset={offset} selected={slot === 0} voted={selectedVotes.includes(index)} onSelect={() => onSelect(index)} />
             })}
+            {/* Anchored to the group so the shadow plane sits directly under the box bottoms instead of floating far below them. */}
+            <ContactShadows position={[0, -0.365, 0]} opacity={1} scale={4.4} blur={1.4} far={0.55} resolution={1024} frames={1} color="#000000" />
           </group>
-          <ContactShadows position={[0, -0.72, 0]} opacity={0.28} scale={12} blur={2.6} far={5} />
           <OrbitControls enablePan={false} enableZoom={false} enableRotate={false} />
         </Canvas>
       </div>
