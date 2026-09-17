@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { GameBoxCarousel } from '@/components/game-box-carousel'
+
+const BACKDROP_SETTLE_DELAY = 900
 
 const games = [
   { title: 'Quest', genre: 'Hidden roles · 5–10 players', time: '30–45 min', votes: 7, accent: 'gold', cover: '/games/quest.png', backdrop: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=2200&q=85' },
@@ -20,20 +22,37 @@ export default function Home() {
   const [transition, setTransition] = useState<'next' | 'previous'>('next')
   const [transitionKey, setTransitionKey] = useState(0)
   const [previousBackdrop, setPreviousBackdrop] = useState(games[0].backdrop)
+  const [backdropIndex, setBackdropIndex] = useState(0)
+  const lastDirection = useRef<'next' | 'previous'>('next')
   const game = games[active]
   const changeGame = (direction: 'next' | 'previous', index: number) => {
-    setTransition(direction)
-    setPreviousBackdrop(game.backdrop)
-    setTransitionKey((key) => key + 1)
+    lastDirection.current = direction
     setActive(index)
   }
   const previous = () => changeGame('previous', (active - 1 + games.length) % games.length)
   const next = () => changeGame('next', (active + 1) % games.length)
 
+  // Wait for the user to settle on a game before swapping the backdrop, so
+  // rapid swiping doesn't trigger a crossfade on every single slide.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setBackdropIndex((current) => {
+        if (current === active) return current
+        setTransition(lastDirection.current)
+        setPreviousBackdrop(games[current].backdrop)
+        setTransitionKey((key) => key + 1)
+        return active
+      })
+    }, BACKDROP_SETTLE_DELAY)
+    return () => clearTimeout(timer)
+  }, [active])
+
+  const backdropGame = games[backdropIndex]
+
   return (
-    <main className="night-app" style={{ '--backdrop': `url(${game.backdrop})` } as React.CSSProperties}>
+    <main className="night-app" style={{ '--backdrop': `url(${backdropGame.backdrop})` } as React.CSSProperties}>
       <div key={`previous-${transitionKey}`} className="backdrop backdrop-previous" style={{ '--backdrop': `url(${previousBackdrop})` } as React.CSSProperties} aria-hidden="true" />
-      <div key={`current-${transitionKey}`} className="backdrop backdrop-current" style={{ '--backdrop': `url(${game.backdrop})` } as React.CSSProperties} aria-hidden="true" />
+      <div key={`current-${transitionKey}`} className="backdrop backdrop-current" style={{ '--backdrop': `url(${backdropGame.backdrop})` } as React.CSSProperties} aria-hidden="true" />
       <header className="night-header">
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
         <div className="night-logo"><b>LB</b><span>LudoBreak</span></div>
