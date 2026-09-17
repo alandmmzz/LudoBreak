@@ -201,8 +201,9 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
               const game = games[index]
               return <BoardGameBox key={`${game.title}-${slot}`} game={game} offset={offset} selected={slot === 0} voted={selectedVotes.includes(index)} onSelect={() => onSelect(index)} />
             })}
+            {/* Anchored to the group so the shadow plane sits directly under the box bottoms instead of floating far below them. */}
+            <ContactShadows position={[0, -0.365, 0]} opacity={1} scale={4.4} blur={1.4} far={0.55} resolution={1024} frames={1} color="#000000" />
           </group>
-          <ContactShadows position={[0, -0.335, 0]} opacity={0.95} scale={4.4} blur={2.4} far={1.1} resolution={1024} frames={1} color="#000000" />
           <OrbitControls enablePan={false} enableZoom={false} enableRotate={false} />
         </Canvas>
       </div>
