@@ -3,6 +3,7 @@
 import useSWR from 'swr'
 import { useEffect, useRef, useState } from 'react'
 import { GameBoxCarousel } from '@/components/game-box-carousel'
+import { AdminGamePanel } from '@/components/admin-game-panel'
 
 const BACKDROP_SETTLE_DELAY = 650
 const fetcher = (url: string) => fetch(url).then((response) => response.json())
@@ -15,9 +16,10 @@ const fallbackGames = [
 ]
 
 export default function Home() {
-  const { data: games = fallbackGames } = useSWR<typeof fallbackGames>('/api/games', fetcher, { fallbackData: fallbackGames })
+  const { data: games = fallbackGames, mutate } = useSWR<typeof fallbackGames>('/api/games', fetcher, { fallbackData: fallbackGames })
   const [active, setActive] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [adminOpen, setAdminOpen] = useState(false)
   const [selectedVotes, setSelectedVotes] = useState<number[]>([])
   const voted = selectedVotes.includes(active)
   const toggleVote = () => setSelectedVotes((votes) => votes.includes(active) ? votes.filter((vote) => vote !== active) : [...votes, active])
@@ -70,7 +72,11 @@ export default function Home() {
         <p>Comunidad</p>
         <button onClick={() => setMenuOpen(false)}><span>♧</span>Invitar amigos</button>
         <button onClick={() => setMenuOpen(false)}><span>⚙</span>Ajustes</button>
+        <div className="menu-rule" />
+        <p>Administración</p>
+        <button className="admin-menu-item" onClick={() => { setAdminOpen(true); setMenuOpen(false) }}><span>▣</span>Editar juegos y cajas</button>
       </aside>
+      {adminOpen && <AdminGamePanel games={games} onClose={() => setAdminOpen(false)} onSaved={() => mutate('/api/games')} />}
 
       <section className="hero-content">
         <div className="group-kicker"><span /> GROUP <span /></div>
