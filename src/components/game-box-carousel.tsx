@@ -38,7 +38,7 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
   const z = -0.08 - distance * distance * 0.3 + (voted ? 0.3 : 0)
   const scale = THREE.MathUtils.clamp(0.98 - distance * 0.24, 0.28, 0.98) + (voted ? 0.1 : 0)
   const opacity = THREE.MathUtils.clamp(1 - distance * 0.3, 0, 1)
-  const color = new THREE.Color(accentColors[game.accent] ?? '#a98150').lerp(new THREE.Color('#182020'), THREE.MathUtils.clamp(distance * 0.18, 0, 0.58)).getStyle()
+  const color = new THREE.Color(accentColors[game.accent] ?? game.accent ?? '#a98150').lerp(new THREE.Color('#182020'), THREE.MathUtils.clamp(distance * 0.18, 0, 0.58)).getStyle()
   const edge = useMemo(() => new THREE.Color(color).multiplyScalar(0.62), [color])
   const glowTexture = useMemo(() => {
     const canvas = document.createElement('canvas')
@@ -132,7 +132,7 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
   const [dragOffset, setDragOffset] = useState(0)
   const dragged = useRef(false)
   const activeVoted = selectedVotes.includes(active)
-  const activeColor = accentColors[games[active]?.accent] ?? '#a98150'
+  const activeColor = accentColors[games[active]?.accent] ?? games[active]?.accent ?? '#a98150'
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     setDragStart(event.clientX)
