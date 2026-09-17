@@ -121,9 +121,9 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
         <planeGeometry args={[2.08, 0.54]} />
         <meshBasicMaterial map={coverTexture} transparent opacity={opacity * 0.92} toneMapped={false} />
       </mesh>
-      <Text position={[0, 0.02, 0.69]} fontSize={0.2} maxWidth={2.08} anchorX="center" anchorY="middle" color="#f7ead1" fillOpacity={opacity} outlineWidth={0.008} outlineColor="#5a3925">
+      {!game.cover && <Text position={[0, 0.02, 0.69]} fontSize={0.2} maxWidth={2.08} anchorX="center" anchorY="middle" color="#f7ead1" fillOpacity={opacity} outlineWidth={0.008} outlineColor="#5a3925">
         {game.title.toUpperCase()}
-      </Text>
+      </Text>}
       <Text position={[0, 0.31, 0]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.13} maxWidth={2.1} anchorX="center" anchorY="middle" color="#fff2d1" fillOpacity={opacity * 0.9}>
         GAME NIGHT
       </Text>
