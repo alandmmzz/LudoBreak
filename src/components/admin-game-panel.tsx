@@ -11,10 +11,11 @@ export type AdminGame = {
   accent: string
   cover: string
   backdrop: string
+  rules: string
 }
 
 const emptyGame: Omit<AdminGame, 'id'> = {
-  title: '', genre: '', time: '', votes: 0, accent: 'gold', cover: '', backdrop: '',
+  title: '', genre: '', time: '', votes: 0, accent: 'gold', cover: '', backdrop: '', rules: '',
 }
 
 export function AdminGamePanel({ games, onClose, onSaved }: { games: AdminGame[]; onClose: () => void; onSaved: () => void }) {
@@ -24,20 +25,21 @@ export function AdminGamePanel({ games, onClose, onSaved }: { games: AdminGame[]
   const [isNew, setIsNew] = useState(!selected)
   const [status, setStatus] = useState('')
   const [saving, setSaving] = useState(false)
-  const [uploading, setUploading] = useState<'cover' | 'backdrop' | null>(null)
+  const [uploading, setUploading] = useState<'cover' | 'backdrop' | 'rules' | null>(null)
 
-  const uploadImage = async (field: 'cover' | 'backdrop', file?: File) => {
+  const uploadImage = async (field: 'cover' | 'backdrop' | 'rules', file?: File) => {
     if (!file) return
     setUploading(field)
     setStatus('')
     const formData = new FormData()
     formData.append('file', file)
+    if (field === 'rules') formData.append('kind', 'rules')
     const response = await fetch('/api/upload', { method: 'POST', body: formData })
     const body = await response.json()
     setUploading(null)
-    if (!response.ok) return setStatus(body.error || 'No se pudo subir la imagen')
+    if (!response.ok) return setStatus(body.error || 'No se pudo subir el archivo')
     setDraft((current) => ({ ...current, [field]: body.url }))
-    setStatus('Imagen cargada. Guarda los cambios para aplicarla.')
+    setStatus(field === 'rules' ? 'PDF cargado. Guarda los cambios para aplicarlo.' : 'Imagen cargada. Guarda los cambios para aplicarla.')
   }
 
   const imageField = (field: 'cover' | 'backdrop', label: string, placeholder: string) => <label>{label}<input value={draft[field]} onChange={(event) => update(field, event.target.value)} placeholder={placeholder} /><span className="admin-upload-row"><input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => uploadImage(field, event.target.files?.[0])} disabled={uploading !== null} /><small>{uploading === field ? 'SUBIENDO...' : 'JPG, PNG o WebP · máx. 8 MB'}</small></span>{draft[field] && <span className={`admin-image-preview ${field === 'cover' ? 'cover-preview' : 'backdrop-preview'}`}><img src={draft[field]} alt={`Vista previa de ${label.toLowerCase()}`} onError={(event) => { event.currentTarget.style.display = 'none' }} /></span>}</label>
@@ -73,7 +75,7 @@ export function AdminGamePanel({ games, onClose, onSaved }: { games: AdminGame[]
     <div className="admin-panel-head"><div><span className="admin-eyebrow">CONTROL ROOM</span><h2>Juegos &amp; cajas</h2></div><button className="admin-close" onClick={onClose} aria-label="Cerrar administración">×</button></div>
     <div className="admin-layout">
       <div className="admin-list"><div className="admin-list-label">CATÁLOGO · {games.length}</div>{games.map((game) => <button key={game.id} className={game.id === selectedId && !isNew ? 'admin-game-row active' : 'admin-game-row'} onClick={() => choose(game)}><span className="admin-swatch" style={{ background: `var(--${game.accent}, #b58b5b)` }} /><span><b>{game.title}</b><small>{game.genre}</small></span></button>)}<button className={isNew ? 'admin-new active' : 'admin-new'} onClick={() => { setIsNew(true); setSelectedId(null); setDraft(emptyGame) }}>+ Agregar juego</button></div>
-      <div className="admin-form"><div className="admin-form-title">{isNew ? 'Nueva caja' : 'Editar caja'}</div><label>Nombre<input value={draft.title} onChange={(event) => update('title', event.target.value)} placeholder="Nombre del juego" /></label><div className="admin-form-grid"><label>Categoría<input value={draft.genre} onChange={(event) => update('genre', event.target.value)} placeholder="Hidden roles · 5–10 players" /></label><label>Duración<input value={draft.time} onChange={(event) => update('time', event.target.value)} placeholder="30–45 min" /></label></div><div className="admin-form-grid"><label>Color<select value={['gold', 'orange', 'red', 'teal'].includes(draft.accent) ? draft.accent : 'custom'} onChange={(event) => update('accent', event.target.value === 'custom' ? '#b58b5b' : event.target.value)}><option value="gold">Gold</option><option value="orange">Orange</option><option value="red">Red</option><option value="teal">Teal</option><option value="custom">Personalizado</option></select><span className="admin-color-row"><input className="admin-color-picker" type="color" value={draft.accent.startsWith('#') ? draft.accent : '#b58b5b'} onChange={(event) => update('accent', event.target.value)} /><code>{draft.accent}</code></span></label><label>Votos<input type="number" min="0" value={draft.votes} onChange={(event) => update('votes', event.target.value)} /></label></div>{imageField('cover', 'Imagen de caja', '/games/mi-juego.png')}{imageField('backdrop', 'Imagen de fondo', 'https://...')}<div className="admin-actions"><button className="admin-save" onClick={save} disabled={saving}>{saving ? 'GUARDANDO...' : isNew ? 'CREAR CAJA' : 'GUARDAR CAMBIOS'}</button>{!isNew && <button className="admin-delete" onClick={remove}>ELIMINAR</button>}</div>{status && <p className="admin-status">{status}</p>}</div>
+      <div className="admin-form"><div className="admin-form-title">{isNew ? 'Nueva caja' : 'Editar caja'}</div><label>Nombre<input value={draft.title} onChange={(event) => update('title', event.target.value)} placeholder="Nombre del juego" /></label><div className="admin-form-grid"><label>Categoría<input value={draft.genre} onChange={(event) => update('genre', event.target.value)} placeholder="Hidden roles · 5–10 players" /></label><label>Duración<input value={draft.time} onChange={(event) => update('time', event.target.value)} placeholder="30–45 min" /></label></div><div className="admin-form-grid"><label>Color<select value={['gold', 'orange', 'red', 'teal'].includes(draft.accent) ? draft.accent : 'custom'} onChange={(event) => update('accent', event.target.value === 'custom' ? '#b58b5b' : event.target.value)}><option value="gold">Gold</option><option value="orange">Orange</option><option value="red">Red</option><option value="teal">Teal</option><option value="custom">Personalizado</option></select><span className="admin-color-row"><input className="admin-color-picker" type="color" value={draft.accent.startsWith('#') ? draft.accent : '#b58b5b'} onChange={(event) => update('accent', event.target.value)} /><code>{draft.accent}</code></span></label><label>Votos<input type="number" min="0" value={draft.votes} onChange={(event) => update('votes', event.target.value)} /></label></div>{imageField('cover', 'Imagen de caja', '/games/mi-juego.png')}{imageField('backdrop', 'Imagen de fondo', 'https://...')}<label>Reglas (PDF)<span className="admin-upload-row"><input type="file" accept="application/pdf" onChange={(event) => uploadImage('rules', event.target.files?.[0])} disabled={uploading !== null} /><small>{uploading === 'rules' ? 'SUBIENDO...' : 'PDF · máx. 20 MB'}</small></span>{draft.rules ? <span className="admin-rules-current"><a href={draft.rules} target="_blank" rel="noopener noreferrer">Ver PDF actual</a><button type="button" onClick={() => update('rules', '')}>Quitar</button></span> : <small>Este juego todavía no tiene reglas.</small>}</label><div className="admin-actions"><button className="admin-save" onClick={save} disabled={saving}>{saving ? 'GUARDANDO...' : isNew ? 'CREAR CAJA' : 'GUARDAR CAMBIOS'}</button>{!isNew && <button className="admin-delete" onClick={remove}>ELIMINAR</button>}</div>{status && <p className="admin-status">{status}</p>}</div>
     </div>
   </div>
 }

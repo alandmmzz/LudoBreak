@@ -41,26 +41,26 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
   const color = new THREE.Color(accentColors[game.accent] ?? game.accent ?? '#a98150').lerp(new THREE.Color('#182020'), THREE.MathUtils.clamp(distance * 0.18, 0, 0.58)).getStyle()
   const edge = useMemo(() => new THREE.Color(color).multiplyScalar(0.62), [color])
   const glowTexture = useMemo(() => {
-    const canvas = document.createElement('canvas')
-    canvas.width = 256
-    canvas.height = 256
-    const context = canvas.getContext('2d')!
-    const gradient = context.createRadialGradient(128, 128, 0, 128, 128, 128)
-    const base = new THREE.Color(color)
-    const stops = [
-      [0, 0.65],
-      [0.22, 0.55],
-      [0.42, 0.38],
-      [0.62, 0.2],
-      [0.8, 0.07],
-      [1, 0],
-    ] as const
-    stops.forEach(([offsetStop, alpha]) => {
-      gradient.addColorStop(offsetStop, `rgba(${Math.round(base.r * 255)}, ${Math.round(base.g * 255)}, ${Math.round(base.b * 255)}, ${alpha})`)
-    })
-    context.fillStyle = gradient
-    context.fillRect(0, 0, 256, 256)
-    const texture = new THREE.CanvasTexture(canvas)
+    const size = 128
+    const data = new Uint8Array(size * size * 4)
+    const base = new THREE.Color(color).convertLinearToSRGB()
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const dx = (x + 0.5) / size * 2 - 1
+        const dy = (y + 0.5) / size * 2 - 1
+        const falloff = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy))
+        const alpha = Math.pow(falloff, 1.6) * 0.8
+        const i = (y * size + x) * 4
+        data[i] = Math.round(base.r * 255)
+        data[i + 1] = Math.round(base.g * 255)
+        data[i + 2] = Math.round(base.b * 255)
+        data[i + 3] = Math.round(alpha * 255)
+      }
+    }
+    const texture = new THREE.DataTexture(data, size, size, THREE.RGBAFormat)
+    texture.colorSpace = THREE.SRGBColorSpace
+    texture.magFilter = THREE.LinearFilter
+    texture.minFilter = THREE.LinearFilter
     texture.needsUpdate = true
     return texture
   }, [color])
@@ -87,6 +87,7 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
     if (glowRef.current) {
       const material = glowRef.current.material as THREE.MeshBasicMaterial
       material.opacity = THREE.MathUtils.damp(material.opacity, voted ? 0.85 : 0, 7, delta)
+      if (voted) console.log('[v0] glow', game.title, material.opacity, glowRef.current.visible)
     }
     groupRef.current.traverse((child) => {
       if (!(child instanceof THREE.Mesh) || child.userData.isVoteGlow) return
@@ -103,7 +104,7 @@ function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game;
       <pointLight ref={lightRef} position={[0, 0.15, -0.85]} color={color} intensity={0} distance={4} decay={2} />
       <mesh ref={glowRef} position={[0, 0.1, -0.72]} userData={{ isVoteGlow: true }} renderOrder={-1}>
         <planeGeometry args={[4.6, 3.4]} />
-        <meshBasicMaterial map={glowTexture} transparent opacity={0} depthTest={false} depthWrite={false} toneMapped={false} />
+        <meshBasicMaterial map={glowTexture} transparent opacity={0} depthTest={false} depthWrite={false} toneMapped={false} fog={false} />
       </mesh>
       <mesh>
         <boxGeometry args={[2.25, 0.72, 1.28]} />
@@ -131,8 +132,6 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
   const [dragStart, setDragStart] = useState<number | null>(null)
   const [dragOffset, setDragOffset] = useState(0)
   const dragged = useRef(false)
-  const activeVoted = selectedVotes.includes(active)
-  const activeColor = accentColors[games[active]?.accent] ?? games[active]?.accent ?? '#a98150'
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     setDragStart(event.clientX)
@@ -170,11 +169,6 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
 
   return (
     <div className="three-carousel-wrap">
-      <div
-        className={`vote-backlight ${activeVoted ? 'active' : ''}`}
-        style={{ '--glow': activeColor } as React.CSSProperties}
-        aria-hidden="true"
-      />
       <div
         className="three-carousel"
         aria-label="Carrusel 3D de juegos"
