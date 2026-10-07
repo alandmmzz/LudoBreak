@@ -13,11 +13,13 @@ const fetcher = async (url: string) => {
   return payload
 }
 
+const GROUP_NAME = 'Game Night Crew'
+
 const fallbackGames = [
-  { id: 1, title: 'Quest', genre: 'Hidden roles · 5–10 players', time: '30–45 min', votes: 7, accent: 'gold', cover: '/games/quest.png', backdrop: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=2200&q=85' },
-  { id: 2, title: 'Exploding Kittens', genre: 'Party · 2–5 players', time: '15–20 min', votes: 4, accent: 'red', cover: '/games/exploding-kittens.png', backdrop: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=2200&q=85' },
-  { id: 3, title: 'Secret Hitler', genre: 'Hidden roles · 5–10 players', time: '45–60 min', votes: 3, accent: 'orange', cover: '/games/secret-hitler.png', backdrop: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2200&q=85' },
-  { id: 4, title: 'Saboteur 2', genre: 'Bluffing · 2–12 players', time: '30–45 min', votes: 2, accent: 'teal', cover: '/games/saboteur-2.png', backdrop: 'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=2200&q=85' },
+  { id: 1, title: 'Quest', genre: 'Hidden roles · 5–10 players', time: '30–45 min', votes: 7, accent: 'gold', cover: '/games/quest.png', rules: '', backdrop: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=2200&q=85' },
+  { id: 2, title: 'Exploding Kittens', genre: 'Party · 2–5 players', time: '15–20 min', votes: 4, accent: 'red', cover: '/games/exploding-kittens.png', rules: '', backdrop: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=2200&q=85' },
+  { id: 3, title: 'Secret Hitler', genre: 'Hidden roles · 5–10 players', time: '45–60 min', votes: 3, accent: 'orange', cover: '/games/secret-hitler.png', rules: '', backdrop: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2200&q=85' },
+  { id: 4, title: 'Saboteur 2', genre: 'Bluffing · 2–12 players', time: '30–45 min', votes: 2, accent: 'teal', cover: '/games/saboteur-2.png', rules: '', backdrop: 'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=2200&q=85' },
 ]
 
 export default function Home() {
@@ -79,7 +81,7 @@ export default function Home() {
       <header className="night-header">
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
         <div className="night-logo"><b>LB</b><span>LudoBreak</span></div>
-        <div className="header-group"><i /> Los jueves <span>4 jugadores</span></div>
+        <div className="header-group"><i /> {GROUP_NAME} <span>4 jugadores</span></div>
         <button className="profile-pill" aria-label="Abrir perfil"><span>A</span><b>Aland</b></button>
       </header>
 
@@ -94,13 +96,18 @@ export default function Home() {
         <p>Administración</p>
         <button className="admin-menu-item" onClick={() => { setAdminOpen(true); setMenuOpen(false) }}><span>▣</span>Editar juegos y cajas</button>
       </aside>
-      {adminOpen && <AdminGamePanel games={games} onClose={() => setAdminOpen(false)} onSaved={() => mutate('/api/games')} />}
+      {adminOpen && <AdminGamePanel games={games} onClose={() => setAdminOpen(false)} onSaved={() => mutate()} />}
 
       <section className="hero-content">
-        <div className="group-kicker"><span /> GROUP <span /></div>
-        <h1>GAME NIGHT CREW</h1>
+        <div className="group-kicker"><span /> {GROUP_NAME.toUpperCase()} <span /></div>
+        <h1 key={game.id}>{game.title}</h1>
         <p className="hero-subtitle">PICK YOUR GAME</p>
-        <div className="carousel-meta"><span>{game.genre}</span><b>•</b><span>{game.time}</span></div>
+        <div className="carousel-meta">
+          <span>{game.genre}</span><b>•</b><span>{game.time}</span><b>•</b>
+          {game.rules
+            ? <a className="rules-link" href={game.rules} target="_blank" rel="noopener noreferrer">Ver reglas (PDF)<span aria-hidden="true">↗</span></a>
+            : <span className="rules-missing">Sin reglas aún</span>}
+        </div>
         <div className="stage">
           <div className="stage-carousel">
             <div className="game-carousel three-game-carousel">

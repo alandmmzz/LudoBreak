@@ -87,3 +87,13 @@ button { font:inherit; cursor:pointer; }
 
 .hero-content{padding-bottom:80px}
 .submit-votes span,.vote-button span{white-space:nowrap}
+
+/* Hero title follows the active game; rules link + admin PDF field */
+.hero-content h1 { text-transform:uppercase; text-wrap:balance; max-width:min(92vw,1100px); }
+.carousel-meta { flex-wrap:wrap; justify-content:center; }
+.rules-link { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border:1px solid var(--gold,#b58b5b); color:#f4f0e8; text-decoration:none; transition:background .2s, color .2s; }
+.rules-link:hover,.rules-link:focus-visible { background:var(--gold,#b58b5b); color:#111; outline:none; }
+.rules-missing { color:#716f69; }
+.admin-rules-current { display:flex; align-items:center; gap:14px; font-size:12px; }
+.admin-rules-current a { color:var(--gold,#b58b5b); text-decoration:underline; }
+.admin-rules-current button { background:none; border:0; color:#c0564a; cursor:pointer; text-decoration:underline; font:inherit; }
