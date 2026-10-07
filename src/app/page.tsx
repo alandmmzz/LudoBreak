@@ -27,9 +27,20 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [adminOpen, setAdminOpen] = useState(false)
   const [selectedVotes, setSelectedVotes] = useState<number[]>([])
+  const [submittedVotes, setSubmittedVotes] = useState<number[] | null>(null)
+  const [showResults, setShowResults] = useState(false)
   const voted = selectedVotes.includes(active)
-  const toggleVote = () => setSelectedVotes((votes) => votes.includes(active) ? votes.filter((vote) => vote !== active) : [...votes, active])
-  const submitVotes = () => setSelectedVotes([])
+  const toggleVote = () => {
+    setSubmittedVotes(null)
+    setSelectedVotes((votes) => votes.includes(active) ? votes.filter((vote) => vote !== active) : [...votes, active])
+  }
+  const submitVotes = () => {
+    if (selectedVotes.length > 0) {
+      setSubmittedVotes(selectedVotes)
+      setShowResults(false)
+    }
+  }
+  const selectedGames = (submittedVotes ?? selectedVotes).map((index) => games[index]).filter(Boolean)
   const [transition, setTransition] = useState<'next' | 'previous'>('next')
   const [transitionKey, setTransitionKey] = useState(0)
   const [previousBackdrop, setPreviousBackdrop] = useState(games[0].backdrop)
@@ -96,7 +107,14 @@ export default function Home() {
           <button className="carousel-arrow right" onClick={next} aria-label="Siguiente juego">→</button>
         </div>
         <div className="carousel-dots">{games.map((item, index) => <button key={item.title} className={index === active ? 'active' : ''} onClick={() => changeGame(index > active ? 'next' : 'previous', index)} aria-label={`Ver ${item.title}`} />)}</div>
-        <div className="vote-area"><button className={`vote-button ${voted ? 'confirmed' : ''}`} onClick={toggleVote}>{voted ? 'VOTED' : 'VOTE'} <span>· {game.votes + (voted ? 1 : 0)} votes</span></button><button className="submit-votes" onClick={submitVotes} disabled={selectedVotes.length === 0} style={{ border: '1px solid rgba(216,170,54,.65)', background: 'rgba(216,170,54,.12)', color: '#f4d98b', padding: '10px 15px', fontSize: 10, letterSpacing: '1.5px' }}>SUBMIT VOTES <span>({selectedVotes.length})</span></button><p>{selectedVotes.length ? `${selectedVotes.length} juego${selectedVotes.length === 1 ? '' : 's'} seleccionado${selectedVotes.length === 1 ? '' : 's'}` : 'Vote for what we play tonight'}</p></div>
+        <div className="vote-area">
+          <div className="vote-actions">
+            <button className={`vote-button ${voted ? 'confirmed' : ''}`} onClick={toggleVote}>{voted ? 'VOTED' : 'VOTE'} <span>· {game.votes + (voted ? 1 : 0)} votes</span></button>
+            {submittedVotes ? <button className="results-button" onClick={() => setShowResults((visible) => !visible)}>{showResults ? 'HIDE RESULTS' : 'VIEW RESULTS'}</button> : <button className="submit-votes" onClick={submitVotes} disabled={selectedVotes.length === 0}>SUBMIT VOTES <span>({selectedVotes.length})</span></button>}
+          </div>
+          {selectedGames.length > 0 && !showResults && <div className="selected-games"><span className="selected-games-label">{submittedVotes ? 'SUBMITTED GAMES' : 'SELECTED GAMES'}</span><div>{selectedGames.map((selectedGame) => <span className="selected-game" key={selectedGame.title}>{selectedGame.title}</span>)}</div></div>}
+          {showResults && submittedVotes ? <div className="results-panel"><span className="selected-games-label">VOTE RESULTS</span>{games.map((resultGame) => <div className="result-row" key={resultGame.title}><span>{resultGame.title}</span><b>{resultGame.votes + (submittedVotes.includes(games.indexOf(resultGame)) ? 1 : 0)} votes</b></div>)}</div> : <p>{selectedVotes.length ? `${selectedVotes.length} juego${selectedVotes.length === 1 ? '' : 's'} seleccionado${selectedVotes.length === 1 ? '' : 's'}` : submittedVotes ? 'Votes submitted successfully' : 'Vote for what we play tonight'}</p>}
+        </div>
       </section>
       <footer className="night-footer"><span>FRI 24 OCT · 20:00</span><span>GAME NIGHT #18</span><span>© LUDOBREAK</span></footer>
     </main>
