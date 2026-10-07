@@ -101,22 +101,47 @@ export default function Home() {
         <h1>GAME NIGHT CREW</h1>
         <p className="hero-subtitle">PICK YOUR GAME</p>
         <div className="carousel-meta"><span>{game.genre}</span><b>•</b><span>{game.time}</span></div>
-        <div className="game-carousel three-game-carousel">
-          <button className="carousel-arrow left" onClick={previous} aria-label="Juego anterior">←</button>
-          <GameBoxCarousel games={games} active={active} selectedVotes={selectedVotes} onSelect={(index) => changeGame(index > active ? 'next' : 'previous', index)} />
-          <button className="carousel-arrow right" onClick={next} aria-label="Siguiente juego">→</button>
-        </div>
-        <div className="carousel-dots">{games.map((item, index) => <button key={item.title} className={index === active ? 'active' : ''} onClick={() => changeGame(index > active ? 'next' : 'previous', index)} aria-label={`Ver ${item.title}`} />)}</div>
-        <div className="vote-layout">
-          <div className="vote-area">
+        <div className="stage">
+          <div className="stage-carousel">
+            <div className="game-carousel three-game-carousel">
+              <button className="carousel-arrow left" onClick={previous} aria-label="Juego anterior">←</button>
+              <GameBoxCarousel games={games} active={active} selectedVotes={selectedVotes} onSelect={(index) => changeGame(index > active ? 'next' : 'previous', index)} />
+              <button className="carousel-arrow right" onClick={next} aria-label="Siguiente juego">→</button>
+            </div>
+            <div className="carousel-dots">{games.map((item, index) => <button key={item.title} className={index === active ? 'active' : ''} onClick={() => changeGame(index > active ? 'next' : 'previous', index)} aria-label={`Ver ${item.title}`} />)}</div>
+          </div>
+          <aside className="stage-panel">
+            {showResults && submittedVotes ? (
+              <section className="panel-card results-panel" aria-label="Vote results">
+                <header className="panel-card-header"><span className="selected-games-label">VOTE RESULTS</span></header>
+                {games.map((resultGame, resultIndex) => <div className="result-row" key={resultGame.title}><span>{resultGame.title}</span><b>{resultGame.votes + (submittedVotes.includes(resultIndex) ? 1 : 0)} votes</b></div>)}
+              </section>
+            ) : (
+              <section className="panel-card" aria-label="Selected games">
+                <header className="panel-card-header">
+                  <span className="selected-games-label">{submittedVotes ? 'SUBMITTED GAMES' : 'SELECTED GAMES'}</span>
+                  <b>{selectedGames.length}/{games.length}</b>
+                </header>
+                <ul className="game-checklist">
+                  {games.map((checkGame, checkIndex) => {
+                    const checked = (submittedVotes ?? selectedVotes).includes(checkIndex)
+                    return (
+                      <li key={checkGame.title}>
+                        <button className={`check-row ${checked ? 'checked' : ''} ${checkIndex === active ? 'current' : ''}`} onClick={() => changeGame(checkIndex > active ? 'next' : 'previous', checkIndex)} aria-label={`${checkGame.title}${checked ? ' (seleccionado)' : ''}`}>
+                          <span className="check-box" aria-hidden="true">{checked ? '✓' : ''}</span>
+                          <span className="check-title">{checkGame.title}</span>
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </section>
+            )}
             <div className="vote-actions">
               <button className={`vote-button ${voted ? 'confirmed' : ''}`} onClick={toggleVote}>{voted ? 'VOTED' : 'VOTE'} <span>· {game.votes + (voted ? 1 : 0)} votes</span></button>
               {submittedVotes ? <button className="results-button" onClick={() => setShowResults((visible) => !visible)}>{showResults ? 'HIDE RESULTS' : 'VIEW RESULTS'}</button> : <button className="submit-votes" onClick={submitVotes} disabled={selectedVotes.length === 0}>SUBMIT VOTES <span>({selectedVotes.length})</span></button>}
             </div>
-            <p>{selectedVotes.length ? `${selectedVotes.length} juego${selectedVotes.length === 1 ? '' : 's'} seleccionado${selectedVotes.length === 1 ? '' : 's'}` : submittedVotes ? 'Votes submitted successfully' : 'Vote for what we play tonight'}</p>
-          </div>
-          <aside className="selection-column">
-            {showResults && submittedVotes ? <div className="results-panel"><span className="selected-games-label">VOTE RESULTS</span>{games.map((resultGame) => <div className="result-row" key={resultGame.title}><span>{resultGame.title}</span><b>{resultGame.votes + (submittedVotes.includes(games.indexOf(resultGame)) ? 1 : 0)} votes</b></div>)}</div> : <div className="selected-games"><span className="selected-games-label">{submittedVotes ? 'SUBMITTED GAMES' : 'SELECTED GAMES'}</span>{selectedGames.length > 0 ? <div>{selectedGames.map((selectedGame) => <span className="selected-game" key={selectedGame.title}>{selectedGame.title}</span>)}</div> : <p className="empty-selection">Choose a game from the carousel to add it here.</p>}</div>}
+            <p className="vote-hint">{selectedVotes.length && !submittedVotes ? `${selectedVotes.length} juego${selectedVotes.length === 1 ? '' : 's'} seleccionado${selectedVotes.length === 1 ? '' : 's'}` : submittedVotes ? 'Votes submitted successfully' : 'Vote for what we play tonight'}</p>
           </aside>
         </div>
       </section>
