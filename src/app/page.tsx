@@ -129,14 +129,16 @@ export default function Home() {
                   <span className="selected-games-label">{submittedVotes ? 'SUBMITTED GAMES' : 'SELECTED GAMES'}</span>
                   <b>{selectedGames.length}/{games.length}</b>
                 </header>
+                <p className="panel-card-hint">Toca un juego para verlo en el carrusel y votar.</p>
                 <ul className="game-checklist">
                   {games.map((checkGame, checkIndex) => {
                     const checked = (submittedVotes ?? selectedVotes).includes(checkIndex)
                     return (
                       <li key={checkGame.title}>
                         <button className={`check-row ${checked ? 'checked' : ''} ${checkIndex === active ? 'current' : ''}`} onClick={() => changeGame(checkIndex > active ? 'next' : 'previous', checkIndex)} aria-label={`${checkGame.title}${checked ? ' (seleccionado)' : ''}`}>
-                          <span className="check-box" aria-hidden="true">{checked ? '✓' : ''}</span>
+                          <span className="check-box" aria-hidden="true">{checked && <svg viewBox="0 0 12 12" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 6.5l2.5 2.5 4.5-5.5" /></svg>}</span>
                           <span className="check-title">{checkGame.title}</span>
+                          <span className="check-chevron" aria-hidden="true">›</span>
                         </button>
                       </li>
                     )
