@@ -4,6 +4,7 @@ import useSWR from 'swr'
 import { useEffect, useRef, useState } from 'react'
 import { GameBoxCarousel } from '@/components/game-box-carousel'
 import { AdminGamePanel } from '@/components/admin-game-panel'
+import { ChartNoAxesCombined, History, House, Library, PanelsTopLeft, Settings, UserPlus } from 'lucide-react'
 
 const BACKDROP_SETTLE_DELAY = 650
 const fetcher = async (url: string) => {
@@ -86,22 +87,22 @@ export default function Home() {
 
       <aside className={`night-menu ${menuOpen ? 'open' : ''}`} aria-label="Navegación de la mesa">
         <p>La mesa</p>
-        <button className="selected" onClick={() => setMenuOpen(false)}><span>⌂</span>Inicio</button>
-        <button onClick={() => setMenuOpen(false)}><span>◷</span>Partidas</button>
-        <button onClick={() => setMenuOpen(false)}><span>⌁</span>Estadísticas</button>
+        <button className="selected" onClick={() => setMenuOpen(false)}><span><House aria-hidden="true" /></span>Inicio</button>
+        <button onClick={() => setMenuOpen(false)}><span><History aria-hidden="true" /></span>Partidas</button>
+        <button onClick={() => setMenuOpen(false)}><span><ChartNoAxesCombined aria-hidden="true" /></span>Estadísticas</button>
 
         <div className="menu-rule" />
         <p>Tu cuenta</p>
-        <button onClick={() => { setMenuOpen(false); changeGame('next', 2) }}><span>▦</span>Mi biblioteca</button>
-        <button onClick={() => setMenuOpen(false)}><span>⚙</span>Ajustes</button>
+        <button onClick={() => { setMenuOpen(false); changeGame('next', 2) }}><span><Library aria-hidden="true" /></span>Mi biblioteca</button>
+        <button onClick={() => setMenuOpen(false)}><span><Settings aria-hidden="true" /></span>Ajustes</button>
 
         <div className="menu-rule" />
         <p>Comunidad</p>
-        <button onClick={() => setMenuOpen(false)}><span>♧</span>Invitar amigos</button>
+        <button onClick={() => setMenuOpen(false)}><span><UserPlus aria-hidden="true" /></span>Invitar amigos</button>
 
         <div className="menu-rule" />
         <p>Administración</p>
-        <button className="admin-menu-item" onClick={() => { setAdminOpen(true); setMenuOpen(false) }}><span>▣</span>Editar juegos y cajas</button>
+        <button className="admin-menu-item" onClick={() => { setAdminOpen(true); setMenuOpen(false) }}><span><PanelsTopLeft aria-hidden="true" /></span>Editar juegos y cajas</button>
       </aside>
       {adminOpen && <AdminGamePanel games={games} onClose={() => setAdminOpen(false)} onSaved={() => mutate()} />}
 

@@ -107,6 +107,10 @@ button { font:inherit; cursor:pointer; }
 html,body { overflow-x:hidden; }
 .night-menu.open { transform:translateX(0); }
 .night-menu button { border-radius:14px; }
+.night-menu button > span:first-child { display:grid; place-items:center; width:22px; height:22px; color:currentColor; }
+.night-menu button > span:first-child svg { width:17px; height:17px; stroke-width:1.7; }
+.night-menu button:hover > span:first-child svg,.night-menu button.selected > span:first-child svg { stroke-width:2.1; }
+
 .rules-link { border:1px solid var(--glass-border); border-radius:999px; background:var(--glass); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); }
 .rules-link:hover,.rules-link:focus-visible { background:var(--glass-strong); color:#fff; border-color:rgba(255,255,255,.4); }
 .carousel-arrow { width:44px; height:44px; display:grid; place-items:center; border:1px solid var(--glass-border); border-radius:50%; background:var(--glass); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); color:var(--ink); transition:background .2s, transform .2s; }
