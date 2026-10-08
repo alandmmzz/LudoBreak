@@ -147,4 +147,10 @@ html,body { overflow-x:hidden; }
 .vote-hint { padding:0 4px; }
 .night-footer { color:#9a958b; }
 .rules-missing { padding:6px 12px; border:1px solid rgba(255,255,255,.1); border-radius:999px; }
-@media(max-width:700px){ .night-header { margin:10px 12px 0; top:10px; height:56px; padding:0 16px; } .night-menu { top:78px; left:10px; width:calc(100vw - 20px); height:calc(100dvh - 88px); max-height:calc(100dvh - 88px); } }
+/* Sticky navigation and shared alignment */
+.night-header { position:sticky; top:12px; width:calc(100% - 40px); max-width:1240px; margin:12px auto 0; padding:0 28px; box-sizing:border-box; border:1px solid var(--glass-border); border-radius:999px; background:rgba(14,16,20,.62); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); }
+.night-menu { position:fixed; top:92px; left:max(20px,calc((100vw - 1240px) / 2)); width:min(320px,calc(100vw - 40px)); height:calc(100dvh - 112px); max-height:none; padding:28px 20px; box-sizing:border-box; overflow-y:auto; z-index:20; }
+.hero-content { padding-left:20px; padding-right:20px; }
+.night-menu p { padding:0 10px; margin-top:4px; }
+.night-menu button { padding:12px 10px; }
+@media(max-width:700px){ .night-header { top:10px; width:calc(100% - 24px); margin:10px 12px 0; height:56px; padding:0 18px; } .night-menu { top:78px; left:10px; width:calc(100vw - 20px); height:calc(100dvh - 88px); padding:24px 16px; } .hero-content { padding-left:16px; padding-right:16px; } }
