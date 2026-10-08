@@ -113,7 +113,7 @@ export default function Home() {
         <div className="menu-rule" />
         <p>Tu cuenta</p>
         <button onClick={() => { setMenuOpen(false); changeGame('next', 2) }}><span><Library aria-hidden="true" /></span>Mi biblioteca</button>
-        <button onClick={() => setMenuOpen(false)}><span><Settings aria-hidden="true" /></span>Ajustes</button>
+        <a className="menu-link" href="/group-settings" onClick={() => setMenuOpen(false)}><span><Settings aria-hidden="true" /></span>Ajustes del grupo</a>
 
         <div className="menu-rule" />
         <p>Comunidad</p>
