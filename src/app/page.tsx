@@ -129,7 +129,7 @@ export default function Home() {
           </div>
           <aside className="stage-panel">
             {showResults && submittedVotes ? (
-              <section className="panel-card results-panel" aria-label="Vote results">
+              <section id="vote-results" className="panel-card results-panel" aria-label="Vote results">
                 <header className="panel-card-header"><span className="selected-games-label">VOTE RESULTS</span></header>
                 {games.map((resultGame, resultIndex) => <div className="result-row" key={resultGame.title}><span>{resultGame.title}</span><b>{resultGame.votes + (submittedVotes.includes(resultIndex) ? 1 : 0)} votes</b></div>)}
               </section>
@@ -158,7 +158,7 @@ export default function Home() {
             )}
             <div className="vote-actions">
               <button className={`vote-button ${voted ? 'confirmed' : ''}`} onClick={toggleVote}>{voted ? 'VOTED' : 'VOTE'} <span>· {game.votes + (voted ? 1 : 0)} votes</span></button>
-              {submittedVotes ? <button className="results-button" onClick={() => setShowResults((visible) => !visible)}>{showResults ? 'HIDE RESULTS' : 'VIEW RESULTS'}</button> : <button className="submit-votes" onClick={submitVotes} disabled={selectedVotes.length === 0}>SUBMIT VOTES <span>({selectedVotes.length})</span></button>}
+              {submittedVotes ? <a className="results-button" href="#vote-results" onClick={() => setShowResults(true)}>VIEW RESULTS</a> : <button className="submit-votes" onClick={submitVotes} disabled={selectedVotes.length === 0}>SUBMIT VOTES <span>({selectedVotes.length})</span></button>}
             </div>
             <p className="vote-hint">{selectedVotes.length && !submittedVotes ? `${selectedVotes.length} juego${selectedVotes.length === 1 ? '' : 's'} seleccionado${selectedVotes.length === 1 ? '' : 's'}` : submittedVotes ? 'Votes submitted successfully' : 'Vote for what we play tonight'}</p>
           </aside>
