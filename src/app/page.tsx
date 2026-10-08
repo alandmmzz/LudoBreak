@@ -1,7 +1,7 @@
 'use client'
 
 import useSWR from 'swr'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { GameBoxCarousel } from '@/components/game-box-carousel'
 import { AdminGamePanel } from '@/components/admin-game-panel'
 import { ChartNoAxesCombined, History, House, Library, PanelsTopLeft, Settings, UserPlus } from 'lucide-react'
@@ -75,6 +75,25 @@ export default function Home() {
 
   const backdropGame = games[backdropIndex]
 
+  // Measure the title block so the wrapper can animate its height; the carousel
+  // below then glides down/up instead of jumping when the title wraps.
+  const headingInnerRef = useRef<HTMLDivElement>(null)
+  const [headingHeight, setHeadingHeight] = useState<number | null>(null)
+  const [headingReady, setHeadingReady] = useState(false)
+  useLayoutEffect(() => {
+    const element = headingInnerRef.current
+    if (!element) return
+    const measure = () => setHeadingHeight(element.offsetHeight)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(element)
+    const frame = requestAnimationFrame(() => setHeadingReady(true))
+    return () => {
+      observer.disconnect()
+      cancelAnimationFrame(frame)
+    }
+  }, [])
+
   return (
     <main className="night-app" style={{ '--backdrop': `url(${backdropGame.backdrop})` } as React.CSSProperties}>
       <div key={`previous-${transitionKey}`} className="backdrop backdrop-previous" style={{ '--backdrop': `url(${previousBackdrop})` } as React.CSSProperties} aria-hidden="true" />
@@ -107,14 +126,16 @@ export default function Home() {
       {adminOpen && <AdminGamePanel games={games} onClose={() => setAdminOpen(false)} onSaved={() => mutate()} />}
 
       <section className="hero-content">
-        <div className="hero-heading">
-          <div className="group-kicker"><span /> {GROUP_NAME.toUpperCase()} <span /></div>
-          <h1 key={game.id}>{game.title}</h1>
-          <div className="carousel-meta">
-            <span>{game.genre}</span><b>•</b><span>{game.time}</span><b>•</b>
-            {game.rules
-              ? <a className="rules-link" href={game.rules} target="_blank" rel="noopener noreferrer">Ver reglas (PDF)<span aria-hidden="true">↗</span></a>
-              : <span className="rules-missing">Sin reglas aún</span>}
+        <div className={`hero-heading ${headingReady ? 'is-animated' : ''}`} style={headingHeight === null ? undefined : { height: headingHeight }}>
+          <div ref={headingInnerRef} className="hero-heading-inner">
+            <div className="group-kicker"><span /> {GROUP_NAME.toUpperCase()} <span /></div>
+            <h1 key={game.id}>{game.title}</h1>
+            <div key={`meta-${game.id}`} className="carousel-meta">
+              <span>{game.genre}</span><b>•</b><span>{game.time}</span><b>•</b>
+              {game.rules
+                ? <a className="rules-link" href={game.rules} target="_blank" rel="noopener noreferrer">Ver reglas (PDF)<span aria-hidden="true">↗</span></a>
+                : <span className="rules-missing">Sin reglas aún</span>}
+            </div>
           </div>
         </div>
         <div className="stage">

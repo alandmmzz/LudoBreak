@@ -192,3 +192,11 @@ html,body { overflow-x:hidden; }
 .night-menu p { padding:0 10px; margin-top:4px; }
 .night-menu button { padding:12px 10px; }
 @media(max-width:700px){ .night-header { top:10px; width:calc(100% - 24px); margin:10px 12px 0; height:56px; padding:0 18px; } .night-menu { top:78px; left:10px; width:calc(100vw - 20px); height:calc(100dvh - 88px); padding:24px 16px; } .hero-content { padding-left:16px; padding-right:16px; } }
+
+/* Title block grows/shrinks smoothly so the carousel below glides instead of jumping */
+.hero-heading.is-animated { transition:height .5s cubic-bezier(.22,1,.36,1); }
+.hero-heading-inner { width:100%; }
+.hero-heading.is-animated h1,.hero-heading.is-animated .carousel-meta { animation:hero-title-in .45s cubic-bezier(.22,1,.36,1) both; }
+.hero-heading.is-animated .carousel-meta { animation-delay:.06s; }
+@keyframes hero-title-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+@media (prefers-reduced-motion:reduce) { .hero-heading.is-animated { transition:none; } .hero-heading.is-animated h1,.hero-heading.is-animated .carousel-meta { animation:none; } }
