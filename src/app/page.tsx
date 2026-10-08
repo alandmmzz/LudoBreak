@@ -107,7 +107,7 @@ export default function Home() {
       <aside className={`night-menu ${menuOpen ? 'open' : ''}`} aria-label="Navegación de la mesa">
         <p>La mesa</p>
         <button className="selected" onClick={() => setMenuOpen(false)}><span><House aria-hidden="true" /></span>Inicio</button>
-        <button onClick={() => setMenuOpen(false)}><span><History aria-hidden="true" /></span>Partidas</button>
+        <a className="menu-link" href="/partidas" onClick={() => setMenuOpen(false)}><span><History aria-hidden="true" /></span>Partidas</a>
         <button onClick={() => setMenuOpen(false)}><span><ChartNoAxesCombined aria-hidden="true" /></span>Estadísticas</button>
 
         <div className="menu-rule" />

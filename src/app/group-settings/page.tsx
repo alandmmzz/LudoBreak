@@ -2,6 +2,7 @@
 
 import '../group-settings.css'
 import { useState } from 'react'
+import { SiteChrome } from '@/components/site-chrome'
 import { Camera, Copy, Crown, Link2, Shield, Trash2, UserPlus } from 'lucide-react'
 
 const initialMembers = [
@@ -19,7 +20,6 @@ export default function GroupSettingsPage() {
   const [members, setMembers] = useState(initialMembers)
   const [inviteCopied, setInviteCopied] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
 
   const removeMember = (name: string) => setMembers((current) => current.filter((member) => member.name !== name))
   const copyInvite = async () => {
@@ -30,15 +30,7 @@ export default function GroupSettingsPage() {
 
   return (
     <main className="group-settings-page">
-      <header className="night-header">
-        <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
-        <nav className="breadcrumb" aria-label="Breadcrumb"><a href="/">LudoBreak</a><span aria-hidden="true">/</span><strong>AJUSTES DEL GRUPO</strong></nav>
-        <div className="header-group"><i /> TECNOLOGO 2027 <button className="players-trigger" type="button" aria-label="Ver quiénes están en el grupo">7 integrantes</button><div className="players-popover" role="status"><strong>Quiénes están en el grupo</strong><span>• Agustina</span><span>• Aparicio</span><span>• Tifany</span><span>• Pablo</span><span>• Paula</span><span>• Santiago</span><span>• Aland · Admin</span></div></div>
-      </header>
-      <aside className={`night-menu ${menuOpen ? 'open' : ''}`} aria-label="Navegación de la mesa">
-        <p>La mesa</p><a className="menu-link" href="/">Inicio</a>
-        <div className="menu-rule" /><p>Tu cuenta</p><a className="menu-link selected" href="/group-settings">Ajustes del grupo</a>
-      </aside>
+      <SiteChrome current="AJUSTES DEL GRUPO" active="settings" />
 
       <section className="group-settings-shell">
         <div className="settings-intro">
