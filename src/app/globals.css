@@ -155,7 +155,10 @@ html,body { overflow-x:hidden; }
 .check-row.checked { color:#fff; }
 .check-row.checked .check-box { border-color:var(--gold); background:var(--gold); }
 .vote-button,.submit-votes,.results-button { min-height:60px; border:1px solid var(--glass-border); border-radius:18px; background:var(--glass); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); color:#f4d98b; transition:background .2s, border-color .2s, transform .2s; }
-.vote-button:hover,.submit-votes:not(:disabled):hover,.results-button:hover { background:var(--glass-strong); border-color:rgba(255,255,255,.4); }
+.vote-button:hover,.vote-button:focus-visible { background:rgba(255,255,255,.16); border-color:rgba(255,255,255,.62); color:#fff; box-shadow:0 14px 42px rgba(0,0,0,.42), 0 0 22px rgba(255,255,255,.1), inset 0 1px 0 rgba(255,255,255,.3); }
+.vote-button:hover span,.vote-button:focus-visible span { color:#fff; }
+.submit-votes:not(:disabled):hover,.submit-votes:not(:disabled):focus-visible { background:rgba(229,189,53,.28); border-color:#f4d36b; color:#fff3c4; box-shadow:0 14px 42px rgba(0,0,0,.42), 0 0 22px rgba(229,189,53,.16), inset 0 1px 0 rgba(255,255,255,.3); }
+.results-button:hover,.results-button:focus-visible { background:var(--glass-strong); border-color:rgba(255,255,255,.55); color:#fff; }
 .results-button { display:flex; align-items:center; justify-content:center; text-decoration:none; }
 .vote-button:active,.submit-votes:not(:disabled):active { transform:scale(.98); }
 .vote-button { color:#fff; }
