@@ -14,7 +14,7 @@ const fetcher = async (url: string) => {
   return payload
 }
 
-const GROUP_NAME = 'Game Night Crew'
+const GROUP_NAME = 'TECNOLOGO 2027'
 
 const fallbackGames = [
   { id: 1, title: 'Quest', genre: 'Hidden roles · 5–10 players', time: '30–45 min', votes: 7, accent: 'gold', cover: '/games/quest.png', rules: '', backdrop: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=2200&q=85' },
@@ -101,7 +101,7 @@ export default function Home() {
       <header className="night-header">
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
         <nav className="breadcrumb" aria-label="Breadcrumb"><span>LudoBreak</span><span aria-hidden="true">/</span><strong>PICK THE GAME</strong></nav>
-        <div className="header-group"><i /> {GROUP_NAME} <button className="players-trigger" type="button" aria-label="Ver quiénes están en el grupo">Tú y tu grupo</button><div className="players-popover" role="status"><strong>Quiénes están en el grupo</strong><span>• Tú</span><small>Por ahora, eres el único jugador del grupo.</small></div></div>
+        <div className="header-group"><i /> {GROUP_NAME} <button className="players-trigger" type="button" aria-label="Ver quiénes están en el grupo">7 integrantes</button><div className="players-popover" role="status"><strong>Quiénes están en el grupo</strong><span>• Agustina</span><span>• Aparicio</span><span>• Tifany</span><span>• Pablo</span><span>• Paula</span><span>• Santiago</span><span>• Aland · Admin</span></div></div>
             </header>
 
       <aside className={`night-menu ${menuOpen ? 'open' : ''}`} aria-label="Navegación de la mesa">
