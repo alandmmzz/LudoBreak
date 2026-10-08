@@ -81,7 +81,7 @@ export default function Home() {
       <div key={`current-${transitionKey}`} className="backdrop backdrop-current" style={{ '--backdrop': `url(${backdropGame.backdrop})` } as React.CSSProperties} aria-hidden="true" />
       <header className="night-header">
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
-        <nav className="breadcrumb" aria-label="Breadcrumb"><span>LudoBreak</span><span aria-hidden="true">/</span><strong>Inicio</strong></nav>
+        <nav className="breadcrumb" aria-label="Breadcrumb"><span>LudoBreak</span><span aria-hidden="true">/</span><strong>PICK THE GAME</strong></nav>
         <div className="header-group"><i /> {GROUP_NAME} <span>4 jugadores</span></div>
             </header>
 
@@ -109,7 +109,6 @@ export default function Home() {
       <section className="hero-content">
         <div className="hero-heading">
           <div className="group-kicker"><span /> {GROUP_NAME.toUpperCase()} <span /></div>
-          <p className="hero-subtitle">PICK YOUR GAME</p>
           <h1 key={game.id}>{game.title}</h1>
           <div className="carousel-meta">
             <span>{game.genre}</span><b>•</b><span>{game.time}</span><b>•</b>

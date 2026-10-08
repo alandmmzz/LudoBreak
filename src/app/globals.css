@@ -173,7 +173,8 @@ html,body { overflow-x:hidden; }
 .night-menu { position:fixed; top:92px; left:max(20px,calc((100vw - 1240px) / 2)); width:min(320px,calc(100vw - 40px)); height:calc(100dvh - 112px); max-height:none; padding:28px 20px; box-sizing:border-box; overflow-y:auto; z-index:20; }
 .hero-content { padding:112px 32px 52px; }
 .night-footer { display:none; }
-.hero-heading { width:min(100%,calc(100% - clamp(296px,33vw,380px))); margin:0 auto; text-align:center; padding:0 28px; box-sizing:border-box; }
+.hero-heading { width:calc(100% - clamp(296px,33vw,380px)); margin:0; text-align:center; padding:0 28px; box-sizing:border-box; }
+.hero-heading .hero-subtitle { display:none; }
 .hero-heading .group-kicker { justify-content:center; }
 .hero-heading .hero-subtitle { display:block; width:100%; margin:0 auto 12px; text-align:center; }
 .hero-heading h1 { width:100%; text-align:center; padding:0; margin:0 auto 14px; }
