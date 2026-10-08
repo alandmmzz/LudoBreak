@@ -82,8 +82,7 @@ export default function Home() {
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
         <div className="night-logo"><b>LB</b><span>LudoBreak</span></div>
         <div className="header-group"><i /> {GROUP_NAME} <span>4 jugadores</span></div>
-        <button className="profile-pill" aria-label="Abrir perfil"><span>A</span><b>Aland</b></button>
-      </header>
+            </header>
 
       <aside className={`night-menu ${menuOpen ? 'open' : ''}`}>
         <p>Tu mesa</p>
