@@ -84,13 +84,21 @@ export default function Home() {
         <div className="header-group"><i /> {GROUP_NAME} <span>4 jugadores</span></div>
             </header>
 
-      <aside className={`night-menu ${menuOpen ? 'open' : ''}`}>
-        <p>Tu mesa</p>
-        {['Inicio', 'Mi biblioteca', 'Partidas', 'Estadísticas'].map((item, index) => <button className={index === 0 ? 'selected' : ''} key={item} onClick={() => { setMenuOpen(false); if (index === 1) changeGame('next', 2) }}><span>{['⌂', '▦', '◷', '⌁'][index]}</span>{item}</button>)}
+      <aside className={`night-menu ${menuOpen ? 'open' : ''}`} aria-label="Navegación de la mesa">
+        <p>La mesa</p>
+        <button className="selected" onClick={() => setMenuOpen(false)}><span>⌂</span>Inicio</button>
+        <button onClick={() => setMenuOpen(false)}><span>◷</span>Partidas</button>
+        <button onClick={() => setMenuOpen(false)}><span>⌁</span>Estadísticas</button>
+
+        <div className="menu-rule" />
+        <p>Tu cuenta</p>
+        <button onClick={() => { setMenuOpen(false); changeGame('next', 2) }}><span>▦</span>Mi biblioteca</button>
+        <button onClick={() => setMenuOpen(false)}><span>⚙</span>Ajustes</button>
+
         <div className="menu-rule" />
         <p>Comunidad</p>
         <button onClick={() => setMenuOpen(false)}><span>♧</span>Invitar amigos</button>
-        <button onClick={() => setMenuOpen(false)}><span>⚙</span>Ajustes</button>
+
         <div className="menu-rule" />
         <p>Administración</p>
         <button className="admin-menu-item" onClick={() => { setAdminOpen(true); setMenuOpen(false) }}><span>▣</span>Editar juegos y cajas</button>
