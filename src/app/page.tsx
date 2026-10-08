@@ -107,6 +107,11 @@ export default function Home() {
       {adminOpen && <AdminGamePanel games={games} onClose={() => setAdminOpen(false)} onSaved={() => mutate()} />}
 
       <section className="hero-content">
+        <div className="hero-event-meta" aria-label="Información de la partida">
+          <span>FRI 24 OCT · 20:00</span>
+          <span>GAME NIGHT #18</span>
+          <span>VOTE FOR WHAT WE PLAY TONIGHT</span>
+        </div>
         <div className="hero-heading">
           <div className="group-kicker"><span /> {GROUP_NAME.toUpperCase()} <span /></div>
           <h1 key={game.id}>{game.title}</h1>
@@ -164,7 +169,6 @@ export default function Home() {
           </aside>
         </div>
       </section>
-      <footer className="night-footer"><span>FRI 24 OCT · 20:00</span><span>GAME NIGHT #18</span><span>© LUDOBREAK</span></footer>
     </main>
   )
 }
