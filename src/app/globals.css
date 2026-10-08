@@ -114,11 +114,11 @@ button { font:inherit; cursor:pointer; }
 .admin-rules-current button { background:none; border:0; color:#c0564a; cursor:pointer; text-decoration:underline; font:inherit; }
 
 /* Glassmorphism pass: translucent blurred surfaces, soft radii, light borders */
-:root { --glass:rgba(255,255,255,.07); --glass-strong:rgba(255,255,255,.12); --glass-border:rgba(255,255,255,.2); --glass-blur:blur(18px) saturate(1.5); --glass-shadow:0 12px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.22); }
+:root { --glass:rgba(14,16,20,.72); --glass-strong:rgba(14,16,20,.82); --glass-border:rgba(255,255,255,.2); --glass-blur:blur(18px) saturate(1.5); --glass-shadow:0 12px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.22); }
 .night-header { margin:14px 3vw 0; height:64px; padding:0 22px; border:1px solid var(--glass-border); border-radius:999px; background:var(--glass); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); top:14px; }
 .night-logo b,.profile-pill span { border-radius:9px; }
 .profile-pill { padding:5px 12px 5px 5px; border:1px solid var(--glass-border); border-radius:999px; background:var(--glass); }
-.night-menu { top:92px; left:14px; width:min(320px,calc(100vw - 28px)); height:calc(100dvh - 108px); max-height:calc(100dvh - 108px); box-sizing:border-box; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.35) transparent; border:1px solid var(--glass-border); border-radius:24px; background:rgba(14,16,20,.55); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); transform:translateX(calc(-100% - 20px)); } 
+.night-menu { top:92px; left:14px; width:min(320px,calc(100vw - 28px)); height:calc(100dvh - 108px); max-height:calc(100dvh - 108px); box-sizing:border-box; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.35) transparent; border:1px solid var(--glass-border); border-radius:24px; background:var(--glass); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); transform:translateX(calc(-100% - 20px)); } 
 .night-menu::-webkit-scrollbar { width:6px; }
 .night-menu::-webkit-scrollbar-track { background:transparent; }
 .night-menu::-webkit-scrollbar-thumb { border-radius:999px; background:rgba(255,255,255,.35); } 
@@ -135,7 +135,9 @@ html,body { overflow-x:hidden; }
 .carousel-arrow:hover { background:var(--glass-strong); }
 .carousel-dots { padding:7px 12px; border:1px solid var(--glass-border); border-radius:999px; background:var(--glass); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); width:max-content; margin-left:auto; margin-right:auto; align-items:center; }
 .carousel-dots button { border-radius:999px; }
-.panel-card { padding:18px 16px 14px; border:1px solid var(--glass-border); border-radius:24px; background:var(--glass); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); }
+.panel-card { padding:18px 16px 14px; border:1px solid var(--glass-border); border-radius:24px; background:var(--glass); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); } 
+/* Every glass surface uses the same treatment as the header. */
+.panel-card,.vote-button,.submit-votes,.results-button,.rules-link,.carousel-arrow,.carousel-dots { background:var(--glass); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); }
 .panel-card-header { padding:0 4px; }
 .panel-card-hint { margin:0 4px 10px; color:#8f8b82; font-size:11px; letter-spacing:.5px; }
 .game-checklist { gap:6px; }
