@@ -7,7 +7,7 @@
 html, body { min-height:100%; }
 body { margin:0; background:var(--black); color:var(--ink); font-family:Arial, Helvetica, sans-serif; }
 button { font:inherit; cursor:pointer; }
-.night-app { min-height:100vh; position:relative; overflow:hidden; background:#08090a; isolation:isolate; }
+.night-app { min-height:100vh; position:relative; overflow:clip; background:#08090a; isolation:isolate; }
 .backdrop { position:absolute; inset:0; z-index:-2; background-image:linear-gradient(90deg,rgba(0,0,0,.7),rgba(0,0,0,.18) 48%,rgba(0,0,0,.8)),linear-gradient(0deg,#08090a 3%,rgba(8,9,10,.55) 35%,rgba(8,9,10,.12) 72%),var(--backdrop); background-size:cover; background-position:center; filter:saturate(.72) contrast(1.1); opacity:.8; transform:scale(1); }
 .backdrop-previous { opacity:.8; z-index:-3; animation:backdrop-fadeout 2.2s ease-in-out forwards; }
 .backdrop-current { opacity:0; z-index:-2; animation:backdrop-fadein 2.2s ease-in-out forwards; }
@@ -148,7 +148,7 @@ html,body { overflow-x:hidden; }
 .night-footer { color:#9a958b; }
 .rules-missing { padding:6px 12px; border:1px solid rgba(255,255,255,.1); border-radius:999px; }
 /* Sticky navigation and shared alignment */
-.night-header { position:sticky; top:12px; width:calc(100% - 40px); max-width:1240px; margin:12px auto 0; padding:0 28px; box-sizing:border-box; border:1px solid var(--glass-border); border-radius:999px; background:rgba(14,16,20,.62); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); }
+.night-header { position:fixed; top:12px; left:50%; transform:translateX(-50%); width:calc(100% - 40px); max-width:1240px; margin:0; padding:0 28px; box-sizing:border-box; z-index:30; border:1px solid var(--glass-border); border-radius:999px; background:rgba(14,16,20,.72); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); }
 .night-menu { position:fixed; top:92px; left:max(20px,calc((100vw - 1240px) / 2)); width:min(320px,calc(100vw - 40px)); height:calc(100dvh - 112px); max-height:none; padding:28px 20px; box-sizing:border-box; overflow-y:auto; z-index:20; }
 .hero-content { padding-left:20px; padding-right:20px; }
 .night-menu p { padding:0 10px; margin-top:4px; }
