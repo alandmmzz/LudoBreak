@@ -85,6 +85,24 @@ button { font:inherit; cursor:pointer; }
 .hero-content{padding-bottom:80px}
 .submit-votes span,.vote-button span{white-space:nowrap}
 
+/* Persistent voting rail: the game list scrolls, actions stay visible. */
+@media(min-width:721px){
+  .stage-panel { position:fixed; top:92px; right:max(20px,calc((100vw - 1240px) / 2)); width:clamp(280px,30vw,340px); height:calc(100dvh - 112px); max-height:none; min-height:0; z-index:18; overflow:hidden; padding:0 2px 12px; box-sizing:border-box; }
+}
+.stage-panel .panel-card { flex:1 1 auto; min-height:0; overflow:hidden; display:flex; flex-direction:column; }
+.stage-panel .panel-card-header,.stage-panel .panel-card-hint { flex:none; }
+.stage-panel .game-checklist { min-height:0; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.35) transparent; padding-right:4px; }
+.stage-panel .game-checklist::-webkit-scrollbar { width:5px; }
+.stage-panel .game-checklist::-webkit-scrollbar-track { background:transparent; }
+.stage-panel .game-checklist::-webkit-scrollbar-thumb { border-radius:999px; background:rgba(255,255,255,.32); }
+.stage-panel .vote-actions { flex:none; }
+.stage-panel .vote-hint { flex:none; min-height:18px; }
+@media(max-width:720px){
+  .stage-panel { position:fixed; left:12px; right:12px; bottom:12px; max-height:calc(100dvh - 92px); z-index:18; overflow:hidden; padding:0 2px 2px; }
+  .stage-panel .panel-card { max-height:calc(100dvh - 190px); }
+}
+
+
 /* Hero title follows the active game; rules link + admin PDF field */
 .hero-content h1 { text-transform:uppercase; text-wrap:balance; max-width:min(92vw,1100px); }
 .carousel-meta { flex-wrap:wrap; justify-content:center; }
@@ -151,6 +169,12 @@ html,body { overflow-x:hidden; }
 .night-header { position:fixed; top:12px; left:50%; transform:translateX(-50%); width:calc(100% - 40px); max-width:1240px; margin:0; padding:0 28px; box-sizing:border-box; z-index:30; border:1px solid var(--glass-border); border-radius:999px; background:rgba(14,16,20,.72); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); }
 .night-menu { position:fixed; top:92px; left:max(20px,calc((100vw - 1240px) / 2)); width:min(320px,calc(100vw - 40px)); height:calc(100dvh - 112px); max-height:none; padding:28px 20px; box-sizing:border-box; overflow-y:auto; z-index:20; }
 .hero-content { padding:76px 32px 42px; }
+.hero-heading { width:min(100%,calc(100% - clamp(296px,33vw,380px))); align-self:flex-start; text-align:left; padding:0 clamp(16px,4vw,64px); box-sizing:border-box; }
+.hero-heading .group-kicker { justify-content:flex-start; }
+.hero-heading h1 { text-align:left; padding:0; }
+.hero-heading .hero-subtitle { text-align:left; }
+.hero-heading .carousel-meta { justify-content:flex-start; padding:0; }
+@media(max-width:720px){ .hero-heading { width:100%; padding:0 8px; text-align:center; } .hero-heading .group-kicker,.hero-heading h1,.hero-heading .hero-subtitle,.hero-heading .carousel-meta { text-align:center; justify-content:center; } }
 .breadcrumb { display:flex; align-items:center; gap:10px; min-width:0; padding:10px 14px; color:rgba(255,255,255,.58); font-size:11px; letter-spacing:3px; text-transform:uppercase; }
 .breadcrumb strong { color:rgba(255,255,255,.92); font-weight:600; }
 .breadcrumb span:nth-child(2) { color:rgba(255,255,255,.32); }

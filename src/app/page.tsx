@@ -107,14 +107,16 @@ export default function Home() {
       {adminOpen && <AdminGamePanel games={games} onClose={() => setAdminOpen(false)} onSaved={() => mutate()} />}
 
       <section className="hero-content">
-        <div className="group-kicker"><span /> {GROUP_NAME.toUpperCase()} <span /></div>
-        <h1 key={game.id}>{game.title}</h1>
-        <p className="hero-subtitle">PICK YOUR GAME</p>
-        <div className="carousel-meta">
-          <span>{game.genre}</span><b>•</b><span>{game.time}</span><b>•</b>
-          {game.rules
-            ? <a className="rules-link" href={game.rules} target="_blank" rel="noopener noreferrer">Ver reglas (PDF)<span aria-hidden="true">↗</span></a>
-            : <span className="rules-missing">Sin reglas aún</span>}
+        <div className="hero-heading">
+          <div className="group-kicker"><span /> {GROUP_NAME.toUpperCase()} <span /></div>
+          <h1 key={game.id}>{game.title}</h1>
+          <p className="hero-subtitle">PICK YOUR GAME</p>
+          <div className="carousel-meta">
+            <span>{game.genre}</span><b>•</b><span>{game.time}</span><b>•</b>
+            {game.rules
+              ? <a className="rules-link" href={game.rules} target="_blank" rel="noopener noreferrer">Ver reglas (PDF)<span aria-hidden="true">↗</span></a>
+              : <span className="rules-missing">Sin reglas aún</span>}
+          </div>
         </div>
         <div className="stage">
           <div className="stage-carousel">
