@@ -100,7 +100,11 @@ button { font:inherit; cursor:pointer; }
 .night-header { margin:14px 3vw 0; height:64px; padding:0 22px; border:1px solid var(--glass-border); border-radius:999px; background:var(--glass); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); top:14px; }
 .night-logo b,.profile-pill span { border-radius:9px; }
 .profile-pill { padding:5px 12px 5px 5px; border:1px solid var(--glass-border); border-radius:999px; background:var(--glass); }
-.night-menu { top:92px; left:14px; height:auto; max-height:calc(100vh - 110px); border:1px solid var(--glass-border); border-radius:24px; background:rgba(14,16,20,.55); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); transform:translateX(calc(-100% - 20px)); }
+.night-menu { top:92px; left:14px; width:min(320px,calc(100vw - 28px)); height:calc(100dvh - 108px); max-height:calc(100dvh - 108px); box-sizing:border-box; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.35) transparent; border:1px solid var(--glass-border); border-radius:24px; background:rgba(14,16,20,.55); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); transform:translateX(calc(-100% - 20px)); } 
+.night-menu::-webkit-scrollbar { width:6px; }
+.night-menu::-webkit-scrollbar-track { background:transparent; }
+.night-menu::-webkit-scrollbar-thumb { border-radius:999px; background:rgba(255,255,255,.35); } 
+html,body { overflow-x:hidden; }
 .night-menu.open { transform:translateX(0); }
 .night-menu button { border-radius:14px; }
 .rules-link { border:1px solid var(--glass-border); border-radius:999px; background:var(--glass); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); }
@@ -139,4 +143,4 @@ button { font:inherit; cursor:pointer; }
 .vote-hint { padding:0 4px; }
 .night-footer { color:#9a958b; }
 .rules-missing { padding:6px 12px; border:1px solid rgba(255,255,255,.1); border-radius:999px; }
-@media(max-width:700px){ .night-header { margin:10px 12px 0; top:10px; height:56px; padding:0 16px; } .night-menu { top:78px; left:10px; } }
+@media(max-width:700px){ .night-header { margin:10px 12px 0; top:10px; height:56px; padding:0 16px; } .night-menu { top:78px; left:10px; width:calc(100vw - 20px); height:calc(100dvh - 88px); max-height:calc(100dvh - 88px); } }
