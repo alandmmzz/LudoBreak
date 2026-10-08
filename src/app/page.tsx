@@ -101,7 +101,7 @@ export default function Home() {
       <header className="night-header">
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
         <nav className="breadcrumb" aria-label="Breadcrumb"><span>LudoBreak</span><span aria-hidden="true">/</span><strong>PICK THE GAME</strong></nav>
-        <div className="header-group"><i /> {GROUP_NAME} <span>4 jugadores</span></div>
+        <div className="header-group"><i /> {GROUP_NAME} <button className="players-trigger" type="button" aria-label="Ver jugadores del grupo">1 jugador</button><div className="players-popover" role="status"><strong>Jugadores del grupo</strong><span>1 jugador</span><small>Tú eres el único jugador por ahora.</small></div></div>
             </header>
 
       <aside className={`night-menu ${menuOpen ? 'open' : ''}`} aria-label="Navegación de la mesa">
