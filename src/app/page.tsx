@@ -109,8 +109,8 @@ export default function Home() {
       <section className="hero-content">
         <div className="hero-heading">
           <div className="group-kicker"><span /> {GROUP_NAME.toUpperCase()} <span /></div>
-          <h1 key={game.id}>{game.title}</h1>
           <p className="hero-subtitle">PICK YOUR GAME</p>
+          <h1 key={game.id}>{game.title}</h1>
           <div className="carousel-meta">
             <span>{game.genre}</span><b>•</b><span>{game.time}</span><b>•</b>
             {game.rules
