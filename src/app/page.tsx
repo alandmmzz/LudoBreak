@@ -81,7 +81,7 @@ export default function Home() {
       <div key={`current-${transitionKey}`} className="backdrop backdrop-current" style={{ '--backdrop': `url(${backdropGame.backdrop})` } as React.CSSProperties} aria-hidden="true" />
       <header className="night-header">
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
-        <div className="night-logo"><b>LB</b><span>LudoBreak</span></div>
+        <nav className="breadcrumb" aria-label="Breadcrumb"><span>LudoBreak</span><span aria-hidden="true">/</span><strong>Inicio</strong></nav>
         <div className="header-group"><i /> {GROUP_NAME} <span>4 jugadores</span></div>
             </header>
 
