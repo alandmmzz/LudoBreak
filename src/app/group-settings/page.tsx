@@ -2,7 +2,7 @@
 
 import '../group-settings.css'
 import { useState } from 'react'
-import { ArrowLeft, Camera, Copy, Crown, Link2, Shield, Trash2, UserPlus } from 'lucide-react'
+import { Camera, Copy, Crown, Link2, Shield, Trash2, UserPlus } from 'lucide-react'
 
 const initialMembers = [
   { name: 'Agustina', admin: false },
@@ -19,6 +19,7 @@ export default function GroupSettingsPage() {
   const [members, setMembers] = useState(initialMembers)
   const [inviteCopied, setInviteCopied] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const removeMember = (name: string) => setMembers((current) => current.filter((member) => member.name !== name))
   const copyInvite = async () => {
@@ -29,11 +30,15 @@ export default function GroupSettingsPage() {
 
   return (
     <main className="group-settings-page">
-      <header className="group-settings-header">
-        <a href="/" className="settings-back"><ArrowLeft aria-hidden="true" /> Volver a la mesa</a>
-        <div className="settings-brand"><span /> LudoBreak</div>
-        <span className="settings-context">Ajustes del grupo</span>
+      <header className="night-header">
+        <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
+        <nav className="breadcrumb" aria-label="Breadcrumb"><a href="/">LudoBreak</a><span aria-hidden="true">/</span><strong>AJUSTES DEL GRUPO</strong></nav>
+        <div className="header-group"><i /> TECNOLOGO 2027 <button className="players-trigger" type="button" aria-label="Ver quiénes están en el grupo">Tú y tu grupo</button><div className="players-popover" role="status"><strong>Quiénes están en el grupo</strong><span>• Tú</span><small>Por ahora, eres el único jugador del grupo.</small></div></div>
       </header>
+      <aside className={`night-menu ${menuOpen ? 'open' : ''}`} aria-label="Navegación de la mesa">
+        <p>La mesa</p><a className="menu-link" href="/">Inicio</a>
+        <div className="menu-rule" /><p>Tu cuenta</p><a className="menu-link selected" href="/group-settings">Ajustes del grupo</a>
+      </aside>
 
       <section className="group-settings-shell">
         <div className="settings-intro">
