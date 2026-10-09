@@ -132,10 +132,11 @@ button { font:inherit; cursor:pointer; }
 .night-menu::-webkit-scrollbar-thumb { border-radius:999px; background:rgba(255,255,255,.35); } 
 html,body { overflow-x:hidden; }
 .night-menu.open { transform:translateX(0); }
-.night-menu button { border-radius:14px; }
-.night-menu button > span:first-child { display:grid; place-items:center; width:22px; height:22px; color:currentColor; }
-.night-menu button > span:first-child svg { width:17px; height:17px; stroke-width:1.7; }
-.night-menu button:hover > span:first-child svg,.night-menu button.selected > span:first-child svg { stroke-width:2.1; }
+.night-menu .menu-item { border-radius:14px; }
+.night-menu .menu-icon { flex:none; display:grid; place-items:center; width:22px; height:22px; color:currentColor; font-size:0; }
+.night-menu .menu-icon svg { width:18px; height:18px; stroke-width:1.75; }
+.night-menu .menu-item.selected .menu-icon { color:var(--red); }
+.night-menu .menu-item.selected { color:var(--ink); background:rgba(255,255,255,.08); }
 
 .rules-link { border:1px solid var(--glass-border); border-radius:999px; background:var(--glass); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); }
 .rules-link:hover,.rules-link:focus-visible { background:var(--glass-strong); color:#fff; border-color:rgba(255,255,255,.4); }
@@ -198,7 +199,11 @@ html,body { overflow-x:hidden; }
 .carousel-meta { padding:0 16px; }
 @media(max-width:700px){ .hero-content { padding-left:24px; padding-right:24px; } .breadcrumb { padding:8px 4px; gap:7px; font-size:9px; letter-spacing:2px; } }
 .night-menu p { padding:0 10px; margin-top:4px; }
-.night-menu button { padding:12px 10px; }
+.night-menu .menu-item { padding:12px 10px; gap:14px; cursor:pointer; }
+.night-menu { background:rgb(10,12,13); backdrop-filter:none; -webkit-backdrop-filter:none; }
+.night-menu .menu-item:hover { color:var(--ink); background:rgba(255,255,255,.08); }
+.night-menu .menu-item:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+.night-menu .menu-section { display:block; }
 @media(max-width:700px){ .night-header { top:10px; width:calc(100% - 24px); margin:10px 12px 0; height:56px; padding:0 18px; } .night-menu { top:78px; left:10px; width:calc(100vw - 20px); height:calc(100dvh - 88px); padding:24px 16px; } .hero-content { padding-left:16px; padding-right:16px; } }
 
 /* Title block grows/shrinks smoothly so the carousel below glides instead of jumping */

@@ -4,7 +4,7 @@ import useSWR from 'swr'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { GameBoxCarousel } from '@/components/game-box-carousel'
 import { AdminGamePanel } from '@/components/admin-game-panel'
-import { ChartNoAxesCombined, History, House, Library, PanelsTopLeft, Settings, UserPlus } from 'lucide-react'
+import { SiteMenu } from '@/components/site-chrome'
 
 const BACKDROP_SETTLE_DELAY = 650
 const fetcher = async (url: string) => {
@@ -24,11 +24,20 @@ const fallbackGames = [
 ]
 
 export default function Home() {
-  const { data: loadedGames, mutate } = useSWR<typeof fallbackGames>('/api/games', fetcher, { fallbackData: fallbackGames })
+  const { data: loadedGames, mutate } = useSWR<typeof fallbackGames>('/api/library?view=visible', fetcher, { fallbackData: fallbackGames })
+  const { data: catalog, mutate: mutateCatalog } = useSWR<typeof fallbackGames>('/api/games', fetcher)
   const games = Array.isArray(loadedGames) && loadedGames.length > 0 ? loadedGames : fallbackGames
   const [active, setActive] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
   const [adminOpen, setAdminOpen] = useState(false)
+
+  // Other pages link here with ?admin=1 so the admin panel is reachable from every menu.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('admin') !== '1') return
+    setAdminOpen(true)
+    window.history.replaceState(null, '', window.location.pathname)
+  }, [])
   const [selectedVotes, setSelectedVotes] = useState<number[]>([])
   const [submittedVotes, setSubmittedVotes] = useState<number[] | null>(null)
   const [showResults, setShowResults] = useState(false)
@@ -104,26 +113,8 @@ export default function Home() {
         <div className="header-group"><i /> {GROUP_NAME} <button className="players-trigger" type="button" aria-label="Ver quiénes están en el grupo">7 integrantes</button><div className="players-popover" role="status"><strong>Quiénes están en el grupo</strong><span>• Agustina</span><span>• Aparicio</span><span>• Tifany</span><span>• Pablo</span><span>• Paula</span><span>• Santiago</span><span>• Aland · Admin</span></div></div>
             </header>
 
-      <aside className={`night-menu ${menuOpen ? 'open' : ''}`} aria-label="Navegación de la mesa">
-        <p>La mesa</p>
-        <button className="selected" onClick={() => setMenuOpen(false)}><span><House aria-hidden="true" /></span>Inicio</button>
-        <a className="menu-link" href="/partidas" onClick={() => setMenuOpen(false)}><span><History aria-hidden="true" /></span>Partidas</a>
-        <button onClick={() => setMenuOpen(false)}><span><ChartNoAxesCombined aria-hidden="true" /></span>Estadísticas</button>
-
-        <div className="menu-rule" />
-        <p>Tu cuenta</p>
-        <button onClick={() => { setMenuOpen(false); changeGame('next', 2) }}><span><Library aria-hidden="true" /></span>Mi biblioteca</button>
-        <a className="menu-link" href="/group-settings" onClick={() => setMenuOpen(false)}><span><Settings aria-hidden="true" /></span>Ajustes del grupo</a>
-
-        <div className="menu-rule" />
-        <p>Comunidad</p>
-        <button onClick={() => setMenuOpen(false)}><span><UserPlus aria-hidden="true" /></span>Invitar amigos</button>
-
-        <div className="menu-rule" />
-        <p>Administración</p>
-        <button className="admin-menu-item" onClick={() => { setAdminOpen(true); setMenuOpen(false) }}><span><PanelsTopLeft aria-hidden="true" /></span>Editar juegos y cajas</button>
-      </aside>
-      {adminOpen && <AdminGamePanel games={games} onClose={() => setAdminOpen(false)} onSaved={() => mutate()} />}
+      <SiteMenu active="home" open={menuOpen} onNavigate={() => setMenuOpen(false)} onAdmin={() => { setAdminOpen(true); setMenuOpen(false) }} />
+      {adminOpen && <AdminGamePanel games={catalog ?? games} onClose={() => setAdminOpen(false)} onSaved={() => { mutate(); mutateCatalog() }} />}
 
       <section className="hero-content">
         <div className={`hero-heading ${headingReady ? 'is-animated' : ''}`} style={headingHeight === null ? undefined : { height: headingHeight }}>
