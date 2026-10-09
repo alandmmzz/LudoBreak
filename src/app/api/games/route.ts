@@ -8,7 +8,6 @@ type GamePayload = {
   title?: string
   genre?: string
   time?: string
-  votes?: number
   accent?: string
   cover?: string
   backdrop?: string
@@ -24,14 +23,16 @@ function normalize(payload: GamePayload) {
   const cover = payload.cover?.trim()
   const backdrop = payload.backdrop?.trim()
   if (!title || !genre || !time || !accent || !cover || !backdrop) throw new Error('Completa todos los campos del juego')
-  return { title, genre, time, votes: Number.isFinite(payload.votes) ? Math.max(0, Number(payload.votes)) : 0, accent, cover, backdrop, rules }
+  return { title, genre, time, accent, cover, backdrop, rules }
 }
 
 export async function GET() {
   const result = await db.execute(sql`
-    SELECT id, title, genre, time, votes, accent, cover, backdrop, rules
-    FROM games
-    ORDER BY id ASC
+    SELECT g.id, g.title, g.genre, g.time, COUNT(v.game_id)::int AS votes, g.accent, g.cover, g.backdrop, g.rules
+    FROM games g
+    LEFT JOIN daily_votes v ON v.game_id = g.id AND v.vote_date = CURRENT_DATE
+    GROUP BY g.id
+    ORDER BY g.id ASC
   `)
   return NextResponse.json(result.rows)
 }
@@ -40,9 +41,9 @@ export async function POST(request: Request) {
   try {
     const game = normalize(await request.json())
     const result = await db.execute(sql`
-      INSERT INTO games (title, genre, time, votes, accent, cover, backdrop, rules)
-      VALUES (${game.title}, ${game.genre}, ${game.time}, ${game.votes}, ${game.accent}, ${game.cover}, ${game.backdrop}, ${game.rules})
-      RETURNING id, title, genre, time, votes, accent, cover, backdrop, rules
+      INSERT INTO games (title, genre, time, accent, cover, backdrop, rules)
+      VALUES (${game.title}, ${game.genre}, ${game.time}, ${game.accent}, ${game.cover}, ${game.backdrop}, ${game.rules})
+      RETURNING id, title, genre, time, accent, cover, backdrop, rules
     `)
     return NextResponse.json(result.rows[0], { status: 201 })
   } catch (error) {
@@ -57,9 +58,9 @@ export async function PUT(request: Request) {
     const game = normalize(payload)
     const result = await db.execute(sql`
       UPDATE games
-      SET title = ${game.title}, genre = ${game.genre}, time = ${game.time}, votes = ${game.votes}, accent = ${game.accent}, cover = ${game.cover}, backdrop = ${game.backdrop}, rules = ${game.rules}
+      SET title = ${game.title}, genre = ${game.genre}, time = ${game.time}, accent = ${game.accent}, cover = ${game.cover}, backdrop = ${game.backdrop}, rules = ${game.rules}
       WHERE id = ${payload.id}
-      RETURNING id, title, genre, time, votes, accent, cover, backdrop, rules
+      RETURNING id, title, genre, time, accent, cover, backdrop, rules
     `)
     if (!result.rows[0]) return NextResponse.json({ error: 'Juego no encontrado' }, { status: 404 })
     return NextResponse.json(result.rows[0])
