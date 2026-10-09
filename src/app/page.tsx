@@ -1,7 +1,7 @@
 'use client'
 
 import useSWR from 'swr'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { GameBoxCarousel } from '@/components/game-box-carousel'
 import { AdminGamePanel } from '@/components/admin-game-panel'
 import { ChartNoAxesCombined, History, House, Library, PanelsTopLeft, Settings, UserPlus } from 'lucide-react'
@@ -14,7 +14,7 @@ const fetcher = async (url: string) => {
   return payload
 }
 
-const GROUP_NAME = 'Game Night Crew'
+const GROUP_NAME = 'TECNOLOGO 2027'
 
 const fallbackGames = [
   { id: 1, title: 'Quest', genre: 'Hidden roles · 5–10 players', time: '30–45 min', votes: 7, accent: 'gold', cover: '/games/quest.png', rules: '', backdrop: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=2200&q=85' },
@@ -75,6 +75,25 @@ export default function Home() {
 
   const backdropGame = games[backdropIndex]
 
+  // Measure the title block so the wrapper can animate its height; the carousel
+  // below then glides down/up instead of jumping when the title wraps.
+  const headingInnerRef = useRef<HTMLDivElement>(null)
+  const [headingHeight, setHeadingHeight] = useState<number | null>(null)
+  const [headingReady, setHeadingReady] = useState(false)
+  useLayoutEffect(() => {
+    const element = headingInnerRef.current
+    if (!element) return
+    const measure = () => setHeadingHeight(element.offsetHeight)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(element)
+    const frame = requestAnimationFrame(() => setHeadingReady(true))
+    return () => {
+      observer.disconnect()
+      cancelAnimationFrame(frame)
+    }
+  }, [])
+
   return (
     <main className="night-app" style={{ '--backdrop': `url(${backdropGame.backdrop})` } as React.CSSProperties}>
       <div key={`previous-${transitionKey}`} className="backdrop backdrop-previous" style={{ '--backdrop': `url(${previousBackdrop})` } as React.CSSProperties} aria-hidden="true" />
@@ -82,19 +101,19 @@ export default function Home() {
       <header className="night-header">
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
         <nav className="breadcrumb" aria-label="Breadcrumb"><span>LudoBreak</span><span aria-hidden="true">/</span><strong>PICK THE GAME</strong></nav>
-        <div className="header-group"><i /> {GROUP_NAME} <span>4 jugadores</span></div>
+        <div className="header-group"><i /> {GROUP_NAME} <button className="players-trigger" type="button" aria-label="Ver quiénes están en el grupo">7 integrantes</button><div className="players-popover" role="status"><strong>Quiénes están en el grupo</strong><span>• Agustina</span><span>• Aparicio</span><span>• Tifany</span><span>• Pablo</span><span>• Paula</span><span>• Santiago</span><span>• Aland · Admin</span></div></div>
             </header>
 
       <aside className={`night-menu ${menuOpen ? 'open' : ''}`} aria-label="Navegación de la mesa">
         <p>La mesa</p>
         <button className="selected" onClick={() => setMenuOpen(false)}><span><House aria-hidden="true" /></span>Inicio</button>
-        <button onClick={() => setMenuOpen(false)}><span><History aria-hidden="true" /></span>Partidas</button>
+        <a className="menu-link" href="/partidas" onClick={() => setMenuOpen(false)}><span><History aria-hidden="true" /></span>Partidas</a>
         <button onClick={() => setMenuOpen(false)}><span><ChartNoAxesCombined aria-hidden="true" /></span>Estadísticas</button>
 
         <div className="menu-rule" />
         <p>Tu cuenta</p>
         <button onClick={() => { setMenuOpen(false); changeGame('next', 2) }}><span><Library aria-hidden="true" /></span>Mi biblioteca</button>
-        <button onClick={() => setMenuOpen(false)}><span><Settings aria-hidden="true" /></span>Ajustes</button>
+        <a className="menu-link" href="/group-settings" onClick={() => setMenuOpen(false)}><span><Settings aria-hidden="true" /></span>Ajustes del grupo</a>
 
         <div className="menu-rule" />
         <p>Comunidad</p>
@@ -107,14 +126,16 @@ export default function Home() {
       {adminOpen && <AdminGamePanel games={games} onClose={() => setAdminOpen(false)} onSaved={() => mutate()} />}
 
       <section className="hero-content">
-        <div className="hero-heading">
-          <div className="group-kicker"><span /> {GROUP_NAME.toUpperCase()} <span /></div>
-          <h1 key={game.id}>{game.title}</h1>
-          <div className="carousel-meta">
-            <span>{game.genre}</span><b>•</b><span>{game.time}</span><b>•</b>
-            {game.rules
-              ? <a className="rules-link" href={game.rules} target="_blank" rel="noopener noreferrer">Ver reglas (PDF)<span aria-hidden="true">↗</span></a>
-              : <span className="rules-missing">Sin reglas aún</span>}
+        <div className={`hero-heading ${headingReady ? 'is-animated' : ''}`} style={headingHeight === null ? undefined : { height: headingHeight }}>
+          <div ref={headingInnerRef} className="hero-heading-inner">
+            <div className="group-kicker"><span /> {GROUP_NAME.toUpperCase()} <span /></div>
+            <h1 key={game.id}>{game.title}</h1>
+            <div key={`meta-${game.id}`} className="carousel-meta">
+              <span>{game.genre}</span><b>•</b><span>{game.time}</span><b>•</b>
+              {game.rules
+                ? <a className="rules-link" href={game.rules} target="_blank" rel="noopener noreferrer">Ver reglas (PDF)<span aria-hidden="true">↗</span></a>
+                : <span className="rules-missing">Sin reglas aún</span>}
+            </div>
           </div>
         </div>
         <div className="stage">
