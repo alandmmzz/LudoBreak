@@ -6,6 +6,7 @@ import useSWR from 'swr'
 import { useState } from 'react'
 import { Eye, EyeOff, LibraryBig, Plus, Trash2 } from 'lucide-react'
 import { SiteChrome } from '@/components/site-chrome'
+import { GROUP_MEMBERS } from '@/lib/group'
 
 type LibraryGame = {
   id: number
@@ -29,7 +30,8 @@ const fetcher = async (url: string): Promise<LibraryGame[]> => {
 const accentColor = (accent: string) => accent.startsWith('#') ? accent : `var(--${accent}, #b58b5b)`
 
 export default function LibraryPage() {
-  const { data: games, error, isLoading, mutate } = useSWR<LibraryGame[]>('/api/library', fetcher)
+  const [member, setMember] = useState('Aland')
+  const { data: games, error, isLoading, mutate } = useSWR<LibraryGame[]>(`/api/library?member=${encodeURIComponent(member)}`, fetcher)
   const [pending, setPending] = useState<Action | null>(null)
   const [message, setMessage] = useState('')
 
@@ -42,10 +44,10 @@ export default function LibraryPage() {
     setMessage('')
     try {
       const request: Record<Action['type'], { method: string; body: object }> = {
-        add: { method: 'POST', body: { gameId: id } },
+        add: { method: 'POST', body: { gameId: id, member } },
         hide: { method: 'PATCH', body: { gameId: id, hidden: true } },
         show: { method: 'PATCH', body: { gameId: id, hidden: false } },
-        remove: { method: 'DELETE', body: { gameId: id } },
+        remove: { method: 'DELETE', body: { gameId: id, member } },
       }
       const response = await fetch('/api/library', {
         method: request[type].method,
@@ -72,7 +74,8 @@ export default function LibraryPage() {
           <div>
             <span className="matches-kicker">Tu colección</span>
             <h1>Mi biblioteca</h1>
-            <p>Los juegos que tenés disponibles para la mesa. Ocultá los que no querés ver en el carrusel o sacalos de tu colección.</p>
+            <p>Elegí los juegos que tiene cada integrante. La mesa combina las bibliotecas de todos para decidir qué jugar.</p>
+            <label className="library-member-select">Perfil actual<select value={member} onChange={(event) => setMember(event.target.value)}>{GROUP_MEMBERS.map((person) => <option key={person.name} value={person.name}>{person.name}{person.admin ? ' · Admin' : ''}</option>)}</select></label>
           </div>
         </div>
 
@@ -83,7 +86,7 @@ export default function LibraryPage() {
         {games && (
           <>
             <div className="library-heading">
-              <h2>En tu biblioteca</h2>
+              <h2>Biblioteca de {member}</h2>
               <small>{library.length} {library.length === 1 ? 'juego' : 'juegos'} · {visibleCount} {visibleCount === 1 ? 'visible' : 'visibles'}</small>
             </div>
             {library.length === 0 ? (
@@ -118,7 +121,7 @@ export default function LibraryPage() {
 
             <div className="library-heading">
               <h2>Disponibles para agregar</h2>
-              <small>Los juegos nuevos se crean desde el panel de administración</small>
+              <small>Solo podés agregar juegos creados por administración</small>
             </div>
             {available.length === 0 ? (
               <p className="library-note">Ya agregaste todos los juegos creados.</p>
