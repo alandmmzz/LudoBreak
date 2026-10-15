@@ -108,7 +108,7 @@ export default function Home() {
       <div key={`previous-${transitionKey}`} className="backdrop backdrop-previous" style={{ '--backdrop': `url(${previousBackdrop})` } as React.CSSProperties} aria-hidden="true" />
       <div key={`current-${transitionKey}`} className="backdrop backdrop-current" style={{ '--backdrop': `url(${backdropGame.backdrop})` } as React.CSSProperties} aria-hidden="true" />
       <header className="night-header">
-        <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
+        <button type="button" className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
         <nav className="breadcrumb" aria-label="Breadcrumb"><span>LudoBreak</span><span aria-hidden="true">/</span><strong>PICK THE GAME</strong></nav>
         <div className="header-group"><i /> {GROUP_NAME} <button className="players-trigger" type="button" aria-label="Ver quiénes están en el grupo">7 integrantes</button><div className="players-popover" role="status"><strong>Quiénes están en el grupo</strong><span>• Agustina</span><span>• Aparicio</span><span>• Tifany</span><span>• Pablo</span><span>• Paula</span><span>• Santiago</span><span>• Aland · Admin</span></div></div>
             </header>
