@@ -3,7 +3,7 @@
 import '../matches.css'
 import useSWR from 'swr'
 import { useEffect, useRef, useState } from 'react'
-import { CalendarDays, Crown, Dices, Plus, Trophy, X } from 'lucide-react'
+import { CalendarDays, Crown, Dices, Pencil, Plus, Trophy, X } from 'lucide-react'
 import { SiteChrome } from '@/components/site-chrome'
 import { GROUP_MEMBERS, type Match } from '@/lib/group'
 
@@ -35,6 +35,7 @@ export default function MatchesPage() {
   const { data: matches, error, isLoading, mutate } = useSWR<Match[]>('/api/matches', fetcher)
   const { data: games } = useSWR<GameOption[]>('/api/games', fetcher)
   const [formOpen, setFormOpen] = useState(false)
+  const [editingMatch, setEditingMatch] = useState<Match | null>(null)
 
   return (
     <main className="matches-page">
@@ -61,23 +62,24 @@ export default function MatchesPage() {
         )}
         {matches && matches.length > 0 && (
           <ol className="match-list">
-            {matches.map((match) => <MatchCard key={match.id} match={match} />)}
+            {matches.map((match) => <MatchCard key={match.id} match={match} onEdit={() => setEditingMatch(match)} />)}
           </ol>
         )}
       </section>
 
-      {formOpen && (
-        <NewMatchDialog
+      {(formOpen || editingMatch) && (
+        <MatchDialog
+          match={editingMatch}
           games={games ?? []}
-          onClose={() => setFormOpen(false)}
-          onSaved={async () => { await mutate(); setFormOpen(false) }}
+          onClose={() => { setFormOpen(false); setEditingMatch(null) }}
+          onSaved={async () => { await mutate(); setFormOpen(false); setEditingMatch(null) }}
         />
       )}
     </main>
   )
 }
 
-function MatchCard({ match }: { match: Match }) {
+function MatchCard({ match, onEdit }: { match: Match; onEdit: () => void }) {
   const winners = match.participants.filter((participant) => participant.result === 'won')
   const losers = match.participants.filter((participant) => participant.result === 'lost')
   return (
@@ -88,7 +90,7 @@ function MatchCard({ match }: { match: Match }) {
       <div className="match-body">
         <div className="match-heading">
           <h2>{match.game_title}</h2>
-          <span className="match-date"><CalendarDays aria-hidden="true" /> {formatDate(match.played_on)}</span>
+          <div className="match-actions"><span className="match-date"><CalendarDays aria-hidden="true" /> {formatDate(match.played_on)}</span><button className="match-edit-button" type="button" onClick={onEdit} aria-label={`Editar partida de ${match.game_title}`}><Pencil aria-hidden="true" /> Editar</button></div>
         </div>
         <div className="match-results">
           <div className="result-group winners">
@@ -105,10 +107,14 @@ function MatchCard({ match }: { match: Match }) {
   )
 }
 
-function NewMatchDialog({ games, onClose, onSaved }: { games: GameOption[]; onClose: () => void; onSaved: () => Promise<void> }) {
-  const [playedOn, setPlayedOn] = useState(todayISO)
-  const [gameId, setGameId] = useState('')
-  const [choices, setChoices] = useState<Record<string, Choice>>(emptyChoices)
+function MatchDialog({ match, games, onClose, onSaved }: { match: Match | null; games: GameOption[]; onClose: () => void; onSaved: () => Promise<void> }) {
+  const [playedOn, setPlayedOn] = useState(match?.played_on ?? todayISO)
+  const [gameId, setGameId] = useState(match?.game_id ? String(match.game_id) : '')
+  const [choices, setChoices] = useState<Record<string, Choice>>(() => {
+    const initial = emptyChoices()
+    match?.participants.forEach((participant) => { initial[participant.player_name] = participant.result })
+    return initial
+  })
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const dateRef = useRef<HTMLInputElement>(null)
@@ -133,9 +139,10 @@ function NewMatchDialog({ games, onClose, onSaved }: { games: GameOption[]; onCl
     setSaving(true)
     try {
       const response = await fetch('/api/matches', {
-        method: 'POST',
+        method: match ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          ...(match ? { id: match.id } : {}),
           gameId: Number(gameId),
           playedOn,
           participants: playing.map((member) => ({ name: member.name, result: choices[member.name] })),
@@ -152,9 +159,9 @@ function NewMatchDialog({ games, onClose, onSaved }: { games: GameOption[]; onCl
 
   return (
     <div className="match-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
-      <form className="match-dialog" role="dialog" aria-modal="true" aria-labelledby="new-match-title" onSubmit={submit}>
+      <form className="match-dialog" role="dialog" aria-modal="true" aria-labelledby="match-dialog-title" onSubmit={submit}>
         <header className="match-dialog-header">
-          <div><span className="matches-kicker">Registrar</span><h2 id="new-match-title">Nueva partida</h2></div>
+          <div><span className="matches-kicker">{match ? 'Modificar registro' : 'Registrar'}</span><h2 id="match-dialog-title">{match ? 'Editar partida' : 'Nueva partida'}</h2></div>
           <button className="dialog-close" type="button" onClick={onClose} aria-label="Cerrar"><X aria-hidden="true" /></button>
         </header>
 
@@ -193,7 +200,7 @@ function NewMatchDialog({ games, onClose, onSaved }: { games: GameOption[]; onCl
         {message && <p className="dialog-error" role="alert">{message}</p>}
         <footer className="match-dialog-footer">
           <button className="dialog-cancel" type="button" onClick={onClose}>Cancelar</button>
-          <button className="dialog-save" type="submit" disabled={saving}>{saving ? 'Guardando…' : 'Guardar partida'}</button>
+          <button className="dialog-save" type="submit" disabled={saving}>{saving ? 'Guardando…' : match ? 'Guardar cambios' : 'Guardar partida'}</button>
         </footer>
       </form>
     </div>

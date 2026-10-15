@@ -174,7 +174,6 @@ export default function Home() {
             <p className="vote-hint">{selectedVotes.length && !submittedVotes ? `${selectedVotes.length} juego${selectedVotes.length === 1 ? '' : 's'} seleccionado${selectedVotes.length === 1 ? '' : 's'}` : submittedVotes ? 'Votes submitted successfully' : 'Vote for what we play tonight'}</p>
 </aside>
           </div>
-        </div>
       </section>
     </main>
   )

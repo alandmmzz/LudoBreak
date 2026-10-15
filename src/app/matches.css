@@ -24,6 +24,10 @@
 .match-heading h2 { margin:0; font-family:Georgia,serif; font-size:26px; font-weight:400; letter-spacing:1px; }
 .match-date { display:inline-flex; align-items:center; gap:7px; color:var(--muted); font-size:12px; text-transform:capitalize; }
 .match-date svg { width:14px; height:14px; color:var(--teal); }
+.match-actions { display:flex; align-items:center; gap:14px; }
+.match-edit-button { display:inline-flex; align-items:center; gap:6px; padding:7px 10px; border:1px solid var(--glass-border); border-radius:999px; background:rgba(255,255,255,.04); color:var(--muted); font:inherit; font-size:10px; letter-spacing:1px; text-transform:uppercase; cursor:pointer; }
+.match-edit-button svg { width:13px; height:13px; }
+.match-edit-button:hover,.match-edit-button:focus-visible { border-color:var(--teal); color:var(--ink); outline:none; }
 .match-results { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
 .result-label { display:inline-flex; align-items:center; gap:6px; margin-bottom:8px; font-size:10px; letter-spacing:2px; text-transform:uppercase; }
 .result-label svg { width:13px; height:13px; }

@@ -11,6 +11,21 @@ type MatchPayload = {
   participants?: { name?: string; result?: string }[]
 }
 
+async function validatePayload(payload: MatchPayload) {
+  const playedOn = payload.playedOn?.trim()
+  if (!playedOn || !/^\d{4}-\d{2}-\d{2}$/.test(playedOn) || Number.isNaN(Date.parse(playedOn))) throw new Error('Elegí el día de juego')
+  if (!payload.gameId) throw new Error('Elegí qué juego se jugó')
+  const participants = (payload.participants ?? []).filter(
+    (item): item is { name: string; result: 'won' | 'lost' } => !!item.name && memberNames.has(item.name) && (item.result === 'won' || item.result === 'lost'),
+  )
+  if (participants.length === 0) throw new Error('Marcá al menos un participante como ganador o perdedor')
+  if (new Set(participants.map((item) => item.name)).size !== participants.length) throw new Error('Hay participantes repetidos')
+  const game = await db.execute(sql`SELECT id, title FROM games WHERE id = ${payload.gameId}`)
+  const row = game.rows[0] as { id: number; title: string } | undefined
+  if (!row) throw new Error('El juego elegido no existe')
+  return { playedOn, participants, game: row }
+}
+
 const memberNames = new Set(GROUP_MEMBERS.map((member) => member.name))
 
 export async function GET() {
@@ -35,24 +50,28 @@ export async function GET() {
   return NextResponse.json(result.rows)
 }
 
+export async function PUT(request: Request) {
+  try {
+    const payload = (await request.json()) as MatchPayload & { id?: number }
+    if (!payload.id) throw new Error('Partida inválida')
+    const { playedOn, participants, game } = await validatePayload(payload)
+    const existing = await db.execute(sql`SELECT id FROM matches WHERE id = ${payload.id}`)
+    if (!existing.rows[0]) throw new Error('La partida no existe')
+    await db.transaction(async (tx) => {
+      await tx.execute(sql`UPDATE matches SET game_id = ${game.id}, game_title = ${game.title}, played_on = ${playedOn} WHERE id = ${payload.id}`)
+      await tx.execute(sql`DELETE FROM match_participants WHERE match_id = ${payload.id}`)
+      for (const item of participants) await tx.execute(sql`INSERT INTO match_participants (match_id, player_name, result) VALUES (${payload.id}, ${item.name}, ${item.result})`)
+    })
+    return NextResponse.json({ id: payload.id })
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'No se pudo editar la partida' }, { status: 400 })
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const payload = (await request.json()) as MatchPayload
-    const playedOn = payload.playedOn?.trim()
-    if (!playedOn || !/^\d{4}-\d{2}-\d{2}$/.test(playedOn) || Number.isNaN(Date.parse(playedOn))) throw new Error('Elegí el día de juego')
-    if (!payload.gameId) throw new Error('Elegí qué juego se jugó')
-
-    const participants = (payload.participants ?? []).filter(
-      (item): item is { name: string; result: 'won' | 'lost' } =>
-        !!item.name && memberNames.has(item.name) && (item.result === 'won' || item.result === 'lost'),
-    )
-    if (participants.length === 0) throw new Error('Marcá al menos un participante como ganador o perdedor')
-    if (new Set(participants.map((item) => item.name)).size !== participants.length) throw new Error('Hay participantes repetidos')
-
-    const game = await db.execute(sql`SELECT id, title FROM games WHERE id = ${payload.gameId}`)
-    const row = game.rows[0] as { id: number; title: string } | undefined
-    if (!row) throw new Error('El juego elegido no existe')
-
+    const { playedOn, participants, game: row } = await validatePayload(payload)
     const created = await db.execute(sql`
       INSERT INTO matches (game_id, game_title, played_on)
       VALUES (${row.id}, ${row.title}, ${playedOn})
