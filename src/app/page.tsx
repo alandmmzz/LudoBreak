@@ -26,7 +26,7 @@ const fallbackGames = [
 export default function Home() {
   const { data: loadedGames, mutate } = useSWR<typeof fallbackGames>('/api/library?view=visible', fetcher, { fallbackData: fallbackGames })
   const { data: catalog, mutate: mutateCatalog } = useSWR<typeof fallbackGames>('/api/games', fetcher)
-  const games = Array.isArray(loadedGames) && loadedGames.length > 0 ? loadedGames : fallbackGames
+  const games = (Array.isArray(loadedGames) && loadedGames.length > 0 ? loadedGames : fallbackGames).slice().sort((a, b) => a.title.localeCompare(b.title, 'es', { sensitivity: 'base' }))
   const [active, setActive] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
   const [adminOpen, setAdminOpen] = useState(false)
@@ -138,7 +138,7 @@ export default function Home() {
             </div>
             <div className="carousel-dots">{games.map((item, index) => <button key={item.title} className={index === active ? 'active' : ''} onClick={() => changeGame(index > active ? 'next' : 'previous', index)} aria-label={`Ver ${item.title}`} />)}</div>
           </div>
-          <aside className="stage-panel">
+          <aside className={`stage-panel ${adminOpen ? 'stage-panel-hidden' : ''}`} aria-hidden={adminOpen}>
             {showResults && submittedVotes ? (
               <section id="vote-results" className="panel-card results-panel" aria-label="Vote results">
                 <header className="panel-card-header"><span className="selected-games-label">VOTE RESULTS</span></header>
@@ -172,7 +172,8 @@ export default function Home() {
               {submittedVotes ? <a className="results-button" href="#vote-results" onClick={() => setShowResults(true)}>VIEW RESULTS</a> : <button className="submit-votes" onClick={submitVotes} disabled={selectedVotes.length === 0}>SUBMIT VOTES <span>({selectedVotes.length})</span></button>}
             </div>
             <p className="vote-hint">{selectedVotes.length && !submittedVotes ? `${selectedVotes.length} juego${selectedVotes.length === 1 ? '' : 's'} seleccionado${selectedVotes.length === 1 ? '' : 's'}` : submittedVotes ? 'Votes submitted successfully' : 'Vote for what we play tonight'}</p>
-          </aside>
+</aside>
+          </div>
         </div>
       </section>
     </main>

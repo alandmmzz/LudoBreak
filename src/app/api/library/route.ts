@@ -39,11 +39,11 @@ export async function GET(request: Request) {
   const member = memberFromRequest(request)
   if (view === 'visible') {
     await ensureMemberLibrary(DEFAULT_MEMBER)
-    const result = await db.execute(sql`SELECT DISTINCT ${GAME_COLUMNS} FROM member_library_games l JOIN games g ON g.id = l.game_id WHERE l.hidden = false ORDER BY g.id ASC`)
+    const result = await db.execute(sql`SELECT DISTINCT ${GAME_COLUMNS} FROM member_library_games l JOIN games g ON g.id = l.game_id WHERE l.hidden = false ORDER BY g.title ASC`)
     return NextResponse.json(result.rows)
   }
   await ensureMemberLibrary(member)
-  const result = await db.execute(sql`SELECT ${GAME_COLUMNS}, (l.game_id IS NOT NULL) AS in_library, COALESCE(l.hidden, false) AS hidden FROM games g LEFT JOIN member_library_games l ON l.game_id = g.id AND l.member_name = ${member} ORDER BY g.id ASC`)
+  const result = await db.execute(sql`SELECT ${GAME_COLUMNS}, (l.game_id IS NOT NULL) AS in_library, COALESCE(l.hidden, false) AS hidden FROM games g LEFT JOIN member_library_games l ON l.game_id = g.id AND l.member_name = ${member} ORDER BY g.title ASC`)
   return NextResponse.json(result.rows)
 }
 
