@@ -68,7 +68,7 @@ export function SiteChrome({ current, active }: SiteChromeProps) {
   return (
     <>
       <header className="night-header">
-        <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
+        <button type="button" className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
         <nav className="breadcrumb" aria-label="Breadcrumb"><a href="/">LudoBreak</a><span aria-hidden="true">/</span><strong>{current}</strong></nav>
         <div className="header-group"><i /> {GROUP_NAME} <button className="players-trigger" type="button" aria-label="Ver quiénes están en el grupo">{GROUP_MEMBERS.length} integrantes</button>
           <div className="players-popover" role="status"><strong>Quiénes están en el grupo</strong>{GROUP_MEMBERS.map((member) => <span key={member.name}>• {member.name}{member.admin ? ' · Admin' : ''}</span>)}</div>

@@ -45,6 +45,12 @@ export async function POST(request: Request) {
       VALUES (${game.title}, ${game.genre}, ${game.time}, ${game.accent}, ${game.cover}, ${game.backdrop}, ${game.rules})
       RETURNING id, title, genre, time, accent, cover, backdrop, rules
     `)
+    const createdGame = result.rows[0] as { id: number }
+    await db.execute(sql`
+      INSERT INTO member_library_games (member_name, game_id)
+      VALUES ('Aland', ${createdGame.id})
+      ON CONFLICT DO NOTHING
+    `)
     return NextResponse.json(result.rows[0], { status: 201 })
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : 'No se pudo crear el juego' }, { status: 400 })
