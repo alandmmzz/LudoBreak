@@ -29,13 +29,16 @@ async function assertAnotherVisibleGame(member: string, gameId: number) {
 }
 
 async function ensureMemberLibrary(member: string) {
-  await db.execute(sql`INSERT INTO member_library_games (member_name, game_id) SELECT ${member}, game_id FROM library_games ON CONFLICT DO NOTHING`)
+  // Keep the simulated active profile in sync with the admin catalog so games
+  // created before the per-member library migration are not lost from the table.
+  await db.execute(sql`INSERT INTO member_library_games (member_name, game_id) SELECT ${member}, id FROM games ON CONFLICT DO NOTHING`)
 }
 
 export async function GET(request: Request) {
   const view = new URL(request.url).searchParams.get('view')
   const member = memberFromRequest(request)
   if (view === 'visible') {
+    await ensureMemberLibrary(DEFAULT_MEMBER)
     const result = await db.execute(sql`SELECT DISTINCT ${GAME_COLUMNS} FROM member_library_games l JOIN games g ON g.id = l.game_id WHERE l.hidden = false ORDER BY g.id ASC`)
     return NextResponse.json(result.rows)
   }
