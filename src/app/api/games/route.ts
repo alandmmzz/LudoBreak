@@ -32,7 +32,7 @@ export async function GET() {
     FROM games g
     LEFT JOIN daily_votes v ON v.game_id = g.id AND v.vote_date = CURRENT_DATE
     GROUP BY g.id
-    ORDER BY g.id ASC
+    ORDER BY g.title ASC
   `)
   return NextResponse.json(result.rows)
 }
