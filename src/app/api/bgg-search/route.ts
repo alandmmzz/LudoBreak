@@ -79,9 +79,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const { bggId } = await request.json().catch(() => ({})) as { bggId?: string }
-  if (!bggId || !/^\d+$/.test(bggId)) return NextResponse.json({ error: 'Juego BGG inválido' }, { status: 400 })
-  const item = await fetchGeekItem(bggId)
+  const { bggUrl, bggId } = await request.json().catch(() => ({})) as { bggUrl?: string; bggId?: string }
+  const resolvedId = bggId || (bggUrl ? extractBggId(bggUrl) : null)
+  if (!resolvedId) return NextResponse.json({ error: 'Pegá una URL válida de BoardGameGeek, por ejemplo https://boardgamegeek.com/boardgame/13/catan' }, { status: 400 })
+  const item = await fetchGeekItem(resolvedId)
   if (!item) return NextResponse.json({ error: 'No se pudo cargar el juego' }, { status: 502 })
-  return NextResponse.json(formatGame(item, bggId))
+  return NextResponse.json(formatGame(item, resolvedId))
 }
