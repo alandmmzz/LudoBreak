@@ -29,7 +29,8 @@ const accentColors: Record<string, string> = {
 function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game; offset: number; selected: boolean; voted: boolean; onSelect: () => void }) {
   const distance = Math.abs(offset)
   const isCenter = Math.abs(offset) < 0.12
-  const coverTexture = useLoader(THREE.TextureLoader, game.cover)
+  const coverUrl = game.cover && /^https:\/\/(cf\.geekdo-images\.com|images\.unsplash\.com)\//.test(game.cover) ? `/api/image-proxy?url=${encodeURIComponent(game.cover)}` : game.cover
+  const coverTexture = useLoader(THREE.TextureLoader, coverUrl)
   coverTexture.colorSpace = THREE.SRGBColorSpace
   const rotation = offset * -0.18
   const intermediateSpread = Math.sign(offset) * 0.42 * Math.max(0, 1 - Math.abs(distance - 1) * 2)
