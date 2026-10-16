@@ -7,8 +7,9 @@ import { apiError, HttpError, requireUser, TABLE_COOKIE } from '@/lib/session'
 export async function POST(request: Request) {
   try {
     const user = await requireUser()
-    const body = await request.json().catch(() => ({})) as { code?: string }
-    const tableId = body.code ? parseInviteCode(body.code) : null
+    const body = await request.json().catch(() => ({})) as { code?: string; tableId?: number }
+    const requestedId = Number(body.tableId)
+    const tableId = Number.isInteger(requestedId) && requestedId > 0 ? requestedId : body.code ? parseInviteCode(body.code) : null
     if (!tableId) throw new HttpError('El link de invitación no es válido', 400)
     const found = await db.execute(sql`SELECT id, name FROM game_tables WHERE id = ${tableId}`)
     const table = found.rows[0] as { id: number; name: string } | undefined

@@ -21,7 +21,11 @@ async function validatePayload(payload: MatchPayload, table: TableSummary, owner
   )
   if (participants.length === 0) throw new Error('Marcá al menos un participante como ganador o perdedor')
   if (new Set(participants.map((item) => item.name)).size !== participants.length) throw new Error('Hay participantes repetidos')
-  const game = await db.execute(sql`SELECT id, title FROM games WHERE id = ${payload.gameId} AND owner_id = ANY(${ownerIds})`)
+  const game = await db.execute(sql`
+    SELECT g.id, g.title FROM games g
+    WHERE g.id = ${payload.gameId}
+      AND EXISTS (SELECT 1 FROM member_library_games l WHERE l.game_id = g.id AND l.member_name = ANY(${ownerIds}))
+  `)
   const row = game.rows[0] as { id: number; title: string } | undefined
   if (!row) throw new Error('El juego elegido no existe')
   return { playedOn, participants, game: row }

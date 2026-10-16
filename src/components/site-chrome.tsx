@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { ChartColumn, History, House, LibraryBig, PanelsTopLeft, Settings, UserPlus, type LucideIcon } from 'lucide-react'
+import { ChartColumn, History, House, LibraryBig, PanelsTopLeft, Settings, UserPlus, Users, type LucideIcon } from 'lucide-react'
 import { HeaderControls } from '@/components/header-controls'
 
-export type MenuKey = 'home' | 'matches' | 'stats' | 'library' | 'settings'
+export type MenuKey = 'home' | 'matches' | 'stats' | 'library' | 'tables' | 'settings'
 
 type MenuItem = { key: MenuKey | 'invite' | 'admin'; label: string; icon: LucideIcon; href?: string }
 
@@ -16,6 +16,7 @@ const MENU_SECTIONS: { title: string; items: MenuItem[] }[] = [
   ] },
   { title: 'Tu cuenta', items: [
     { key: 'library', label: 'Mi biblioteca', icon: LibraryBig, href: '/biblioteca' },
+    { key: 'tables', label: 'Mis mesas', icon: Users, href: '/mis-mesas' },
     { key: 'settings', label: 'Ajustes del grupo', icon: Settings, href: '/group-settings' },
   ] },
   { title: 'Comunidad', items: [{ key: 'invite', label: 'Invitar amigos', icon: UserPlus }] },

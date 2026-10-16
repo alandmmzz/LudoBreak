@@ -53,6 +53,7 @@ function TableSwitcher() {
               {table.id === me.activeTable.id && <Check aria-hidden="true" />}
             </button>
           ))}
+          <a className="header-option" href="/mis-mesas"><span>Administrar mis mesas</span></a>
         </div>
       )}
     </div>
@@ -94,6 +95,13 @@ function AccountMenu() {
 }
 
 export function HeaderControls() {
+  const { error } = useMe()
+  const router = useRouter()
+  const withoutTable = error?.status === 403
+  useEffect(() => {
+    if (withoutTable) router.replace('/elegir-mesa')
+  }, [withoutTable, router])
+
   return (
     <div className="header-controls">
       <TableSwitcher />

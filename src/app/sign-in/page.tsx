@@ -28,7 +28,8 @@ export default function SignInPage() {
       setError(result.error.message ?? 'No se pudo completar la acción')
       return
     }
-    window.location.assign(safeNext())
+    const next = safeNext()
+    window.location.assign(creating && next === '/' ? '/elegir-mesa' : next)
   }
 
   const withGoogle = async () => {

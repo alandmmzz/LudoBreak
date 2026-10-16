@@ -39,7 +39,6 @@ export async function GET(request: Request) {
       SELECT ${GAME_COLUMNS}, (l.game_id IS NOT NULL) AS in_library, COALESCE(l.hidden, false) AS hidden
       FROM games g
       LEFT JOIN member_library_games l ON l.game_id = g.id AND l.member_name = ${user.id}
-      WHERE g.owner_id = ${user.id}
       ORDER BY g.title ASC
     `)
     return NextResponse.json(result.rows)
@@ -52,8 +51,8 @@ export async function POST(request: Request) {
   try {
     const user = await requireUser()
     const { gameId } = await readGameId(request)
-    const exists = await db.execute(sql`SELECT 1 FROM games WHERE id = ${gameId} AND owner_id = ${user.id}`)
-    if (!exists.rows[0]) return NextResponse.json({ error: 'Ese juego no existe en tu catálogo' }, { status: 404 })
+    const exists = await db.execute(sql`SELECT 1 FROM games WHERE id = ${gameId}`)
+    if (!exists.rows[0]) return NextResponse.json({ error: 'Ese juego no existe en el catálogo' }, { status: 404 })
     await db.execute(sql`INSERT INTO member_library_games (member_name, game_id) VALUES (${user.id}, ${gameId}) ON CONFLICT DO NOTHING`)
     return NextResponse.json({ ok: true }, { status: 201 })
   } catch (error) {
