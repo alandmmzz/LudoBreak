@@ -49,6 +49,8 @@ export const auth = betterAuth({
     accountLinking: {
       enabled: true,
       trustedProviders: ['google'],
+      // Accounts created with email + password are never email-verified, so the default would block linking Google.
+      requireLocalEmailVerified: false,
     },
   },
   trustedOrigins: [
