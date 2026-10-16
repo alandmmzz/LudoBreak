@@ -84,6 +84,8 @@ export default function Home() {
 
   const backdropGame = games[backdropIndex]
   const proxiedBackdrop = (url: string) => url && /^https:\/\/(cf\.geekdo-images\.com|images\.unsplash\.com)\//.test(url) ? `/api/image-proxy?url=${encodeURIComponent(url)}` : url
+  // BGG URLs contain parentheses (e.g. strip_icc()), which invalidate an unquoted CSS url() and leave the previous backdrop in place.
+  const cssBackdrop = (url: string) => `url("${proxiedBackdrop(url).replace(/[()'"\\\s]/g, (char) => `%${char.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`)}")`
 
   // Measure the title block so the wrapper can animate its height; the carousel
   // below then glides down/up instead of jumping when the title wraps.
@@ -105,9 +107,9 @@ export default function Home() {
   }, [])
 
   return (
-    <main className="night-app" style={{ '--backdrop': `url(${proxiedBackdrop(backdropGame.backdrop)})` } as React.CSSProperties}>
-      <div key={`previous-${transitionKey}`} className="backdrop backdrop-previous" style={{ '--backdrop': `url(${proxiedBackdrop(previousBackdrop)})` } as React.CSSProperties} aria-hidden="true" />
-      <div key={`current-${transitionKey}`} className="backdrop backdrop-current" style={{ '--backdrop': `url(${proxiedBackdrop(backdropGame.backdrop)})` } as React.CSSProperties} aria-hidden="true" />
+    <main className="night-app" style={{ '--backdrop': cssBackdrop(backdropGame.backdrop) } as React.CSSProperties}>
+      <div key={`previous-${transitionKey}`} className="backdrop backdrop-previous" style={{ '--backdrop': cssBackdrop(previousBackdrop) } as React.CSSProperties} aria-hidden="true" />
+      <div key={`current-${transitionKey}`} className="backdrop backdrop-current" style={{ '--backdrop': cssBackdrop(backdropGame.backdrop) } as React.CSSProperties} aria-hidden="true" />
       <header className="night-header">
         <button type="button" className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
         <nav className="breadcrumb" aria-label="Breadcrumb"><span>LudoBreak</span><span aria-hidden="true">/</span><strong>PICK THE GAME</strong></nav>
