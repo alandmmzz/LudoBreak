@@ -5,7 +5,8 @@ import useSWR from 'swr'
 import { useEffect, useRef, useState } from 'react'
 import { CalendarDays, Crown, Dices, Pencil, Plus, Trophy, X } from 'lucide-react'
 import { SiteChrome } from '@/components/site-chrome'
-import { GROUP_MEMBERS, type Match } from '@/lib/group'
+import { type Match } from '@/lib/group'
+import { useMe } from '@/lib/use-me'
 
 type GameOption = { id: number; title: string }
 type Choice = 'won' | 'lost' | 'none'
@@ -29,9 +30,13 @@ const formatDate = (iso: string) => {
   return new Date(year, month - 1, day).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-const emptyChoices = () => Object.fromEntries(GROUP_MEMBERS.map((member) => [member.name, 'none' as Choice]))
+type Player = { name: string; admin: boolean }
+
+const emptyChoices = (players: Player[]) => Object.fromEntries(players.map((member) => [member.name, 'none' as Choice]))
 
 export default function MatchesPage() {
+  const { data: me } = useMe()
+  const players = me?.players ?? []
   const { data: matches, error, isLoading, mutate } = useSWR<Match[]>('/api/matches', fetcher)
   const { data: games } = useSWR<GameOption[]>('/api/games', fetcher)
   const [formOpen, setFormOpen] = useState(false)
@@ -71,6 +76,7 @@ export default function MatchesPage() {
         <MatchDialog
           match={editingMatch}
           games={games ?? []}
+          players={players}
           onClose={() => { setFormOpen(false); setEditingMatch(null) }}
           onSaved={async () => { await mutate(); setFormOpen(false); setEditingMatch(null) }}
         />
@@ -107,11 +113,11 @@ function MatchCard({ match, onEdit }: { match: Match; onEdit: () => void }) {
   )
 }
 
-function MatchDialog({ match, games, onClose, onSaved }: { match: Match | null; games: GameOption[]; onClose: () => void; onSaved: () => Promise<void> }) {
+function MatchDialog({ match, games, players, onClose, onSaved }: { match: Match | null; games: GameOption[]; players: Player[]; onClose: () => void; onSaved: () => Promise<void> }) {
   const [playedOn, setPlayedOn] = useState(match?.played_on ?? todayISO)
   const [gameId, setGameId] = useState(match?.game_id ? String(match.game_id) : '')
   const [choices, setChoices] = useState<Record<string, Choice>>(() => {
-    const initial = emptyChoices()
+    const initial = emptyChoices(players)
     match?.participants.forEach((participant) => { initial[participant.player_name] = participant.result })
     return initial
   })
@@ -126,7 +132,7 @@ function MatchDialog({ match, games, onClose, onSaved }: { match: Match | null; 
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  const playing = GROUP_MEMBERS.filter((member) => choices[member.name] !== 'none')
+  const playing = players.filter((member) => choices[member.name] !== 'none')
   const winners = playing.filter((member) => choices[member.name] === 'won').length
 
   const setChoice = (name: string, value: Choice) => setChoices((current) => ({ ...current, [name]: value }))
@@ -182,7 +188,7 @@ function MatchDialog({ match, games, onClose, onSaved }: { match: Match | null; 
           <small>{playing.length} jugaron · {winners} {winners === 1 ? 'ganador' : 'ganadores'}</small>
         </div>
         <div className="participant-list">
-          {GROUP_MEMBERS.map((member) => (
+          {players.map((member) => (
             <fieldset className="participant-row" key={member.name}>
               <legend className="participant-name"><span className="member-avatar">{member.name[0]}</span>{member.name}{member.admin && <Crown aria-label="Admin" />}</legend>
               <div className="choice-group">

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import './admin-panel.css'
+import './account.css'
 
 export const metadata: Metadata = {
   title: 'LudoBreak — Tu espacio de juegos',

@@ -1,11 +1,13 @@
 import { put } from '@vercel/blob'
 import { NextResponse } from 'next/server'
+import { getUser } from '@/lib/session'
 
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024
 const MAX_PDF_SIZE = 20 * 1024 * 1024
 const imageTypes = new Set(['image/jpeg', 'image/png', 'image/webp'])
 
 export async function POST(request: Request) {
+  if (!(await getUser())) return NextResponse.json({ error: 'Iniciá sesión para subir archivos' }, { status: 401 })
   try {
     const formData = await request.formData()
     const file = formData.get('file')
