@@ -26,4 +26,9 @@
 .auth-form input:focus { outline:2px solid var(--teal); outline-offset:1px; }
 .auth-error { margin:0; color:#ff8a80; font-size:13px; }
 .auth-switch { align-self:flex-start; padding:0; border:0; background:none; color:var(--teal); font-size:13px; text-decoration:underline; }
-.auth-card .gold-button:disabled { opacity:.6; cursor:wait; }
+  .auth-card .gold-button:disabled { opacity:.6; cursor:wait; }
+  .auth-google { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:11px 14px; border:1px solid rgba(255,255,255,.18); border-radius:10px; background:rgba(255,255,255,.06); color:inherit; font-size:14px; font-weight:600; cursor:pointer; }
+  .auth-google:hover:not(:disabled) { background:rgba(255,255,255,.12); }
+  .auth-google:disabled { opacity:.6; cursor:wait; }
+  .auth-divider { display:flex; align-items:center; gap:12px; margin:4px 0; color:rgba(255,255,255,.5); font-size:12px; }
+  .auth-divider::before, .auth-divider::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.14); }
