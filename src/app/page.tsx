@@ -5,6 +5,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { GameBoxCarousel } from '@/components/game-box-carousel'
 import { AdminGamePanel } from '@/components/admin-game-panel'
 import { SiteMenu } from '@/components/site-chrome'
+import { HeaderControls } from '@/components/header-controls'
+import { useMe } from '@/lib/use-me'
 
 const BACKDROP_SETTLE_DELAY = 650
 const fetcher = async (url: string) => {
@@ -14,8 +16,6 @@ const fetcher = async (url: string) => {
   return payload
 }
 
-const GROUP_NAME = 'TECNOLOGO 2027'
-
 const fallbackGames = [
   { id: 1, title: 'Quest', genre: 'Hidden roles · 5–10 players', time: '30–45 min', votes: 7, accent: 'gold', cover: '/games/quest.png', rules: '', backdrop: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=2200&q=85' },
   { id: 2, title: 'Exploding Kittens', genre: 'Party · 2–5 players', time: '15–20 min', votes: 4, accent: 'red', cover: '/games/exploding-kittens.png', rules: '', backdrop: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=2200&q=85' },
@@ -24,6 +24,8 @@ const fallbackGames = [
 ]
 
 export default function Home() {
+  const { data: me } = useMe()
+  const GROUP_NAME = me?.activeTable.name ?? 'LUDOBREAK'
   const { data: loadedGames, mutate } = useSWR<typeof fallbackGames>('/api/library?view=visible', fetcher, { fallbackData: fallbackGames })
   const { data: catalog, mutate: mutateCatalog } = useSWR<typeof fallbackGames>('/api/games', fetcher)
   const games = (Array.isArray(loadedGames) && loadedGames.length > 0 ? loadedGames : fallbackGames).slice().sort((a, b) => a.title.localeCompare(b.title, 'es', { sensitivity: 'base' }))
@@ -84,6 +86,8 @@ export default function Home() {
 
   const backdropGame = games[backdropIndex]
   const proxiedBackdrop = (url: string) => url && /^https:\/\/(cf\.geekdo-images\.com|images\.unsplash\.com)\//.test(url) ? `/api/image-proxy?url=${encodeURIComponent(url)}` : url
+  // BGG URLs contain parentheses (e.g. strip_icc()), which invalidate an unquoted CSS url() and leave the previous backdrop in place.
+  const cssBackdrop = (url: string) => `url("${proxiedBackdrop(url).replace(/[()'"\\\s]/g, (char) => `%${char.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`)}")`
 
   // Measure the title block so the wrapper can animate its height; the carousel
   // below then glides down/up instead of jumping when the title wraps.
@@ -105,14 +109,14 @@ export default function Home() {
   }, [])
 
   return (
-    <main className="night-app" style={{ '--backdrop': `url(${proxiedBackdrop(backdropGame.backdrop)})` } as React.CSSProperties}>
-      <div key={`previous-${transitionKey}`} className="backdrop backdrop-previous" style={{ '--backdrop': `url(${proxiedBackdrop(previousBackdrop)})` } as React.CSSProperties} aria-hidden="true" />
-      <div key={`current-${transitionKey}`} className="backdrop backdrop-current" style={{ '--backdrop': `url(${proxiedBackdrop(backdropGame.backdrop)})` } as React.CSSProperties} aria-hidden="true" />
+    <main className="night-app" style={{ '--backdrop': cssBackdrop(backdropGame.backdrop) } as React.CSSProperties}>
+      <div key={`previous-${transitionKey}`} className="backdrop backdrop-previous" style={{ '--backdrop': cssBackdrop(previousBackdrop) } as React.CSSProperties} aria-hidden="true" />
+      <div key={`current-${transitionKey}`} className="backdrop backdrop-current" style={{ '--backdrop': cssBackdrop(backdropGame.backdrop) } as React.CSSProperties} aria-hidden="true" />
       <header className="night-header">
         <button type="button" className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
         <nav className="breadcrumb" aria-label="Breadcrumb"><span>LudoBreak</span><span aria-hidden="true">/</span><strong>PICK THE GAME</strong></nav>
-        <div className="header-group"><i /> {GROUP_NAME} <button className="players-trigger" type="button" aria-label="Ver quiénes están en el grupo">7 integrantes</button><div className="players-popover" role="status"><strong>Quiénes están en el grupo</strong><span>• Agustina</span><span>• Aparicio</span><span>• Tifany</span><span>• Pablo</span><span>• Paula</span><span>• Santiago</span><span>• Aland · Admin</span></div></div>
-            </header>
+        <HeaderControls />
+      </header>
 
       <SiteMenu active="home" open={menuOpen} onNavigate={() => setMenuOpen(false)} onAdmin={() => { setAdminOpen(true); setMenuOpen(false) }} />
       {adminOpen && <AdminGamePanel games={catalog ?? games} onClose={() => setAdminOpen(false)} onSaved={() => { mutate(); mutateCatalog() }} />}

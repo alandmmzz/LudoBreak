@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { sql } from 'drizzle-orm'
 import { db } from '@/lib/db'
+import { apiError, requireUser } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,57 +28,70 @@ function normalize(payload: GamePayload) {
 }
 
 export async function GET() {
-  const result = await db.execute(sql`
-    SELECT g.id, g.title, g.genre, g.time, COUNT(v.game_id)::int AS votes, g.accent, g.cover, g.backdrop, g.rules
-    FROM games g
-    LEFT JOIN daily_votes v ON v.game_id = g.id AND v.vote_date = CURRENT_DATE
-    GROUP BY g.id
-    ORDER BY g.title ASC
-  `)
-  return NextResponse.json(result.rows)
+  try {
+    const user = await requireUser()
+    const result = await db.execute(sql`
+      SELECT g.id, g.title, g.genre, g.time, COUNT(v.game_id)::int AS votes, g.accent, g.cover, g.backdrop, g.rules
+      FROM games g
+      LEFT JOIN daily_votes v ON v.game_id = g.id AND v.vote_date = CURRENT_DATE
+      WHERE g.owner_id = ${user.id}
+      GROUP BY g.id
+      ORDER BY g.title ASC
+    `)
+    return NextResponse.json(result.rows)
+  } catch (error) {
+    return apiError(error, 'No se pudo cargar el catálogo')
+  }
 }
 
 export async function POST(request: Request) {
   try {
+    const user = await requireUser()
     const game = normalize(await request.json())
     const result = await db.execute(sql`
-      INSERT INTO games (title, genre, time, accent, cover, backdrop, rules)
-      VALUES (${game.title}, ${game.genre}, ${game.time}, ${game.accent}, ${game.cover}, ${game.backdrop}, ${game.rules})
+      INSERT INTO games (title, genre, time, accent, cover, backdrop, rules, owner_id)
+      VALUES (${game.title}, ${game.genre}, ${game.time}, ${game.accent}, ${game.cover}, ${game.backdrop}, ${game.rules}, ${user.id})
       RETURNING id, title, genre, time, accent, cover, backdrop, rules
     `)
     const createdGame = result.rows[0] as { id: number }
     await db.execute(sql`
       INSERT INTO member_library_games (member_name, game_id)
-      VALUES ('Aland', ${createdGame.id})
+      VALUES (${user.id}, ${createdGame.id})
       ON CONFLICT DO NOTHING
     `)
     return NextResponse.json(result.rows[0], { status: 201 })
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'No se pudo crear el juego' }, { status: 400 })
+    return apiError(error, 'No se pudo crear el juego')
   }
 }
 
 export async function PUT(request: Request) {
   try {
+    const user = await requireUser()
     const payload = await request.json() as GamePayload & { id?: number }
     if (!payload.id) throw new Error('Falta el id del juego')
     const game = normalize(payload)
     const result = await db.execute(sql`
       UPDATE games
       SET title = ${game.title}, genre = ${game.genre}, time = ${game.time}, accent = ${game.accent}, cover = ${game.cover}, backdrop = ${game.backdrop}, rules = ${game.rules}
-      WHERE id = ${payload.id}
+      WHERE id = ${payload.id} AND owner_id = ${user.id}
       RETURNING id, title, genre, time, accent, cover, backdrop, rules
     `)
     if (!result.rows[0]) return NextResponse.json({ error: 'Juego no encontrado' }, { status: 404 })
     return NextResponse.json(result.rows[0])
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'No se pudo actualizar el juego' }, { status: 400 })
+    return apiError(error, 'No se pudo actualizar el juego')
   }
 }
 
 export async function DELETE(request: Request) {
-  const { id } = await request.json() as { id?: number }
-  if (!id) return NextResponse.json({ error: 'Falta el id del juego' }, { status: 400 })
-  await db.execute(sql`DELETE FROM games WHERE id = ${id}`)
-  return NextResponse.json({ ok: true })
+  try {
+    const user = await requireUser()
+    const { id } = await request.json() as { id?: number }
+    if (!id) return NextResponse.json({ error: 'Falta el id del juego' }, { status: 400 })
+    await db.execute(sql`DELETE FROM games WHERE id = ${id} AND owner_id = ${user.id}`)
+    return NextResponse.json({ ok: true })
+  } catch (error) {
+    return apiError(error, 'No se pudo borrar el juego')
+  }
 }

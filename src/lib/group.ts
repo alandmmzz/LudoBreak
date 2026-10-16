@@ -1,14 +1,7 @@
-export const GROUP_NAME = 'TECNOLOGO 2027'
+export const LEGACY_TABLE_ID = 1
 
-export const GROUP_MEMBERS = [
-  { name: 'Agustina', admin: false },
-  { name: 'Aparicio', admin: false },
-  { name: 'Tifany', admin: false },
-  { name: 'Pablo', admin: false },
-  { name: 'Paula', admin: false },
-  { name: 'Santiago', admin: false },
-  { name: 'Aland', admin: true },
-]
+// People who played before accounts existed; they only appear as match participants of the original table.
+export const LEGACY_PLAYERS = ['Agustina', 'Aparicio', 'Tifany', 'Pablo', 'Paula', 'Santiago', 'Aland']
 
 export type MatchResult = 'won' | 'lost'
 

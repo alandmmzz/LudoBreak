@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { sql } from 'drizzle-orm'
 import { db } from '@/lib/db'
+import { getUser } from '@/lib/session'
 
 function todayKey() {
   const d = new Date()
@@ -8,6 +9,8 @@ function todayKey() {
 }
 
 export async function POST(request: Request) {
+  const user = await getUser()
+  if (!user) return NextResponse.json({ error: 'Iniciá sesión para votar.' }, { status: 401 })
   const body = await request.json().catch(() => null) as { gameId?: number; name?: string }
   const gameId = Number(body?.gameId)
   const name = body?.name?.trim()
