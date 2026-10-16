@@ -5,7 +5,7 @@ import { useState } from 'react'
 import useSWR, { mutate } from 'swr'
 import { SiteChrome } from '@/components/site-chrome'
 import { useMe } from '@/lib/use-me'
-import { Camera, Copy, Crown, Link2, Plus, Shield, Trash2, UserPlus } from 'lucide-react'
+import { Camera, Copy, Crown, Link2, Shield, Trash2, UserPlus } from 'lucide-react'
 
 type TableDetails = {
   table: { id: number; name: string; isOwner: boolean }
@@ -25,7 +25,6 @@ export default function GroupSettingsPage() {
   const { data: me, mutate: mutateMe } = useMe()
   const { data, error, mutate: mutateTable } = useSWR<TableDetails>(me ? `/api/tables?t=${me.activeTable.id}` : null, fetcher)
   const [draftName, setDraftName] = useState<string | null>(null)
-  const [newTable, setNewTable] = useState('')
   const [inviteCopied, setInviteCopied] = useState(false)
   const [saved, setSaved] = useState(false)
   const [message, setMessage] = useState('')
@@ -52,16 +51,6 @@ export default function GroupSettingsPage() {
     setMessage('')
     const response = await fetch('/api/tables', jsonRequest('DELETE', { userId }))
     if (!response.ok) return setMessage((await response.json().catch(() => ({}))).error ?? 'No se pudo remover')
-    await refreshAll()
-  }
-
-  const createTable = async () => {
-    if (!newTable.trim()) return
-    setMessage('')
-    const response = await fetch('/api/tables', jsonRequest('POST', { name: newTable }))
-    if (!response.ok) return setMessage((await response.json().catch(() => ({}))).error ?? 'No se pudo crear la mesa')
-    setNewTable('')
-    setDraftName(null)
     await refreshAll()
   }
 
@@ -95,9 +84,6 @@ export default function GroupSettingsPage() {
             {isOwner
               ? <button className="gold-button" type="button" onClick={saveName}>{saved ? 'Cambios guardados' : 'Guardar cambios'}</button>
               : <p className="settings-help">Solo el administrador puede cambiar el nombre.</p>}
-            <label className="settings-label" htmlFor="new-table">Crear otra mesa</label>
-            <input id="new-table" value={newTable} placeholder="Nombre de la nueva mesa" maxLength={60} onChange={(event) => setNewTable(event.target.value)} />
-            <button className="invite-button" type="button" onClick={createTable}><Plus aria-hidden="true" /> Crear mesa</button>
           </section>
 
           <section className="settings-card members-card">

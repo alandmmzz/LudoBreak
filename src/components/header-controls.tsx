@@ -53,6 +53,7 @@ function TableSwitcher() {
               {table.id === me.activeTable.id && <Check aria-hidden="true" />}
             </button>
           ))}
+          <a className="header-option" href="/mis-mesas"><span>Administrar mis mesas</span></a>
         </div>
       )}
     </div>
