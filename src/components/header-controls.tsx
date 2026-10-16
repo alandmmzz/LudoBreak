@@ -94,6 +94,13 @@ function AccountMenu() {
 }
 
 export function HeaderControls() {
+  const { error } = useMe()
+  const router = useRouter()
+  const withoutTable = error?.status === 403
+  useEffect(() => {
+    if (withoutTable) router.replace('/elegir-mesa')
+  }, [withoutTable, router])
+
   return (
     <div className="header-controls">
       <TableSwitcher />

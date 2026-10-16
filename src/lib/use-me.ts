@@ -9,12 +9,18 @@ export type Me = {
   players: { name: string; admin: boolean }[]
 }
 
+export class MeError extends Error {
+  constructor(message: string, public status: number) {
+    super(message)
+  }
+}
+
 const fetchMe = async (url: string): Promise<Me> => {
   const response = await fetch(url)
-  if (!response.ok) throw new Error('No se pudo cargar tu cuenta')
+  if (!response.ok) throw new MeError('No se pudo cargar tu cuenta', response.status)
   return response.json()
 }
 
 export function useMe() {
-  return useSWR<Me>('/api/me', fetchMe, { revalidateOnFocus: false })
+  return useSWR<Me, MeError>('/api/me', fetchMe, { revalidateOnFocus: false })
 }
