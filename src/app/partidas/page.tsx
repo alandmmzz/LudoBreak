@@ -38,7 +38,7 @@ export default function MatchesPage() {
   const { data: me } = useMe()
   const players = me?.players ?? []
   const { data: matches, error, isLoading, mutate } = useSWR<Match[]>('/api/matches', fetcher)
-  const { data: games } = useSWR<GameOption[]>('/api/games', fetcher)
+  const { data: games } = useSWR<GameOption[]>('/api/library?view=visible', fetcher)
   const [formOpen, setFormOpen] = useState(false)
   const [editingMatch, setEditingMatch] = useState<Match | null>(null)
 
