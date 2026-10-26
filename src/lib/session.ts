@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { sql } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { LEGACY_PLAYERS, LEGACY_TABLE_ID } from '@/lib/group'
+import { looksLikeSamePerson } from '@/lib/player-match'
 
 export const TABLE_COOKIE = 'lb_table'
 
@@ -14,7 +14,8 @@ export class HttpError extends Error {
 }
 
 export type TableSummary = { id: number; name: string; owner_id: string | null }
-export type Player = { name: string; admin: boolean }
+export type PlayerKind = 'member' | 'legacy' | 'guest'
+export type Player = { name: string; admin: boolean; kind: PlayerKind }
 
 export async function getUser() {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -54,11 +55,35 @@ export async function listPlayers(table: TableSummary): Promise<Player[]> {
     WHERE m.table_id = ${table.id}
     ORDER BY u.name
   `)
-  const players = (members.rows as { name: string; admin: boolean }[]).map((row) => ({ name: row.name, admin: Boolean(row.admin) }))
-  if (table.id !== LEGACY_TABLE_ID) return players
+  const players: Player[] = (members.rows as { name: string; admin: boolean }[]).map((row) => ({ name: row.name, admin: Boolean(row.admin), kind: 'member' }))
   const known = new Set(players.map((player) => player.name.toLowerCase()))
-  const legacy = LEGACY_PLAYERS.filter((name) => !known.has(name.toLowerCase())).map((name) => ({ name, admin: false }))
-  return [...players, ...legacy]
+  const others = await db.execute(sql`
+    SELECT name, kind FROM table_players
+    WHERE table_id = ${table.id} AND user_id IS NULL
+    ORDER BY (kind = 'legacy') DESC, name
+  `)
+  const unlinked: Player[] = (others.rows as { name: string; kind: 'legacy' | 'guest' }[])
+    .filter((row) => !known.has(row.name.toLowerCase()))
+    .map((row) => ({ name: row.name, admin: false, kind: row.kind }))
+  return [...players, ...unlinked]
+}
+
+export type ClaimablePlayer = { id: number; name: string; kind: 'legacy' | 'guest'; suggested: boolean }
+
+// Players without an account that the user could be, but only until they answer the prompt once per table.
+export async function listClaimable(table: TableSummary, user: { id: string; name: string; email: string }) {
+  const membership = await db.execute(sql`SELECT claim_checked FROM table_members WHERE table_id = ${table.id} AND user_id = ${user.id}`)
+  if ((membership.rows[0] as { claim_checked: boolean } | undefined)?.claim_checked !== false) return []
+  const result = await db.execute(sql`
+    SELECT id, name, kind FROM table_players
+    WHERE table_id = ${table.id} AND user_id IS NULL
+    ORDER BY (kind = 'legacy') DESC, name
+  `)
+  const players = (result.rows as { id: number; name: string; kind: 'legacy' | 'guest' }[]).map((row) => ({
+    ...row,
+    suggested: looksLikeSamePerson(row.name, [user.name, user.email.split('@')[0]]),
+  }))
+  return players.some((player) => player.suggested) ? players : []
 }
 
 export function apiError(error: unknown, fallback: string, fallbackStatus = 400) {
