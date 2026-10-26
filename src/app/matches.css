@@ -74,6 +74,16 @@
 .dialog-save { border:1px solid var(--gold); background:var(--gold); color:#14110a; font-weight:700; }
 .dialog-save:hover,.dialog-save:focus-visible { background:#f4d98b; border-color:#f4d98b; outline:none; }
 .dialog-save:disabled { opacity:.6; cursor:wait; }
+.guest-tag { padding:2px 8px; border:1px solid rgba(255,255,255,.2); border-radius:999px; color:var(--muted); font-size:10px; letter-spacing:1.5px; text-transform:uppercase; }
+.guest-adder { margin-top:14px; }
+.guest-adder > span { display:block; margin-bottom:8px; color:#aaa69d; font-size:10px; letter-spacing:2px; text-transform:uppercase; }
+.guest-row { display:flex; gap:8px; }
+.guest-row input { flex:1; min-width:0; min-height:44px; padding:0 14px; border:1px dashed rgba(255,255,255,.28); border-radius:10px; outline:none; color:#fff; background:rgba(255,255,255,.04); font:inherit; }
+.guest-row input:focus { border-color:var(--teal); border-style:solid; }
+.guest-add { display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:0 16px; border:1px solid var(--teal); border-radius:999px; background:transparent; color:var(--teal); font:inherit; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer; transition:background .2s; }
+.guest-add svg { width:14px; height:14px; }
+.guest-add:hover:not(:disabled),.guest-add:focus-visible { background:rgba(93,179,168,.16); outline:none; }
+.guest-add:disabled { opacity:.5; cursor:not-allowed; }
 
 @media(max-width:640px) {
   .matches-shell { width:min(100% - 28px,600px); padding:104px 0 48px; }

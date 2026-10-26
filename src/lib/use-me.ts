@@ -6,7 +6,8 @@ export type Me = {
   user: { id: string; name: string; email: string }
   tables: { id: number; name: string }[]
   activeTable: { id: number; name: string; isOwner: boolean }
-  players: { name: string; admin: boolean }[]
+  players: { name: string; admin: boolean; kind: 'member' | 'legacy' | 'guest' }[]
+  claimable: { id: number; name: string; kind: 'legacy' | 'guest'; suggested: boolean }[]
 }
 
 export class MeError extends Error {

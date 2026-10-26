@@ -3,7 +3,7 @@
 import '../matches.css'
 import useSWR from 'swr'
 import { useEffect, useRef, useState } from 'react'
-import { CalendarDays, Crown, Dices, Pencil, Plus, Trophy, X } from 'lucide-react'
+import { CalendarDays, Crown, Dices, Pencil, Plus, Trophy, UserPlus, X } from 'lucide-react'
 import { SiteChrome } from '@/components/site-chrome'
 import { type Match } from '@/lib/group'
 import { useMe } from '@/lib/use-me'
@@ -30,7 +30,7 @@ const formatDate = (iso: string) => {
   return new Date(year, month - 1, day).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-type Player = { name: string; admin: boolean }
+type Player = { name: string; admin: boolean; kind: 'member' | 'legacy' | 'guest' }
 
 const emptyChoices = (players: Player[]) => Object.fromEntries(players.map((member) => [member.name, 'none' as Choice]))
 
@@ -38,7 +38,7 @@ export default function MatchesPage() {
   const { data: me } = useMe()
   const players = me?.players ?? []
   const { data: matches, error, isLoading, mutate } = useSWR<Match[]>('/api/matches', fetcher)
-  const { data: games } = useSWR<GameOption[]>('/api/games', fetcher)
+  const { data: games } = useSWR<GameOption[]>('/api/library?view=visible', fetcher)
   const [formOpen, setFormOpen] = useState(false)
   const [editingMatch, setEditingMatch] = useState<Match | null>(null)
 
@@ -123,7 +123,10 @@ function MatchDialog({ match, games, players, onClose, onSaved }: { match: Match
   })
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
+  const [guestName, setGuestName] = useState('')
+  const [addingGuest, setAddingGuest] = useState(false)
   const dateRef = useRef<HTMLInputElement>(null)
+  const { mutate: refreshMe } = useMe()
 
   useEffect(() => {
     dateRef.current?.focus()
@@ -132,10 +135,29 @@ function MatchDialog({ match, games, players, onClose, onSaved }: { match: Match
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  const playing = players.filter((member) => choices[member.name] !== 'none')
-  const winners = playing.filter((member) => choices[member.name] === 'won').length
+  const choiceOf = (name: string): Choice => choices[name] ?? 'none'
+  const playing = players.filter((member) => choiceOf(member.name) !== 'none')
+  const winners = playing.filter((member) => choiceOf(member.name) === 'won').length
 
   const setChoice = (name: string, value: Choice) => setChoices((current) => ({ ...current, [name]: value }))
+
+  const addGuest = async () => {
+    const name = guestName.trim()
+    if (!name || addingGuest) return
+    setMessage('')
+    setAddingGuest(true)
+    try {
+      const response = await fetch('/api/tables/players', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) })
+      const payload = await response.json()
+      if (!response.ok) throw new Error(payload.error ?? 'No se pudo agregar al invitado')
+      await refreshMe()
+      setGuestName('')
+    } catch (caught) {
+      setMessage(caught instanceof Error ? caught.message : 'No se pudo agregar al invitado')
+    } finally {
+      setAddingGuest(false)
+    }
+  }
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -151,7 +173,7 @@ function MatchDialog({ match, games, players, onClose, onSaved }: { match: Match
           ...(match ? { id: match.id } : {}),
           gameId: Number(gameId),
           playedOn,
-          participants: playing.map((member) => ({ name: member.name, result: choices[member.name] })),
+          participants: playing.map((member) => ({ name: member.name, result: choiceOf(member.name) })),
         }),
       })
       const payload = await response.json()
@@ -190,17 +212,39 @@ function MatchDialog({ match, games, players, onClose, onSaved }: { match: Match
         <div className="participant-list">
           {players.map((member) => (
             <fieldset className="participant-row" key={member.name}>
-              <legend className="participant-name"><span className="member-avatar">{member.name[0]}</span>{member.name}{member.admin && <Crown aria-label="Admin" />}</legend>
+              <legend className="participant-name"><span className="member-avatar">{member.name[0]}</span>{member.name}{member.admin && <Crown aria-label="Admin" />}{member.kind === 'guest' && <span className="guest-tag">Invitado</span>}</legend>
               <div className="choice-group">
                 {CHOICES.map((choice) => (
-                  <label key={choice.value} className={`choice ${choice.value} ${choices[member.name] === choice.value ? 'on' : ''}`}>
-                    <input type="radio" name={`result-${member.name}`} value={choice.value} checked={choices[member.name] === choice.value} onChange={() => setChoice(member.name, choice.value)} />
+                  <label key={choice.value} className={`choice ${choice.value} ${choiceOf(member.name) === choice.value ? 'on' : ''}`}>
+                    <input type="radio" name={`result-${member.name}`} value={choice.value} checked={choiceOf(member.name) === choice.value} onChange={() => setChoice(member.name, choice.value)} />
                     {choice.label}
                   </label>
                 ))}
               </div>
             </fieldset>
           ))}
+        </div>
+
+        <div className="guest-adder">
+          <label htmlFor="guest-name">¿Vino alguien sin cuenta?</label>
+          <div className="guest-row">
+            <input
+              id="guest-name"
+              value={guestName}
+              maxLength={40}
+              placeholder="Nombre del invitado"
+              autoComplete="off"
+              onChange={(event) => setGuestName(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter' || event.nativeEvent.isComposing || event.keyCode === 229) return
+                event.preventDefault()
+                void addGuest()
+              }}
+            />
+            <button className="guest-add" type="button" onClick={addGuest} disabled={!guestName.trim() || addingGuest}>
+              <UserPlus aria-hidden="true" />{addingGuest ? 'Agregando…' : 'Agregar'}
+            </button>
+          </div>
         </div>
 
         {message && <p className="dialog-error" role="alert">{message}</p>}

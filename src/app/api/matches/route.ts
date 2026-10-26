@@ -11,7 +11,7 @@ type MatchPayload = {
   participants?: { name?: string; result?: string }[]
 }
 
-async function validatePayload(payload: MatchPayload, table: TableSummary, ownerIds: string[]) {
+async function validatePayload(payload: MatchPayload, table: TableSummary, ownerIds: string[], currentGameId?: number) {
   const playedOn = payload.playedOn?.trim()
   if (!playedOn || !/^\d{4}-\d{2}-\d{2}$/.test(playedOn) || Number.isNaN(Date.parse(playedOn))) throw new Error('Elegí el día de juego')
   if (!payload.gameId) throw new Error('Elegí qué juego se jugó')
@@ -21,13 +21,21 @@ async function validatePayload(payload: MatchPayload, table: TableSummary, owner
   )
   if (participants.length === 0) throw new Error('Marcá al menos un participante como ganador o perdedor')
   if (new Set(participants.map((item) => item.name)).size !== participants.length) throw new Error('Hay participantes repetidos')
+  const ownerList = ownerIds.length ? sql.join(ownerIds.map((id) => sql`${id}`), sql`, `) : sql`NULL`
   const game = await db.execute(sql`
     SELECT g.id, g.title FROM games g
     WHERE g.id = ${payload.gameId}
-      AND EXISTS (SELECT 1 FROM member_library_games l WHERE l.game_id = g.id AND l.member_name = ANY(${ownerIds}))
+      AND EXISTS (
+        SELECT 1 FROM member_library_games l
+        WHERE l.game_id = g.id AND l.hidden = false AND l.member_name IN (${ownerList})
+      )
   `)
-  const row = game.rows[0] as { id: number; title: string } | undefined
-  if (!row) throw new Error('El juego elegido no existe')
+  let row = game.rows[0] as { id: number; title: string } | undefined
+  if (!row && currentGameId === payload.gameId) {
+    const unchanged = await db.execute(sql`SELECT id, title FROM games WHERE id = ${payload.gameId}`)
+    row = unchanged.rows[0] as { id: number; title: string } | undefined
+  }
+  if (!row) throw new Error('Ese juego no está en la biblioteca de la mesa')
   return { playedOn, participants, game: row }
 }
 
@@ -69,9 +77,10 @@ export async function PUT(request: Request) {
     const { table } = await requireTable()
     const payload = (await request.json()) as MatchPayload & { id?: number }
     if (!payload.id) throw new Error('Partida inválida')
-    const { playedOn, participants, game } = await validatePayload(payload, table, await memberIds(table.id))
-    const existing = await db.execute(sql`SELECT id FROM matches WHERE id = ${payload.id} AND table_id = ${table.id}`)
-    if (!existing.rows[0]) throw new Error('La partida no existe')
+    const existing = await db.execute(sql`SELECT id, game_id FROM matches WHERE id = ${payload.id} AND table_id = ${table.id}`)
+    const current = existing.rows[0] as { id: number; game_id: number | null } | undefined
+    if (!current) throw new Error('La partida no existe')
+    const { playedOn, participants, game } = await validatePayload(payload, table, await memberIds(table.id), current.game_id ?? undefined)
     await db.transaction(async (tx) => {
       await tx.execute(sql`UPDATE matches SET game_id = ${game.id}, game_title = ${game.title}, played_on = ${playedOn} WHERE id = ${payload.id}`)
       await tx.execute(sql`DELETE FROM match_participants WHERE match_id = ${payload.id}`)

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ChartColumn, History, House, LibraryBig, PanelsTopLeft, Settings, UserPlus, Users, type LucideIcon } from 'lucide-react'
+import { ClaimPlayerPrompt } from '@/components/claim-player-prompt'
 import { HeaderControls } from '@/components/header-controls'
 
 export type MenuKey = 'home' | 'matches' | 'stats' | 'library' | 'tables' | 'settings'
@@ -74,6 +75,7 @@ export function SiteChrome({ current, active }: SiteChromeProps) {
         <HeaderControls />
       </header>
       <SiteMenu active={active} open={menuOpen} onNavigate={() => setMenuOpen(false)} />
+      <ClaimPlayerPrompt />
     </>
   )
 }
