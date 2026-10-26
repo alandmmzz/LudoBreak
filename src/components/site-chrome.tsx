@@ -13,7 +13,7 @@ const MENU_SECTIONS: { title: string; items: MenuItem[] }[] = [
   { title: 'La mesa', items: [
     { key: 'home', label: 'Inicio', icon: House, href: '/' },
     { key: 'matches', label: 'Partidas', icon: History, href: '/partidas' },
-    { key: 'stats', label: 'Estadísticas', icon: ChartColumn },
+    { key: 'stats', label: 'Estadísticas', icon: ChartColumn, href: '/estadisticas' },
   ] },
   { title: 'Tu cuenta', items: [
     { key: 'library', label: 'Mi biblioteca', icon: LibraryBig, href: '/biblioteca' },
