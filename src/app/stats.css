@@ -1,0 +1,99 @@
+.stats-page { min-height:100vh; background:radial-gradient(circle at 88% 6%,rgba(229,189,53,.09),transparent 30%),radial-gradient(circle at 10% 10%,rgba(93,179,168,.1),transparent 30%),#08090a; color:var(--ink); }
+.stats-shell { width:min(960px,calc(100% - 40px)); margin:0 auto; padding:128px 0 72px; }
+.stats-intro { margin-bottom:32px; }
+.stats-kicker { color:var(--teal); font-size:10px; letter-spacing:3px; text-transform:uppercase; }
+.stats-intro h1 { margin:12px 0 10px; font-family:Georgia,serif; font-size:clamp(38px,6vw,66px); line-height:.98; letter-spacing:2px; font-weight:400; }
+.stats-intro p { margin:0; max-width:460px; color:var(--muted); line-height:1.6; }
+.stats-status { color:var(--muted); }
+.stats-status.error { color:#f08b84; }
+.stats-empty { display:flex; flex-direction:column; align-items:center; gap:10px; padding:60px 24px; border:1px dashed rgba(255,255,255,.25); border-radius:24px; background:var(--glass); text-align:center; }
+.stats-empty svg { width:34px; height:34px; color:var(--teal); }
+.stats-empty h2 { margin:6px 0 0; font-size:22px; font-weight:500; }
+.stats-empty p { margin:0 0 14px; color:var(--muted); }
+.stats-link { display:inline-flex; align-items:center; min-height:44px; padding:0 22px; border:1px solid var(--gold); border-radius:999px; color:var(--gold); font-size:11px; letter-spacing:2px; text-transform:uppercase; text-decoration:none; }
+.stats-link:hover,.stats-link:focus-visible { background:rgba(229,189,53,.14); outline:none; }
+
+.stats-tiles { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:0; padding:0; list-style:none; }
+.stats-tiles li { display:flex; flex-direction:column; gap:6px; padding:18px 20px; border:1px solid var(--glass-border); border-radius:20px; background:var(--glass); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); }
+.stats-tiles strong { font-family:Georgia,serif; font-size:40px; font-weight:400; line-height:1; }
+.stats-tiles span { color:var(--muted); font-size:12px; }
+.stats-range { display:inline-flex; align-items:center; gap:7px; margin:14px 0 0; color:var(--muted); font-size:12px; }
+.stats-range svg { width:14px; height:14px; color:var(--teal); }
+
+.stats-section { margin-top:56px; }
+.stats-title { margin:0 0 20px; font-family:Georgia,serif; font-size:26px; font-weight:400; letter-spacing:1px; }
+.stats-subtitle { margin:0 0 14px; color:#aaa69d; font-size:10px; letter-spacing:2px; text-transform:uppercase; }
+.stats-note { margin:14px 0 0; color:#77756e; font-size:12px; line-height:1.5; }
+
+.podium { display:flex; align-items:flex-end; justify-content:center; gap:12px; margin:0; padding:0 0 0; border-bottom:1px solid var(--glass-border); list-style:none; }
+.podium-step { position:relative; flex:1; max-width:240px; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.podium-crown { width:26px; height:26px; margin-bottom:2px; color:var(--gold); }
+.podium-name { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:Georgia,serif; font-size:22px; letter-spacing:.5px; }
+.podium-wins { margin-bottom:10px; color:var(--muted); font-size:12px; }
+.podium-wins strong { color:var(--ink); font-family:Georgia,serif; font-size:22px; font-weight:400; }
+.podium-base { display:grid; place-items:center; width:100%; border:1px solid var(--glass-border); border-bottom:none; border-radius:16px 16px 0 0; background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.03)); font-family:Georgia,serif; font-size:34px; color:var(--muted); }
+.place-1 .podium-base { height:150px; border-color:rgba(229,189,53,.6); background:linear-gradient(180deg,rgba(229,189,53,.34),rgba(229,189,53,.04)); color:var(--gold); }
+.place-1 .podium-name { color:#f4d98b; }
+.place-2 .podium-base { height:108px; }
+.place-3 .podium-base { height:78px; }
+
+.player-table { display:flex; flex-direction:column; gap:8px; margin:0; padding:0; list-style:none; }
+.player-row { display:grid; grid-template-columns:28px minmax(0,1.3fr) auto 72px minmax(80px,1fr) 44px; align-items:center; gap:14px; padding:12px 18px; border:1px solid var(--glass-border); border-radius:16px; background:var(--glass); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); }
+.row-rank { color:var(--muted); font-family:Georgia,serif; font-size:18px; text-align:center; }
+.player-row:first-child .row-rank { color:var(--gold); }
+.row-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:15px; }
+.row-form { display:flex; gap:5px; }
+.row-form i { width:9px; height:9px; border-radius:50%; }
+.row-form i.won { background:var(--gold); }
+.row-form i.lost { background:rgba(233,76,66,.75); }
+.row-record { font-family:Georgia,serif; font-size:18px; text-align:right; }
+.row-record small { color:var(--muted); font-family:inherit; font-size:13px; }
+.row-bar { height:6px; overflow:hidden; border-radius:999px; background:rgba(255,255,255,.1); }
+.row-bar i { display:block; height:100%; border-radius:999px; background:var(--teal); }
+.row-rate { color:var(--muted); font-size:13px; text-align:right; }
+
+.game-stats { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; margin:0; padding:0; list-style:none; }
+.game-stat { display:flex; gap:16px; padding:16px; border:1px solid var(--glass-border); border-radius:20px; background:var(--glass); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); box-shadow:var(--glass-shadow); }
+.game-stat-cover { flex:none; width:78px; height:78px; display:grid; place-items:center; overflow:hidden; border-radius:12px; background:rgba(255,255,255,.06); color:var(--teal); }
+.game-stat-cover img { width:100%; height:100%; object-fit:contain; }
+.game-stat-cover svg { width:26px; height:26px; }
+.game-stat-body { flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
+.game-stat-body h3 { margin:0; font-family:Georgia,serif; font-size:20px; font-weight:400; letter-spacing:.5px; }
+.game-stat-plays { margin:0; color:var(--muted); font-size:12px; }
+.game-stat-king { display:flex; align-items:center; gap:7px; margin:4px 0 0; color:#f4d98b; font-size:14px; }
+.game-stat-king svg { width:14px; height:14px; color:var(--gold); }
+.game-stat-king small { color:var(--muted); font-size:12px; }
+.game-stat-king.none { color:#77756e; }
+
+.fact-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:0; padding:0; list-style:none; }
+.fact { display:flex; flex-direction:column; gap:4px; padding:18px; border:1px solid var(--glass-border); border-radius:20px; background:var(--glass); }
+.fact-icon svg { width:18px; height:18px; color:var(--teal); }
+.fact-label { margin-top:6px; color:#aaa69d; font-size:10px; letter-spacing:2px; text-transform:uppercase; }
+.fact strong { font-family:Georgia,serif; font-size:24px; font-weight:400; letter-spacing:.5px; }
+.fact small { color:var(--muted); font-size:12px; }
+.fact.muted strong { color:#77756e; font-size:18px; }
+
+.weekdays { margin-top:32px; padding:20px; border:1px solid var(--glass-border); border-radius:20px; background:var(--glass); }
+.weekday-bars { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:10px; align-items:end; }
+.weekday { display:flex; flex-direction:column; align-items:center; gap:6px; }
+.weekday-count { min-height:16px; color:var(--muted); font-size:12px; }
+.weekday-bar { display:flex; align-items:flex-end; width:100%; max-width:44px; height:90px; border-radius:8px; background:rgba(255,255,255,.05); }
+.weekday-bar i { display:block; width:100%; border-radius:8px; background:rgba(93,179,168,.55); }
+.weekday.top .weekday-bar i { background:var(--gold); }
+.weekday.top .weekday-count,.weekday.top .weekday-name { color:#f4d98b; }
+.weekday-name { color:var(--muted); font-size:11px; letter-spacing:1px; text-transform:uppercase; }
+
+@media(max-width:720px) {
+  .stats-shell { width:min(100% - 28px,600px); padding:104px 0 48px; }
+  .stats-tiles { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .stats-section { margin-top:44px; }
+  .podium { gap:8px; }
+  .podium-name { font-size:17px; }
+  .player-row { grid-template-columns:24px minmax(0,1fr) auto 56px; grid-template-areas:"rank name form record" ". bar bar rate"; gap:8px 12px; }
+  .row-rank { grid-area:rank; }
+  .row-name { grid-area:name; }
+  .row-form { grid-area:form; }
+  .row-record { grid-area:record; }
+  .row-bar { grid-area:bar; }
+  .row-rate { grid-area:rate; }
+}
