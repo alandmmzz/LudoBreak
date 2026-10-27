@@ -1,17 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { ChartColumn, History, House, LibraryBig, PanelsTopLeft, Settings, UserPlus, Users, type LucideIcon } from 'lucide-react'
+import { ChartColumn, History, House, LibraryBig, PanelsTopLeft, Settings, UserPlus, Users, Vote, type LucideIcon } from 'lucide-react'
 import { ClaimPlayerPrompt } from '@/components/claim-player-prompt'
 import { HeaderControls } from '@/components/header-controls'
 
-export type MenuKey = 'home' | 'matches' | 'stats' | 'library' | 'tables' | 'settings'
+export type MenuKey = 'home' | 'voting' | 'matches' | 'stats' | 'library' | 'tables' | 'settings'
 
 type MenuItem = { key: MenuKey | 'invite' | 'admin'; label: string; icon: LucideIcon; href?: string }
 
 const MENU_SECTIONS: { title: string; items: MenuItem[] }[] = [
   { title: 'La mesa', items: [
     { key: 'home', label: 'Inicio', icon: House, href: '/' },
+    { key: 'voting', label: 'Votación', icon: Vote, href: '/votacion' },
     { key: 'matches', label: 'Partidas', icon: History, href: '/partidas' },
     { key: 'stats', label: 'Estadísticas', icon: ChartColumn, href: '/estadisticas' },
   ] },
