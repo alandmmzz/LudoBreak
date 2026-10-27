@@ -7,6 +7,7 @@ import { AdminGamePanel } from '@/components/admin-game-panel'
 import { SiteMenu, useDismissibleMenu } from '@/components/site-chrome'
 import { HeaderControls } from '@/components/header-controls'
 import { VoteCountdown } from '@/components/vote-countdown'
+import { VoteReplaceDialog } from '@/components/vote-replace-dialog'
 import { useMe } from '@/lib/use-me'
 import { useVoting } from '@/lib/use-voting'
 import './voting.css'
@@ -60,7 +61,14 @@ export default function Home() {
     setVoteError(null)
     setDraft(voted ? selectedVotes.filter((vote) => vote !== active) : [...selectedVotes, active])
   }
+  const [confirmReplaceOpen, setConfirmReplaceOpen] = useState(false)
+  const previousVoteCount = voting?.myVotes.length ?? 0
+  const requestSubmit = () => {
+    if (previousVoteCount > 0) setConfirmReplaceOpen(true)
+    else submitVotes()
+  }
   const submitVotes = async () => {
+    setConfirmReplaceOpen(false)
     if (!voteOpen || draft === null || draft.length === 0) return
     setSaving(true)
     setVoteError(null)
@@ -209,9 +217,10 @@ export default function Home() {
               <button className={`vote-button ${voted ? 'confirmed' : ''}`} onClick={toggleVote} disabled={!voteOpen}>{voted ? 'VOTED' : 'VOTE'}</button>
               {voting?.phase === 'closed'
                 ? <button className="results-button" type="button" onClick={() => setShowResults((shown) => !shown)}>{showResults ? 'BACK TO GAMES' : 'VIEW RESULTS'}</button>
-                : <button className="submit-votes" onClick={submitVotes} disabled={!voteOpen || saving || draft === null || draft.length === 0}>{submittedVotes ? 'SUBMITTED' : 'SUBMIT VOTES'} <span>({selectedVotes.length})</span></button>}
+                : <button className="submit-votes" onClick={requestSubmit} disabled={!voteOpen || saving || draft === null || draft.length === 0}>{submittedVotes ? 'SUBMITTED' : 'SUBMIT VOTES'} <span>({selectedVotes.length})</span></button>}
             </div>
             {voteError && <p className="vote-hint" role="alert">{voteError}</p>}
+            <VoteReplaceDialog open={confirmReplaceOpen} previousCount={previousVoteCount} newCount={selectedVotes.length} onConfirm={submitVotes} onCancel={() => setConfirmReplaceOpen(false)} />
           </aside>
           </div>
       </section>

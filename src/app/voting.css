@@ -52,3 +52,15 @@
 .voting-empty { margin:0; color:var(--muted); font-size:14px; line-height:1.6; }
 
 @media (max-width:560px) { .schedule-fields { grid-template-columns:1fr; } .vote-timer.large .vote-timer-value { font-size:28px; } }
+
+.vote-dialog { width:min(420px,calc(100% - 32px)); padding:0; border:1px solid rgba(255,255,255,.16); border-radius:24px; background:rgba(12,14,17,.96); color:var(--ink); box-shadow:0 24px 80px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.14); }
+.vote-dialog::backdrop { background:rgba(0,0,0,.62); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
+.vote-dialog-body { display:flex; flex-direction:column; gap:14px; padding:26px 24px 22px; }
+.vote-dialog h2 { margin:0; font-family:Georgia,serif; font-size:24px; font-weight:400; letter-spacing:1px; text-wrap:balance; }
+.vote-dialog p { margin:0; color:var(--muted); font-size:14px; line-height:1.6; text-wrap:pretty; }
+.vote-dialog-actions { display:flex; gap:10px; margin-top:6px; }
+.vote-dialog-actions button { flex:1; min-height:46px; padding:0 14px; border-radius:16px; font:inherit; font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; cursor:pointer; }
+.vote-dialog-cancel { border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.04); color:var(--ink); }
+.vote-dialog-confirm { border:1px solid rgba(229,189,53,.6); background:rgba(229,189,53,.16); color:var(--gold); }
+.vote-dialog-actions button:hover { filter:brightness(1.2); }
+.vote-dialog-actions button:focus-visible { outline:2px solid var(--teal); outline-offset:2px; }

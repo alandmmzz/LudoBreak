@@ -15,11 +15,11 @@ const MENU_SECTIONS: { title: string; items: MenuItem[] }[] = [
     { key: 'voting', label: 'Votación', icon: Vote, href: '/votacion' },
     { key: 'matches', label: 'Partidas', icon: History, href: '/partidas' },
     { key: 'stats', label: 'Estadísticas', icon: ChartColumn, href: '/estadisticas' },
+    { key: 'settings', label: 'Ajustes de la mesa', icon: Settings, href: '/group-settings' },
   ] },
   { title: 'Tu cuenta', items: [
     { key: 'library', label: 'Mi biblioteca', icon: LibraryBig, href: '/biblioteca' },
     { key: 'tables', label: 'Mis mesas', icon: Users, href: '/mis-mesas' },
-    { key: 'settings', label: 'Ajustes del grupo', icon: Settings, href: '/group-settings' },
   ] },
   { title: 'Comunidad', items: [{ key: 'invite', label: 'Invitar amigos', icon: UserPlus }] },
   { title: 'Administración', items: [{ key: 'admin', label: 'Editar juegos y cajas', icon: PanelsTopLeft }] },
