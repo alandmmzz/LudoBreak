@@ -12,18 +12,10 @@ async function claimLegacyData(userId: string) {
   await pool.query('INSERT INTO member_library_games (member_name, game_id) SELECT $1, id FROM games WHERE owner_id = $1 ON CONFLICT DO NOTHING', [userId])
 }
 
-async function createPersonalTable(userId: string, name: string) {
-  const created = await pool.query('INSERT INTO game_tables (name, owner_id) VALUES ($1, $2) RETURNING id', [`Mesa de ${name}`, userId])
-  await pool.query('INSERT INTO table_members (table_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [created.rows[0].id, userId])
-}
-
-async function setUpNewUser(user: { id: string; email: string; name: string }) {
+// Everyone else starts without a table and picks one (or creates one) on /elegir-mesa.
+async function setUpNewUser(user: { id: string; email: string }) {
   const ownerEmail = process.env.OWNER_EMAIL?.trim().toLowerCase()
-  if (ownerEmail && user.email.toLowerCase() === ownerEmail) {
-    await claimLegacyData(user.id)
-    return
-  }
-  await createPersonalTable(user.id, user.name)
+  if (ownerEmail && user.email.toLowerCase() === ownerEmail) await claimLegacyData(user.id)
 }
 
 export const auth = betterAuth({
