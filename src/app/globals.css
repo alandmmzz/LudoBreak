@@ -107,8 +107,10 @@ button { font:inherit; cursor:pointer; }
 .stage-panel .vote-actions { flex:none; }
 .stage-panel .vote-hint { flex:none; }
 @media(max-width:720px){
-  .stage-panel { position:fixed; left:12px; right:12px; bottom:12px; max-height:calc(100dvh - 92px); z-index:18; overflow:hidden; padding:0 2px 2px; }
-  .stage-panel .panel-card { max-height:calc(100dvh - 160px); }
+  .stage-panel { position:static; width:100%; max-height:none; overflow:visible; padding:0; }
+  .stage-panel .panel-card { flex:none; max-height:none; overflow:visible; }
+  .stage-panel .game-checklist { max-height:min(48dvh,380px); }
+  .hero-content { padding-bottom:32px; }
 }
 
 
@@ -205,7 +207,7 @@ html,body { overflow-x:hidden; }
 .night-menu .menu-item:hover { color:var(--ink); background:rgba(255,255,255,.08); }
 .night-menu .menu-item:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
 .night-menu .menu-section { display:block; }
-@media(max-width:700px){ .night-header { top:10px; width:calc(100% - 24px); margin:10px 12px 0; height:56px; padding:0 18px; } .night-menu { top:78px; left:10px; width:calc(100vw - 20px); height:calc(100dvh - 88px); padding:24px 16px; } .hero-content { padding-left:16px; padding-right:16px; } }
+@media(max-width:700px){ .breadcrumb { display:none; } .night-menu .menu-rule { margin:14px 0; } .night-menu .menu-item { padding-top:10px; padding-bottom:10px; } .night-header { top:10px; width:calc(100% - 24px); margin:10px 12px 0; height:56px; padding:0 18px; } .night-menu { top:78px; left:10px; width:calc(100vw - 20px); height:calc(100dvh - 88px); padding:24px 16px; } .hero-content { padding-left:16px; padding-right:16px; } }
 
 /* Title block grows/shrinks smoothly so the carousel below glides instead of jumping */
 .hero-heading.is-animated { transition:height .5s cubic-bezier(.22,1,.36,1); }
