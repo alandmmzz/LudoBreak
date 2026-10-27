@@ -47,6 +47,7 @@ export default function VotingPage() {
 
   const results = voting?.results
   const topVotes = results?.games[0]?.votes ?? 1
+  const live = Boolean(results && voting && voting.phase !== 'closed')
 
   return (
     <main className="voting-page">
@@ -99,13 +100,19 @@ export default function VotingPage() {
             </section>
 
             <section className="voting-card" aria-labelledby="results-title">
-              <h2 id="results-title">Resultados de hoy</h2>
+              <h2 id="results-title">
+                Resultados de hoy
+                {live && <span className="vote-live-badge">En vivo</span>}
+              </h2>
               {results ? (
                 results.games.length === 0 ? (
-                  <p className="voting-empty">Hoy nadie votó.</p>
+                  <p className="voting-empty">{live ? 'Todavía nadie votó.' : 'Hoy nadie votó.'}</p>
                 ) : (
                   <>
-                    <p>{results.voters} {results.voters === 1 ? 'persona votó' : 'personas votaron'}. Solo se muestran los juegos que recibieron votos.</p>
+                    <p>
+                      {results.voters} {results.voters === 1 ? 'persona votó' : 'personas votaron'}. Solo se muestran los juegos que recibieron votos.
+                      {live && ' Solo vos ves esto hasta que termine la votación.'}
+                    </p>
                     <ol className="vote-result-list">
                       {results.games.map((item) => (
                         <li className="vote-result" key={item.gameId}>
