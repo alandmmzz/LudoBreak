@@ -37,6 +37,9 @@
 .picker-join:disabled { opacity:.5; cursor:not-allowed; }
 .picker-empty { margin:0; color:var(--muted); font-size:14px; }
 .auth-switch { align-self:flex-start; padding:0; border:0; background:none; color:var(--teal); font-size:13px; text-decoration:underline; }
+  .auth-card .gold-button { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:12px 14px; border:1px solid var(--gold); border-radius:10px; background:var(--gold); color:#14110a; font:inherit; font-size:14px; font-weight:700; cursor:pointer; }
+  .auth-card .gold-button svg { width:16px; height:16px; }
+  .auth-card .gold-button:hover:not(:disabled) { filter:brightness(1.08); }
   .auth-card .gold-button:disabled { opacity:.6; cursor:wait; }
   .auth-google { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:11px 14px; border:1px solid rgba(255,255,255,.18); border-radius:10px; background:rgba(255,255,255,.06); color:inherit; font-size:14px; font-weight:600; cursor:pointer; }
   .auth-google:hover:not(:disabled) { background:rgba(255,255,255,.12); }
