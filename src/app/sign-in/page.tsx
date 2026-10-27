@@ -12,6 +12,8 @@ export default function SignInPage() {
   const [mode, setMode] = useState<'sign-in' | 'sign-up'>('sign-in')
   const [error, setError] = useState('')
   const [pending, setPending] = useState(false)
+  const [pabloOpen, setPabloOpen] = useState(false)
+  const [pabloError, setPabloError] = useState('')
   const creating = mode === 'sign-up'
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -42,6 +44,25 @@ export default function SignInPage() {
     }
   }
 
+  const asPablo = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const answer = String(new FormData(event.currentTarget).get('answer') ?? '')
+    setPending(true)
+    setPabloError('')
+    const response = await fetch('/api/pablo-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answer }),
+    })
+    if (!response.ok) {
+      const body = (await response.json().catch(() => ({}))) as { error?: string }
+      setPending(false)
+      setPabloError(body.error ?? 'No se pudo entrar como Pablo')
+      return
+    }
+    window.location.assign(safeNext())
+  }
+
   return (
     <main className="auth-page">
       <section className="auth-card" aria-labelledby="auth-title">
@@ -57,6 +78,20 @@ export default function SignInPage() {
           </svg>
           Continuar con Google
         </button>
+        <button type="button" className="auth-pablo" onClick={() => { setPabloOpen((open) => !open); setPabloError('') }} aria-expanded={pabloOpen} aria-controls="pablo-check" disabled={pending}>
+          Soy Pablo
+        </button>
+        {pabloOpen && (
+          <form id="pablo-check" className="auth-pablo-form" onSubmit={asPablo}>
+            <label className="auth-pablo-question">
+              <span>What do you do</span>
+              <input name="answer" type="text" autoComplete="off" autoCapitalize="off" spellCheck={false} required autoFocus aria-label="Complete la frase: What do you do, blank, quickly" />
+              <span>? quickly</span>
+            </label>
+            {pabloError && <p className="auth-error" role="alert">{pabloError}</p>}
+            <button className="gold-button" type="submit" disabled={pending}>{pending ? 'Un momento…' : 'Verificar'}</button>
+          </form>
+        )}
         <div className="auth-divider"><span>o con email</span></div>
         <form onSubmit={submit} className="auth-form">
           {creating && (
