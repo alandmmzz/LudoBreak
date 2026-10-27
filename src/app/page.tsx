@@ -6,7 +6,10 @@ import { GameBoxCarousel } from '@/components/game-box-carousel'
 import { AdminGamePanel } from '@/components/admin-game-panel'
 import { SiteMenu } from '@/components/site-chrome'
 import { HeaderControls } from '@/components/header-controls'
+import { VoteCountdown } from '@/components/vote-countdown'
 import { useMe } from '@/lib/use-me'
+import { useVoting } from '@/lib/use-voting'
+import './voting.css'
 
 const BACKDROP_SETTLE_DELAY = 650
 const fetcher = async (url: string) => {
@@ -40,21 +43,53 @@ export default function Home() {
     setAdminOpen(true)
     window.history.replaceState(null, '', window.location.pathname)
   }, [])
-  const [selectedVotes, setSelectedVotes] = useState<number[]>([])
-  const [submittedVotes, setSubmittedVotes] = useState<number[] | null>(null)
+  const { data: voting, mutate: mutateVoting } = useVoting()
+  const [draft, setDraft] = useState<number[] | null>(null)
   const [showResults, setShowResults] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [voteError, setVoteError] = useState<string | null>(null)
+  const voteOpen = voting?.phase === 'open'
+  const savedVotes = games.flatMap((item, index) => voting?.myVotes.includes(item.id) ? [index] : [])
+  const selectedVotes = draft ?? savedVotes
+  const submittedVotes = draft === null && savedVotes.length > 0 ? savedVotes : null
   const voted = selectedVotes.includes(active)
   const toggleVote = () => {
-    setSubmittedVotes(null)
-    setSelectedVotes((votes) => votes.includes(active) ? votes.filter((vote) => vote !== active) : [...votes, active])
+    if (!voteOpen) return
+    setVoteError(null)
+    setDraft(voted ? selectedVotes.filter((vote) => vote !== active) : [...selectedVotes, active])
   }
-  const submitVotes = () => {
-    if (selectedVotes.length > 0) {
-      setSubmittedVotes(selectedVotes)
-      setShowResults(false)
+  const submitVotes = async () => {
+    if (!voteOpen || draft === null || draft.length === 0) return
+    setSaving(true)
+    setVoteError(null)
+    try {
+      const response = await fetch('/api/votes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gameIds: draft.map((index) => games[index].id) }),
+      })
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null)
+        setVoteError(payload?.error ?? 'No se pudo guardar el voto.')
+        if (response.status === 403) mutateVoting()
+        return
+      }
+      await mutateVoting()
+      setDraft(null)
+    } catch {
+      setVoteError('Hubo un problema de conexión. Probá de nuevo.')
+    } finally {
+      setSaving(false)
     }
   }
-  const selectedGames = (submittedVotes ?? selectedVotes).map((index) => games[index]).filter(Boolean)
+  const selectedGames = selectedVotes.map((index) => games[index]).filter(Boolean)
+  const voteHint = voteError
+    ?? (!voting ? ''
+      : voting.phase === 'before' ? 'Todavía no abrió la votación'
+      : voting.phase === 'closed' ? 'La votación terminó'
+      : draft !== null ? `${draft.length} juego${draft.length === 1 ? '' : 's'} seleccionado${draft.length === 1 ? '' : 's'}. Enviá tu voto.`
+      : submittedVotes ? 'Voto enviado. Podés cambiarlo hasta que cierre.'
+      : 'Elegí los juegos que querés jugar hoy')
   const [transition, setTransition] = useState<'next' | 'previous'>('next')
   const [transitionKey, setTransitionKey] = useState(0)
   const [previousBackdrop, setPreviousBackdrop] = useState(games[0].backdrop)
@@ -144,10 +179,13 @@ export default function Home() {
             <div className="carousel-dots">{games.map((item, index) => <button key={item.title} className={index === active ? 'active' : ''} onClick={() => changeGame(index > active ? 'next' : 'previous', index)} aria-label={`Ver ${item.title}`} />)}</div>
           </div>
           <aside className={`stage-panel ${adminOpen ? 'stage-panel-hidden' : ''}`} aria-hidden={adminOpen}>
-            {showResults && submittedVotes ? (
+            <VoteCountdown voting={voting} onBoundary={() => mutateVoting()} />
+            {showResults && voting?.results ? (
               <section id="vote-results" className="panel-card results-panel" aria-label="Vote results">
                 <header className="panel-card-header"><span className="selected-games-label">VOTE RESULTS</span></header>
-                {games.map((resultGame, resultIndex) => <div className="result-row" key={resultGame.title}><span>{resultGame.title}</span><b>{resultGame.votes + (submittedVotes.includes(resultIndex) ? 1 : 0)} votes</b></div>)}
+                {voting.results.games.length === 0
+                  ? <p className="panel-card-hint">Hoy nadie votó.</p>
+                  : voting.results.games.map((result) => <div className="result-row" key={result.gameId}><span>{result.title}</span><b>{result.votes} votes</b></div>)}
               </section>
             ) : (
               <section className="panel-card" aria-label="Selected games">
@@ -158,7 +196,7 @@ export default function Home() {
                 <p className="panel-card-hint">Toca un juego para verlo en el carrusel y votar.</p>
                 <ul className="game-checklist">
                   {games.map((checkGame, checkIndex) => {
-                    const checked = (submittedVotes ?? selectedVotes).includes(checkIndex)
+                    const checked = selectedVotes.includes(checkIndex)
                     return (
                       <li key={checkGame.title}>
                         <button className={`check-row ${checked ? 'checked' : ''} ${checkIndex === active ? 'current' : ''}`} onClick={() => changeGame(checkIndex > active ? 'next' : 'previous', checkIndex)} aria-label={`${checkGame.title}${checked ? ' (seleccionado)' : ''}`}>
@@ -173,10 +211,12 @@ export default function Home() {
               </section>
             )}
             <div className="vote-actions">
-              <button className={`vote-button ${voted ? 'confirmed' : ''}`} onClick={toggleVote}>{voted ? 'VOTED' : 'VOTE'} <span>· {game.votes + (voted ? 1 : 0)} votes</span></button>
-              {submittedVotes ? <a className="results-button" href="#vote-results" onClick={() => setShowResults(true)}>VIEW RESULTS</a> : <button className="submit-votes" onClick={submitVotes} disabled={selectedVotes.length === 0}>SUBMIT VOTES <span>({selectedVotes.length})</span></button>}
+              <button className={`vote-button ${voted ? 'confirmed' : ''}`} onClick={toggleVote} disabled={!voteOpen}>{voted ? 'VOTED' : 'VOTE'}</button>
+              {voting?.phase === 'closed'
+                ? <button className="results-button" type="button" onClick={() => setShowResults((shown) => !shown)}>{showResults ? 'BACK TO GAMES' : 'VIEW RESULTS'}</button>
+                : <button className="submit-votes" onClick={submitVotes} disabled={!voteOpen || saving || draft === null || draft.length === 0}>{submittedVotes ? 'SUBMITTED' : 'SUBMIT VOTES'} <span>({selectedVotes.length})</span></button>}
             </div>
-            <p className="vote-hint">{selectedVotes.length && !submittedVotes ? `${selectedVotes.length} juego${selectedVotes.length === 1 ? '' : 's'} seleccionado${selectedVotes.length === 1 ? '' : 's'}` : submittedVotes ? 'Votes submitted successfully' : 'Vote for what we play tonight'}</p>
+            <p className="vote-hint" aria-live="polite">{voteHint}</p>
 </aside>
           </div>
       </section>
