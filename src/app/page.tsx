@@ -83,13 +83,6 @@ export default function Home() {
     }
   }
   const selectedGames = selectedVotes.map((index) => games[index]).filter(Boolean)
-  const voteHint = voteError
-    ?? (!voting ? ''
-      : voting.phase === 'before' ? 'Todavía no abrió la votación'
-      : voting.phase === 'closed' ? 'La votación terminó'
-      : draft !== null ? `${draft.length} juego${draft.length === 1 ? '' : 's'} seleccionado${draft.length === 1 ? '' : 's'}. Enviá tu voto.`
-      : submittedVotes ? 'Voto enviado. Podés cambiarlo hasta que cierre.'
-      : 'Elegí los juegos que querés jugar hoy')
   const [transition, setTransition] = useState<'next' | 'previous'>('next')
   const [transitionKey, setTransitionKey] = useState(0)
   const [previousBackdrop, setPreviousBackdrop] = useState(games[0].backdrop)
@@ -216,8 +209,8 @@ export default function Home() {
                 ? <button className="results-button" type="button" onClick={() => setShowResults((shown) => !shown)}>{showResults ? 'BACK TO GAMES' : 'VIEW RESULTS'}</button>
                 : <button className="submit-votes" onClick={submitVotes} disabled={!voteOpen || saving || draft === null || draft.length === 0}>{submittedVotes ? 'SUBMITTED' : 'SUBMIT VOTES'} <span>({selectedVotes.length})</span></button>}
             </div>
-            <p className="vote-hint" aria-live="polite">{voteHint}</p>
-</aside>
+            {voteError && <p className="vote-hint" role="alert">{voteError}</p>}
+          </aside>
           </div>
       </section>
     </main>
