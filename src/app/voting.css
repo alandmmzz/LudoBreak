@@ -49,6 +49,10 @@
 .vote-result-bar { grid-column:1 / -1; height:6px; overflow:hidden; border-radius:999px; background:rgba(255,255,255,.1); }
 .vote-result-bar i { display:block; height:100%; border-radius:999px; background:var(--teal); }
 .vote-result:first-child .vote-result-bar i { background:var(--gold); }
+.vote-live-badge { display:inline-flex; align-items:center; gap:6px; margin-left:10px; padding:3px 10px; border:1px solid var(--teal); border-radius:999px; color:var(--teal); font-family:inherit; font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; vertical-align:middle; }
+.vote-live-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--teal); animation:vote-live-pulse 1.6s ease-in-out infinite; }
+@keyframes vote-live-pulse { 50% { opacity:.3; } }
+@media (prefers-reduced-motion: reduce) { .vote-live-badge::before { animation:none; } }
 .voting-empty { margin:0; color:var(--muted); font-size:14px; line-height:1.6; }
 
 @media (max-width:560px) { .schedule-fields { grid-template-columns:1fr; } .vote-timer.large .vote-timer-value { font-size:28px; } }

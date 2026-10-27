@@ -14,7 +14,10 @@ const fetchVoting = async (url: string): Promise<LiveVoting> => {
 }
 
 export function useVoting() {
-  return useSWR<LiveVoting>('/api/votes', fetchVoting, { refreshInterval: 30000, revalidateOnFocus: true })
+  return useSWR<LiveVoting>('/api/votes', fetchVoting, {
+    refreshInterval: (latest) => (latest?.isOwner && latest.phase === 'open' ? 10000 : 30000),
+    revalidateOnFocus: true,
+  })
 }
 
 export function formatRemaining(ms: number) {

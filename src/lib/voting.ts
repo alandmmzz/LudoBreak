@@ -69,8 +69,10 @@ export async function getVotingState(table: TableSummary, userId: string): Promi
     WHERE table_id = ${table.id} AND vote_date = ${date}::date AND user_id = ${userId}
   `)
 
+  // The table admin can follow the tally while voting is still open; everyone else waits for the close.
+  const isOwner = table.owner_id === userId
   let results: VoteResults | null = null
-  if (phase === 'closed') {
+  if (phase === 'closed' || isOwner) {
     const counts = await db.execute(sql`
       SELECT g.id AS game_id, g.title, g.cover, COUNT(*)::int AS votes
       FROM table_votes v JOIN games g ON g.id = v.game_id
@@ -101,7 +103,7 @@ export async function getVotingState(table: TableSummary, userId: string): Promi
     serverNow: now,
     opensAt: now + (startSeconds - seconds) * 1000,
     closesAt: now + (endSeconds - seconds) * 1000,
-    isOwner: table.owner_id === userId,
+    isOwner,
     myVotes: (mine.rows as { game_id: number }[]).map((item) => item.game_id),
     results,
   }
