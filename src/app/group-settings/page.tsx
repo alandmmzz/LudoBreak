@@ -63,12 +63,12 @@ export default function GroupSettingsPage() {
 
   return (
     <main className="group-settings-page">
-      <SiteChrome current="AJUSTES DEL GRUPO" active="settings" />
+      <SiteChrome current="AJUSTES DE LA MESA" active="settings" />
 
       <section className="group-settings-shell">
         <div className="settings-intro">
           <span className="settings-kicker">Tu comunidad</span>
-          <h1>Ajustes del grupo</h1>
+          <h1>Ajustes de la mesa</h1>
           <p>Administrá la identidad de tu mesa y quiénes forman parte de ella.</p>
         </div>
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ChartColumn, History, House, LibraryBig, PanelsTopLeft, Settings, UserPlus, Users, Vote, type LucideIcon } from 'lucide-react'
 import { ClaimPlayerPrompt } from '@/components/claim-player-prompt'
 import { HeaderControls } from '@/components/header-controls'
@@ -15,11 +15,11 @@ const MENU_SECTIONS: { title: string; items: MenuItem[] }[] = [
     { key: 'voting', label: 'Votación', icon: Vote, href: '/votacion' },
     { key: 'matches', label: 'Partidas', icon: History, href: '/partidas' },
     { key: 'stats', label: 'Estadísticas', icon: ChartColumn, href: '/estadisticas' },
+    { key: 'settings', label: 'Ajustes de la mesa', icon: Settings, href: '/group-settings' },
   ] },
   { title: 'Tu cuenta', items: [
     { key: 'library', label: 'Mi biblioteca', icon: LibraryBig, href: '/biblioteca' },
     { key: 'tables', label: 'Mis mesas', icon: Users, href: '/mis-mesas' },
-    { key: 'settings', label: 'Ajustes del grupo', icon: Settings, href: '/group-settings' },
   ] },
   { title: 'Comunidad', items: [{ key: 'invite', label: 'Invitar amigos', icon: UserPlus }] },
   { title: 'Administración', items: [{ key: 'admin', label: 'Editar juegos y cajas', icon: PanelsTopLeft }] },
@@ -65,8 +65,28 @@ type SiteChromeProps = {
   active: MenuKey
 }
 
+export function useDismissibleMenu(open: boolean, close: () => void) {
+  useEffect(() => {
+    if (!open) return
+    const closeOutside = (event: PointerEvent) => {
+      const target = event.target as Element | null
+      if (target?.closest('.night-menu, .menu-toggle')) return
+      close()
+    }
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') close() }
+    document.addEventListener('pointerdown', closeOutside)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOutside)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [open, close])
+}
+
 export function SiteChrome({ current, active }: SiteChromeProps) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const closeMenu = useCallback(() => setMenuOpen(false), [])
+  useDismissibleMenu(menuOpen, closeMenu)
 
   return (
     <>
