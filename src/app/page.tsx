@@ -1,10 +1,10 @@
 'use client'
 
 import useSWR from 'swr'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { GameBoxCarousel } from '@/components/game-box-carousel'
 import { AdminGamePanel } from '@/components/admin-game-panel'
-import { SiteMenu } from '@/components/site-chrome'
+import { SiteMenu, useDismissibleMenu } from '@/components/site-chrome'
 import { HeaderControls } from '@/components/header-controls'
 import { VoteCountdown } from '@/components/vote-countdown'
 import { useMe } from '@/lib/use-me'
@@ -34,6 +34,8 @@ export default function Home() {
   const games = (Array.isArray(loadedGames) && loadedGames.length > 0 ? loadedGames : fallbackGames).slice().sort((a, b) => a.title.localeCompare(b.title, 'es', { sensitivity: 'base' }))
   const [active, setActive] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
+  const closeMenu = useCallback(() => setMenuOpen(false), [])
+  useDismissibleMenu(menuOpen, closeMenu)
   const [adminOpen, setAdminOpen] = useState(false)
 
   // Other pages link here with ?admin=1 so the admin panel is reachable from every menu.

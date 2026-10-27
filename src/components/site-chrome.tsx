@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ChartColumn, History, House, LibraryBig, PanelsTopLeft, Settings, UserPlus, Users, Vote, type LucideIcon } from 'lucide-react'
 import { ClaimPlayerPrompt } from '@/components/claim-player-prompt'
 import { HeaderControls } from '@/components/header-controls'
@@ -65,8 +65,28 @@ type SiteChromeProps = {
   active: MenuKey
 }
 
+export function useDismissibleMenu(open: boolean, close: () => void) {
+  useEffect(() => {
+    if (!open) return
+    const closeOutside = (event: PointerEvent) => {
+      const target = event.target as Element | null
+      if (target?.closest('.night-menu, .menu-toggle')) return
+      close()
+    }
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') close() }
+    document.addEventListener('pointerdown', closeOutside)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOutside)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [open, close])
+}
+
 export function SiteChrome({ current, active }: SiteChromeProps) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const closeMenu = useCallback(() => setMenuOpen(false), [])
+  useDismissibleMenu(menuOpen, closeMenu)
 
   return (
     <>
