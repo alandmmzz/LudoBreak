@@ -2,7 +2,7 @@
 
 import { Canvas, useLoader } from '@react-three/fiber'
 import { ContactShadows, OrbitControls, Text } from '@react-three/drei'
-import { useMemo, useRef, useState } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 
@@ -27,11 +27,15 @@ const accentColors: Record<string, string> = {
   red: '#9f403b',
 }
 
+function getBoxTextureUrl(game: Game) {
+  const boxImage = game.box_image || game.cover
+  return boxImage && /^https:\/\/(cf\.geekdo-images\.com|images\.unsplash\.com)\//.test(boxImage) ? `/api/image-proxy?url=${encodeURIComponent(boxImage)}` : boxImage
+}
+
 function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game; offset: number; selected: boolean; voted: boolean; onSelect: () => void }) {
   const distance = Math.abs(offset)
   const isCenter = Math.abs(offset) < 0.12
-  const boxImage = game.box_image || game.cover
-  const coverUrl = boxImage && /^https:\/\/(cf\.geekdo-images\.com|images\.unsplash\.com)\//.test(boxImage) ? `/api/image-proxy?url=${encodeURIComponent(boxImage)}` : boxImage
+  const coverUrl = getBoxTextureUrl(game)
   const coverTexture = useLoader(THREE.TextureLoader, coverUrl)
   coverTexture.colorSpace = THREE.SRGBColorSpace
   const rotation = offset * -0.18
@@ -136,6 +140,11 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
   const [dragOffset, setDragOffset] = useState(0)
   const dragged = useRef(false)
 
+  useEffect(() => {
+    const urls = new Set(games.map(getBoxTextureUrl).filter(Boolean))
+    urls.forEach((url) => useLoader.preload(THREE.TextureLoader, url))
+  }, [games])
+
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     setDragStart(event.clientX)
     dragged.current = false
@@ -199,7 +208,11 @@ export function GameBoxCarousel({ games, active, selectedVotes, onSelect }: Game
               const index = ((active + slot) % games.length + games.length) % games.length
               const offset = slot + dragOffset
               const game = games[index]
-              return <BoardGameBox key={`${game.title}-${slot}`} game={game} offset={offset} selected={slot === 0} voted={selectedVotes.includes(index)} onSelect={() => onSelect(index)} />
+              return (
+                <Suspense key={`${game.title}-${slot}`} fallback={null}>
+                  <BoardGameBox game={game} offset={offset} selected={slot === 0} voted={selectedVotes.includes(index)} onSelect={() => onSelect(index)} />
+                </Suspense>
+              )
             })}
             {/* Anchored to the group so the shadow plane sits directly under the box bottoms instead of floating far below them. */}
             <ContactShadows position={[0, -0.365, 0]} opacity={1} scale={4.4} blur={1.4} far={0.55} resolution={1024} frames={1} color="#000000" />
