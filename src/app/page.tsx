@@ -196,9 +196,11 @@ export default function Home() {
             {showResults && voting?.results ? (
               <section id="vote-results" className="panel-card results-panel" aria-label="Vote results">
                 <header className="panel-card-header"><span className="selected-games-label">VOTE RESULTS</span></header>
-                {voting.results.games.length === 0
+                {voting.results.games.length === 0 && voting.results.excluded.length === 0
                   ? <p className="panel-card-hint">Hoy nadie votó.</p>
                   : voting.results.games.map((result) => <div className="result-row" key={result.gameId}><span>{result.title}</span><b>{result.votes} votes</b></div>)}
+                {voting.results.games.length === 0 && voting.results.excluded.length > 0 && <p className="panel-card-hint">Ningún juego votado alcanza para {voting.results.voters} personas.</p>}
+                {voting.results.excluded.length > 0 && <p className="panel-card-hint vote-excluded">No entran con {voting.results.voters} personas: {voting.results.excluded.map((item) => `${item.title} (máx. ${item.maxPlayers})`).join(', ')}.</p>}
               </section>
             ) : (
               <section className="panel-card" aria-label="Selected games">

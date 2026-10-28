@@ -47,6 +47,7 @@ export default function VotingPage() {
 
   const results = voting?.results
   const topVotes = results?.games[0]?.votes ?? 1
+  
   const live = Boolean(results && voting && voting.phase !== 'closed')
 
   return (
@@ -105,23 +106,32 @@ export default function VotingPage() {
                 {live && <span className="vote-live-badge">En vivo</span>}
               </h2>
               {results ? (
-                results.games.length === 0 ? (
+                results.games.length === 0 && results.excluded.length === 0 ? (
                   <p className="voting-empty">{live ? 'Todavía nadie votó.' : 'Hoy nadie votó.'}</p>
                 ) : (
                   <>
                     <p>
-                      {results.voters} {results.voters === 1 ? 'persona votó' : 'personas votaron'}. Solo se muestran los juegos que recibieron votos.
+                      {results.voters} {results.voters === 1 ? 'persona votó' : 'personas votaron'}. Solo se muestran los juegos que recibieron votos y donde entran todos.
                       {live && ' Solo vos ves esto hasta que termine la votación.'}
                     </p>
-                    <ol className="vote-result-list">
-                      {results.games.map((item) => (
-                        <li className="vote-result" key={item.gameId}>
-                          <span className="vote-result-title">{item.title}</span>
-                          <b>{item.votes} {item.votes === 1 ? 'voto' : 'votos'}</b>
-                          <span className="vote-result-bar" aria-hidden="true"><i style={{ width: `${(item.votes / topVotes) * 100}%` }} /></span>
-                        </li>
-                      ))}
-                    </ol>
+                    {results.games.length === 0 ? (
+                      <p className="voting-empty">Ningún juego votado alcanza para {results.voters} personas.</p>
+                    ) : (
+                      <ol className="vote-result-list">
+                        {results.games.map((item) => (
+                          <li className="vote-result" key={item.gameId}>
+                            <span className="vote-result-title">{item.title}</span>
+                            <b>{item.votes} {item.votes === 1 ? 'voto' : 'votos'}</b>
+                            <span className="vote-result-bar" aria-hidden="true"><i style={{ width: `${(item.votes / topVotes) * 100}%` }} /></span>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                    {results.excluded.length > 0 && (
+                      <p className="vote-excluded">
+                        No entran con {results.voters} personas: {results.excluded.map((item) => `${item.title} (máx. ${item.maxPlayers})`).join(', ')}.
+                      </p>
+                    )}
                   </>
                 )
               ) : (
