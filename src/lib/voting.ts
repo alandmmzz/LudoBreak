@@ -7,9 +7,21 @@ export const VOTE_TIME_ZONE = 'America/Argentina/Buenos_Aires'
 export const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
 
 export type VotePhase = 'before' | 'open' | 'closed'
+export type VoteResultGame = { gameId: number; title: string; cover: string | null; votes: number }
+export type ExcludedVoteGame = VoteResultGame & { maxPlayers: number }
 export type VoteResults = {
   voters: number
-  games: { gameId: number; title: string; cover: string | null; votes: number }[]
+  games: VoteResultGame[]
+  excluded: ExcludedVoteGame[]
+}
+
+// Capacity only lives inside the free-text `time` field ("30–30 min · 4–10 jugadores"); a game without it has no limit.
+export function maxPlayersFrom(time: string | null | undefined): number | null {
+  if (!time) return null
+  const range = time.match(/(\d+)\s*[–-]\s*(\d+)\s*jugadores/i)
+  if (range) return Math.max(Number(range[1]), Number(range[2]))
+  const single = time.match(/(\d+)\s*jugadores/i)
+  return single ? Number(single[1]) : null
 }
 export type VotingState = {
   phase: VotePhase
@@ -74,25 +86,26 @@ export async function getVotingState(table: TableSummary, userId: string): Promi
   let results: VoteResults | null = null
   if (phase === 'closed' || isOwner) {
     const counts = await db.execute(sql`
-      SELECT g.id AS game_id, g.title, g.cover, COUNT(*)::int AS votes
+      SELECT g.id AS game_id, g.title, g.cover, g.time, COUNT(*)::int AS votes
       FROM table_votes v JOIN games g ON g.id = v.game_id
       WHERE v.table_id = ${table.id} AND v.vote_date = ${date}::date
-      GROUP BY g.id, g.title, g.cover
+      GROUP BY g.id, g.title, g.cover, g.time
       ORDER BY votes DESC, g.title ASC
     `)
     const voters = await db.execute(sql`
       SELECT COUNT(DISTINCT user_id)::int AS total FROM table_votes
       WHERE table_id = ${table.id} AND vote_date = ${date}::date
     `)
-    results = {
-      voters: (voters.rows[0] as { total: number } | undefined)?.total ?? 0,
-      games: (counts.rows as { game_id: number; title: string; cover: string | null; votes: number }[]).map((item) => ({
-        gameId: item.game_id,
-        title: item.title,
-        cover: item.cover,
-        votes: item.votes,
-      })),
+    const voterCount = (voters.rows[0] as { total: number } | undefined)?.total ?? 0
+    const games: VoteResultGame[] = []
+    const excluded: ExcludedVoteGame[] = []
+    for (const item of counts.rows as { game_id: number; title: string; cover: string | null; time: string | null; votes: number }[]) {
+      const entry = { gameId: item.game_id, title: item.title, cover: item.cover, votes: item.votes }
+      const maxPlayers = maxPlayersFrom(item.time)
+      if (maxPlayers !== null && maxPlayers < voterCount) excluded.push({ ...entry, maxPlayers })
+      else games.push(entry)
     }
+    results = { voters: voterCount, games, excluded }
   }
 
   return {
