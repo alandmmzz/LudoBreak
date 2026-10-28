@@ -7,6 +7,7 @@ export type Match = {
   game_id: number | null
   game_title: string
   cover: string | null
+  backdrop: string | null
   played_on: string
   participants: MatchParticipant[]
 }

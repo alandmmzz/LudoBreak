@@ -12,7 +12,7 @@
 .library-card:hover { border-color:rgba(255,255,255,.34); }
 .library-card.is-hidden { opacity:.62; }
 .library-thumb { flex:none; width:64px; height:64px; display:grid; place-items:center; overflow:hidden; border-radius:12px; background:rgba(255,255,255,.06); box-shadow:inset 0 -3px 0 var(--game-accent); color:var(--teal); }
-.library-thumb img { width:100%; height:100%; object-fit:contain; }
+.library-thumb img { width:100%; height:100%; object-fit:cover; }
 .library-thumb svg { width:24px; height:24px; }
 .library-info { flex:1; min-width:0; }
 .library-info h3 { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin:0 0 4px; font-family:Georgia,serif; font-size:20px; font-weight:400; letter-spacing:1px; }

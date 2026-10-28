@@ -10,6 +10,7 @@ type Game = {
   title: string
   accent: string
   cover: string
+  box_image?: string | null
 }
 
 type GameBoxCarouselProps = {
@@ -29,7 +30,8 @@ const accentColors: Record<string, string> = {
 function BoardGameBox({ game, offset, selected, voted, onSelect }: { game: Game; offset: number; selected: boolean; voted: boolean; onSelect: () => void }) {
   const distance = Math.abs(offset)
   const isCenter = Math.abs(offset) < 0.12
-  const coverUrl = game.cover && /^https:\/\/(cf\.geekdo-images\.com|images\.unsplash\.com)\//.test(game.cover) ? `/api/image-proxy?url=${encodeURIComponent(game.cover)}` : game.cover
+  const boxImage = game.box_image || game.cover
+  const coverUrl = boxImage && /^https:\/\/(cf\.geekdo-images\.com|images\.unsplash\.com)\//.test(boxImage) ? `/api/image-proxy?url=${encodeURIComponent(boxImage)}` : boxImage
   const coverTexture = useLoader(THREE.TextureLoader, coverUrl)
   coverTexture.colorSpace = THREE.SRGBColorSpace
   const rotation = offset * -0.18
