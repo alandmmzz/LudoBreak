@@ -123,14 +123,26 @@ export default function VotingPage() {
                             <span className="vote-result-title">{item.title}</span>
                             <b>{item.votes} {item.votes === 1 ? 'voto' : 'votos'}</b>
                             <span className="vote-result-bar" aria-hidden="true"><i style={{ width: `${(item.votes / topVotes) * 100}%` }} /></span>
+                            {item.voters && item.voters.length > 0 && (
+                              <ul className="vote-voters" aria-label={`Votaron ${item.title}`}>
+                                {item.voters.map((name, index) => <li key={`${name}-${index}`}>{name}</li>)}
+                              </ul>
+                            )}
                           </li>
                         ))}
                       </ol>
                     )}
                     {results.excluded.length > 0 && (
-                      <p className="vote-excluded">
-                        No entran con {results.voters} personas: {results.excluded.map((item) => `${item.title} (máx. ${item.maxPlayers})`).join(', ')}.
-                      </p>
+                      <div className="vote-excluded">
+                        <p>No entran con {results.voters} personas: {results.excluded.map((item) => `${item.title} (máx. ${item.maxPlayers})`).join(', ')}.</p>
+                        {results.excluded.some((item) => item.voters?.length) && (
+                          <ul className="vote-excluded-voters">
+                            {results.excluded.map((item) => item.voters && item.voters.length > 0 && (
+                              <li key={item.gameId}><b>{item.title}:</b> {item.voters.join(', ')}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
                     )}
                   </>
                 )

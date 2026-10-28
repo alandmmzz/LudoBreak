@@ -7,7 +7,14 @@ export const VOTE_TIME_ZONE = 'America/Argentina/Buenos_Aires'
 export const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
 
 export type VotePhase = 'before' | 'open' | 'closed'
-export type VoteResultGame = { gameId: number; title: string; cover: string | null; votes: number }
+export type VoteResultGame = {
+  gameId: number
+  title: string
+  cover: string | null
+  votes: number
+  // Only the table admin receives who voted for each game.
+  voters?: string[]
+}
 export type ExcludedVoteGame = VoteResultGame & { maxPlayers: number }
 export type VoteResults = {
   voters: number
@@ -86,8 +93,11 @@ export async function getVotingState(table: TableSummary, userId: string): Promi
   let results: VoteResults | null = null
   if (phase === 'closed' || isOwner) {
     const counts = await db.execute(sql`
-      SELECT g.id AS game_id, g.title, g.cover, g.time, COUNT(*)::int AS votes
-      FROM table_votes v JOIN games g ON g.id = v.game_id
+      SELECT g.id AS game_id, g.title, g.cover, g.time, COUNT(*)::int AS votes,
+        ARRAY_AGG(COALESCE(NULLIF(u.name, ''), u.email) ORDER BY u.name ASC) AS voter_names
+      FROM table_votes v
+      JOIN games g ON g.id = v.game_id
+      LEFT JOIN "user" u ON u.id = v.user_id
       WHERE v.table_id = ${table.id} AND v.vote_date = ${date}::date
       GROUP BY g.id, g.title, g.cover, g.time
       ORDER BY votes DESC, g.title ASC
@@ -99,8 +109,9 @@ export async function getVotingState(table: TableSummary, userId: string): Promi
     const voterCount = (voters.rows[0] as { total: number } | undefined)?.total ?? 0
     const games: VoteResultGame[] = []
     const excluded: ExcludedVoteGame[] = []
-    for (const item of counts.rows as { game_id: number; title: string; cover: string | null; time: string | null; votes: number }[]) {
-      const entry = { gameId: item.game_id, title: item.title, cover: item.cover, votes: item.votes }
+    for (const item of counts.rows as { game_id: number; title: string; cover: string | null; time: string | null; votes: number; voter_names: (string | null)[] }[]) {
+      const entry: VoteResultGame = { gameId: item.game_id, title: item.title, cover: item.cover, votes: item.votes }
+      if (isOwner) entry.voters = item.voter_names.filter((name): name is string => Boolean(name))
       const maxPlayers = maxPlayersFrom(item.time)
       if (maxPlayers !== null && maxPlayers < voterCount) excluded.push({ ...entry, maxPlayers })
       else games.push(entry)

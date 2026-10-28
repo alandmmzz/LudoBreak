@@ -54,7 +54,12 @@
 @keyframes vote-live-pulse { 50% { opacity:.3; } }
 @media (prefers-reduced-motion: reduce) { .vote-live-badge::before { animation:none; } }
 .voting-empty { margin:0; color:var(--muted); font-size:14px; line-height:1.6; }
-.vote-excluded { margin:0; padding-top:12px; border-top:1px solid rgba(255,255,255,.1); color:var(--muted); font-size:14px; line-height:1.6; }
+.vote-excluded { padding-top:12px; border-top:1px solid rgba(255,255,255,.1); color:var(--muted); font-size:14px; line-height:1.6; }
+.vote-excluded p { margin:0; }
+.vote-voters { grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:6px; margin:2px 0 0; padding:0; list-style:none; }
+.vote-voters li { padding:2px 10px; border:1px solid rgba(255,255,255,.14); border-radius:999px; background:rgba(255,255,255,.05); color:var(--muted); font-size:12px; line-height:1.6; }
+.vote-excluded-voters { margin:8px 0 0; padding:0; list-style:none; font-size:13px; }
+.vote-excluded-voters b { font-weight:600; color:var(--ink); }
 
 @media (max-width:560px) { .schedule-fields { grid-template-columns:1fr; } .vote-timer.large .vote-timer-value { font-size:28px; } }
 
