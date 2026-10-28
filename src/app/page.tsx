@@ -20,19 +20,14 @@ const fetcher = async (url: string) => {
   return payload
 }
 
-const fallbackGames = [
-  { id: 1, title: 'Quest', genre: 'Hidden roles · 5–10 players', time: '30–45 min', votes: 7, accent: 'gold', cover: '/games/quest.png', rules: '', backdrop: 'https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=2200&q=85' },
-  { id: 2, title: 'Exploding Kittens', genre: 'Party · 2–5 players', time: '15–20 min', votes: 4, accent: 'red', cover: '/games/exploding-kittens.png', rules: '', backdrop: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=2200&q=85' },
-  { id: 3, title: 'Secret Hitler', genre: 'Hidden roles · 5–10 players', time: '45–60 min', votes: 3, accent: 'orange', cover: '/games/secret-hitler.png', rules: '', backdrop: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2200&q=85' },
-  { id: 4, title: 'Saboteur 2', genre: 'Bluffing · 2–12 players', time: '30–45 min', votes: 2, accent: 'teal', cover: '/games/saboteur-2.png', rules: '', backdrop: 'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=2200&q=85' },
-]
+type HomeGame = { id: number; title: string; genre: string; time: string; votes: number; accent: string; cover: string; rules: string; backdrop: string }
 
 export default function Home() {
   const { data: me } = useMe()
   const GROUP_NAME = me?.activeTable.name ?? 'LUDOBREAK'
-  const { data: loadedGames, mutate } = useSWR<typeof fallbackGames>('/api/library?view=visible', fetcher, { fallbackData: fallbackGames })
-  const { data: catalog, mutate: mutateCatalog } = useSWR<typeof fallbackGames>('/api/games', fetcher)
-  const games = (Array.isArray(loadedGames) && loadedGames.length > 0 ? loadedGames : fallbackGames).slice().sort((a, b) => a.title.localeCompare(b.title, 'es', { sensitivity: 'base' }))
+  const { data: loadedGames, mutate, isLoading } = useSWR<HomeGame[]>('/api/library?view=visible', fetcher)
+  const { data: catalog, mutate: mutateCatalog } = useSWR<HomeGame[]>('/api/games', fetcher)
+  const games = (Array.isArray(loadedGames) ? loadedGames : []).slice().sort((a, b) => a.title.localeCompare(b.title, 'es', { sensitivity: 'base' }))
   const [active, setActive] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
   const closeMenu = useCallback(() => setMenuOpen(false), [])
@@ -95,7 +90,7 @@ export default function Home() {
   const selectedGames = selectedVotes.map((index) => games[index]).filter(Boolean)
   const [transition, setTransition] = useState<'next' | 'previous'>('next')
   const [transitionKey, setTransitionKey] = useState(0)
-  const [previousBackdrop, setPreviousBackdrop] = useState(games[0].backdrop)
+  const [previousBackdrop, setPreviousBackdrop] = useState(games[0]?.backdrop ?? '')
   const [backdropIndex, setBackdropIndex] = useState(0)
   const lastDirection = useRef<'next' | 'previous'>('next')
   const safeActive = active < games.length ? active : 0
@@ -114,7 +109,7 @@ export default function Home() {
       setBackdropIndex((current) => {
         if (current === active) return current
         setTransition(lastDirection.current)
-        setPreviousBackdrop(games[current].backdrop)
+        setPreviousBackdrop(games[current]?.backdrop ?? '')
         setTransitionKey((key) => key + 1)
         return active
       })
@@ -144,7 +139,22 @@ export default function Home() {
       observer.disconnect()
       cancelAnimationFrame(frame)
     }
-  }, [])
+  }, [games.length > 0])
+
+  if (games.length === 0) {
+    return (
+      <main className="night-app">
+        <header className="night-header">
+          <button type="button" className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menuOpen}><span /><span /></button>
+          <nav className="breadcrumb" aria-label="Breadcrumb"><span>LudoBreak</span><span aria-hidden="true">/</span><strong>PICK THE GAME</strong></nav>
+          <HeaderControls />
+        </header>
+        <SiteMenu active="home" open={menuOpen} onNavigate={() => setMenuOpen(false)} onAdmin={() => { setAdminOpen(true); setMenuOpen(false) }} />
+        {adminOpen && <AdminGamePanel games={catalog ?? []} onClose={() => setAdminOpen(false)} onSaved={() => { mutate(); mutateCatalog() }} />}
+        {!isLoading && <section className="hero-content"><p className="panel-card-hint">Todavía no hay juegos visibles en la biblioteca.</p></section>}
+      </main>
+    )
+  }
 
   return (
     <main className="night-app" style={{ '--backdrop': cssBackdrop(backdropGame.backdrop) } as React.CSSProperties}>
