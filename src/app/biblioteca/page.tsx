@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { Eye, EyeOff, LibraryBig, Plus, Trash2 } from 'lucide-react'
 import { SiteChrome } from '@/components/site-chrome'
 import { useMe } from '@/lib/use-me'
+import { backdropClass, backdropStyle } from '@/lib/backdrop'
 
 type LibraryGame = {
   id: number
@@ -97,7 +98,7 @@ export default function LibraryPage() {
             ) : (
               <ul className="library-list">
                 {library.map((game) => (
-                  <li key={game.id} className={`library-card ${game.hidden ? 'is-hidden' : ''}`} style={{ '--game-accent': accentColor(game.accent) } as React.CSSProperties}>
+                  <li key={game.id} className={`library-card ${game.hidden ? 'is-hidden' : ''} ${backdropClass(game.backdrop)}`} style={{ '--game-accent': accentColor(game.accent), ...backdropStyle(game.backdrop) } as React.CSSProperties}>
                     <GameThumb game={game} />
                     <div className="library-info">
                       <h3>{game.title}{game.hidden && <span className="hidden-badge">Oculto</span>}</h3>
@@ -127,7 +128,7 @@ export default function LibraryPage() {
             ) : (
               <ul className="library-list">
                 {available.map((game) => (
-                  <li key={game.id} className="library-card" style={{ '--game-accent': accentColor(game.accent) } as React.CSSProperties}>
+                  <li key={game.id} className={`library-card ${backdropClass(game.backdrop)}`} style={{ '--game-accent': accentColor(game.accent), ...backdropStyle(game.backdrop) } as React.CSSProperties}>
                     <GameThumb game={game} />
                     <div className="library-info">
                       <h3>{game.title}</h3>

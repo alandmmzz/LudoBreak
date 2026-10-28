@@ -7,6 +7,7 @@ import { CalendarDays, Crown, Dices, Pencil, Plus, Trophy, UserPlus, X } from 'l
 import { SiteChrome } from '@/components/site-chrome'
 import { type Match } from '@/lib/group'
 import { useMe } from '@/lib/use-me'
+import { backdropClass, backdropStyle } from '@/lib/backdrop'
 
 type GameOption = { id: number; title: string }
 type Choice = 'won' | 'lost' | 'none'
@@ -89,7 +90,7 @@ function MatchCard({ match, onEdit }: { match: Match; onEdit: () => void }) {
   const winners = match.participants.filter((participant) => participant.result === 'won')
   const losers = match.participants.filter((participant) => participant.result === 'lost')
   return (
-    <li className="match-card">
+    <li className={`match-card ${backdropClass(match.backdrop)}`} style={backdropStyle(match.backdrop)}>
       <div className="match-cover">
         {match.cover ? <img src={match.cover} alt={`Caja de ${match.game_title}`} /> : <Dices aria-hidden="true" />}
       </div>

@@ -17,6 +17,7 @@ export type GameStat = {
   id: number | null
   title: string
   cover: string | null
+  backdrop: string | null
   plays: number
   lastPlayed: string
   king: { name: string; wins: number } | null
@@ -64,11 +65,12 @@ export function computeStats(matches: Match[]): TableStats | null {
     }
     const key = match.game_id !== null ? `id:${match.game_id}` : `title:${match.game_title}`
     const game = gameMap.get(key) ?? {
-      id: match.game_id, title: match.game_title, cover: match.cover, plays: 0, lastPlayed: match.played_on, king: null, wins: new Map<string, number>(),
+      id: match.game_id, title: match.game_title, cover: match.cover, backdrop: match.backdrop, plays: 0, lastPlayed: match.played_on, king: null, wins: new Map<string, number>(),
     }
     game.plays += 1
     game.lastPlayed = match.played_on
     game.cover = match.cover ?? game.cover
+    game.backdrop = match.backdrop ?? game.backdrop
     for (const participant of match.participants) {
       if (participant.result === 'won') game.wins.set(participant.player_name, (game.wins.get(participant.player_name) ?? 0) + 1)
     }

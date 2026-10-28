@@ -5,7 +5,7 @@ import { apiError, requireTable, requireUser } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
 
-const GAME_COLUMNS = sql`g.id, g.title, g.genre, g.time, g.votes, g.accent, g.cover, g.backdrop, g.rules`
+const GAME_COLUMNS = sql`g.id, g.title, g.genre, g.time, g.votes, g.accent, g.cover, g.box_image, g.backdrop, g.rules`
 
 async function readGameId(request: Request) {
   const payload = await request.json().catch(() => ({})) as { gameId?: number; hidden?: boolean }

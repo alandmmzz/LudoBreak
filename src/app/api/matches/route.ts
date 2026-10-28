@@ -53,6 +53,7 @@ export async function GET() {
         m.game_id,
         m.game_title,
         g.cover,
+        g.backdrop,
         to_char(m.played_on, 'YYYY-MM-DD') AS played_on,
         COALESCE(
           json_agg(json_build_object('player_name', p.player_name, 'result', p.result) ORDER BY p.result DESC, p.player_name)
@@ -63,7 +64,7 @@ export async function GET() {
       LEFT JOIN match_participants p ON p.match_id = m.id
       LEFT JOIN games g ON g.id = m.game_id
       WHERE m.table_id = ${table.id}
-      GROUP BY m.id, g.cover
+      GROUP BY m.id, g.cover, g.backdrop
       ORDER BY m.played_on DESC, m.id DESC
     `)
     return NextResponse.json(result.rows)

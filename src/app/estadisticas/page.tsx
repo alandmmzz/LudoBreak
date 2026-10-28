@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 import { CalendarDays, ChartColumn, Crown, Dices, Flame, Target, Users } from 'lucide-react'
 import { SiteChrome } from '@/components/site-chrome'
 import { type Match } from '@/lib/group'
+import { backdropClass, backdropStyle } from '@/lib/backdrop'
 import { MIN_MATCHES_FOR_RATE, computeStats, type GameStat, type PlayerStat, type TableStats } from '@/lib/stats'
 
 const fetcher = async (url: string): Promise<Match[]> => {
@@ -153,7 +154,7 @@ function PlayerRow({ player, rank }: { player: PlayerStat; rank: number }) {
 
 function GameCard({ game }: { game: GameStat }) {
   return (
-    <li className="game-stat">
+    <li className={`game-stat ${backdropClass(game.backdrop)}`} style={backdropStyle(game.backdrop)}>
       <div className="game-stat-cover">
         {game.cover ? <img src={game.cover} alt={`Caja de ${game.title}`} /> : <Dices aria-hidden="true" />}
       </div>
