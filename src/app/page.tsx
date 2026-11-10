@@ -10,6 +10,7 @@ import { VoteCountdown } from '@/components/vote-countdown'
 import { VoteReplaceDialog } from '@/components/vote-replace-dialog'
 import { useMe } from '@/lib/use-me'
 import { useVoting } from '@/lib/use-voting'
+import { useFavorites } from '@/lib/use-favorites'
 import './voting.css'
 
 const BACKDROP_SETTLE_DELAY = 650
@@ -55,6 +56,13 @@ export default function Home() {
     if (!voteOpen) return
     setVoteError(null)
     setDraft(voted ? selectedVotes.filter((vote) => vote !== active) : [...selectedVotes, active])
+  }
+  const { favoriteIds, toggleFavorite } = useFavorites()
+  const favoriteIndexes = games.flatMap((item, index) => favoriteIds.includes(item.id) ? [index] : [])
+  const voteFavorites = () => {
+    if (!voteOpen || favoriteIndexes.length === 0) return
+    setVoteError(null)
+    setDraft([...new Set([...selectedVotes, ...favoriteIndexes])])
   }
   const [confirmReplaceOpen, setConfirmReplaceOpen] = useState(false)
   const previousVoteCount = voting?.myVotes.length ?? 0
@@ -212,12 +220,16 @@ export default function Home() {
                 <ul className="game-checklist">
                   {games.map((checkGame, checkIndex) => {
                     const checked = selectedVotes.includes(checkIndex)
+                    const favorite = favoriteIds.includes(checkGame.id)
                     return (
-                      <li key={checkGame.title}>
+                      <li key={checkGame.title} className="check-item">
                         <button className={`check-row ${checked ? 'checked' : ''} ${checkIndex === active ? 'current' : ''}`} onClick={() => changeGame(checkIndex > active ? 'next' : 'previous', checkIndex)} aria-label={`${checkGame.title}${checked ? ' (seleccionado)' : ''}`}>
                           <span className="check-box" aria-hidden="true">{checked && <svg viewBox="0 0 12 12" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 6.5l2.5 2.5 4.5-5.5" /></svg>}</span>
                           <span className="check-title">{checkGame.title}</span>
                           <span className="check-chevron" aria-hidden="true">›</span>
+                        </button>
+                        <button type="button" className={`fav-star ${favorite ? 'is-favorite' : ''}`} onClick={() => toggleFavorite(checkGame.id)} aria-pressed={favorite} aria-label={favorite ? `Quitar ${checkGame.title} de favoritos` : `Marcar ${checkGame.title} como favorito`}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill={favorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true"><path d="M12 3.2l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8L12 3.2z" /></svg>
                         </button>
                       </li>
                     )
@@ -227,6 +239,10 @@ export default function Home() {
             )}
             <div className="vote-actions">
               <button className={`vote-button ${voted ? 'confirmed' : ''}`} onClick={toggleVote} disabled={!voteOpen}>{voted ? 'VOTED' : 'VOTE'}</button>
+              <button type="button" className="vote-favorites" onClick={voteFavorites} disabled={!voteOpen || favoriteIndexes.length === 0}>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 3.2l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 17l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8L12 3.2z" /></svg>
+                VOTE FAVORITES <span>({favoriteIndexes.length})</span>
+              </button>
               {voting?.phase === 'closed'
                 ? <button className="results-button" type="button" onClick={() => setShowResults((shown) => !shown)}>{showResults ? 'BACK TO GAMES' : 'VIEW RESULTS'}</button>
                 : <button className="submit-votes" onClick={requestSubmit} disabled={!voteOpen || saving || draft === null || draft.length === 0}>{submittedVotes ? 'SUBMITTED' : 'SUBMIT VOTES'} <span>({selectedVotes.length})</span></button>}
