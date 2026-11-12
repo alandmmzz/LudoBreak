@@ -76,18 +76,18 @@
 
 /* Favorites: star per game in the checklist + shortcut button beside VOTE */
 .check-item { position:relative; }
-.check-item .check-row { padding-right:76px; }
-.fav-star { position:absolute; top:50%; right:36px; display:grid; place-items:center; width:30px; height:30px; padding:0; border:0; border-radius:10px; background:transparent; color:rgba(255,255,255,.32); cursor:pointer; transform:translateY(-50%); transition:color .2s, background .2s, transform .2s; }
+.check-item .check-row { padding-right:44px; }
+.fav-star { position:absolute; top:50%; right:8px; display:grid; place-items:center; width:30px; height:30px; padding:0; border:0; border-radius:10px; background:transparent; color:rgba(255,255,255,.32); cursor:pointer; transform:translateY(-50%); transition:color .2s, background .2s, transform .2s; }
 .fav-star:hover { color:#f4d98b; background:rgba(255,255,255,.1); }
 .fav-star:focus-visible { outline:2px solid var(--gold); outline-offset:1px; }
 .fav-star:active { transform:translateY(-50%) scale(.88); }
 .fav-star.is-favorite { color:var(--gold); }
 .vote-actions { grid-template-rows:auto auto; }
-.vote-actions { align-items:center; }
-.vote-actions .vote-button { grid-column:1; grid-row:1; min-height:44px; }
+.vote-actions { align-items:center; gap:4px 8px; }
+.vote-actions .vote-button { grid-column:1; grid-row:1; min-height:34px; padding:0 12px; font-size:13px; letter-spacing:2.5px; border-radius:14px; }
 .vote-actions .vote-favorites { grid-column:1; grid-row:2; }
 .vote-actions .submit-votes,.vote-actions .results-button { grid-column:2; grid-row:1 / span 2; align-self:stretch; min-height:0; }
-.vote-favorites { display:flex; align-items:center; justify-content:center; gap:6px; min-width:0; min-height:28px; padding:0 4px; border:0; border-radius:8px; background:transparent; color:#f4d98b; font-size:10px; letter-spacing:1.5px; white-space:nowrap; cursor:pointer; transition:color .2s, transform .2s; }
+.vote-favorites { display:flex; align-items:center; justify-content:center; gap:6px; min-width:0; min-height:22px; padding:0 4px; border:0; border-radius:8px; background:transparent; color:#f4d98b; font-size:10px; letter-spacing:1.5px; white-space:nowrap; cursor:pointer; transition:color .2s, transform .2s; }
 .vote-favorites svg { flex:none; }
 .vote-favorites:not(:disabled):hover,.vote-favorites:not(:disabled):focus-visible { color:#fff3c4; }
 .vote-favorites:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
