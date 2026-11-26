@@ -4,6 +4,10 @@
 .stats-kicker { color:var(--teal); font-size:10px; letter-spacing:3px; text-transform:uppercase; }
 .stats-intro h1 { margin:12px 0 10px; font-family:Georgia,serif; font-size:clamp(38px,6vw,66px); line-height:.98; letter-spacing:2px; font-weight:400; }
 .stats-intro p { margin:0; max-width:460px; color:var(--muted); line-height:1.6; }
+.stats-filter { display:flex; align-items:center; gap:12px; width:max-content; max-width:100%; margin:-12px 0 26px; padding:8px 10px 8px 14px; border:1px solid var(--glass-border); border-radius:14px; background:var(--glass); color:var(--muted); font-size:12px; }
+.stats-filter label { letter-spacing:.4px; }
+.stats-filter select { max-width:min(60vw,240px); min-height:36px; padding:0 32px 0 12px; border:1px solid rgba(255,255,255,.12); border-radius:10px; background:#141617; color:var(--ink); font:inherit; cursor:pointer; }
+.stats-filter select:focus-visible { outline:2px solid var(--teal); outline-offset:2px; }
 .stats-status { color:var(--muted); }
 .stats-status.error { color:#f08b84; }
 .stats-empty { display:flex; flex-direction:column; align-items:center; gap:10px; padding:60px 24px; border:1px dashed rgba(255,255,255,.25); border-radius:24px; background:var(--glass); text-align:center; }
