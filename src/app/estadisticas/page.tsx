@@ -2,7 +2,7 @@
 
 import '../stats.css'
 import useSWR from 'swr'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { CalendarDays, ChartColumn, Crown, Dices, Flame, Target, Users } from 'lucide-react'
 import { SiteChrome } from '@/components/site-chrome'
 import { type Match } from '@/lib/group'
@@ -27,7 +27,19 @@ const plural = (count: number, one: string, many: string) => `${count} ${count =
 
 export default function StatsPage() {
   const { data: matches, error, isLoading } = useSWR<Match[]>('/api/matches', fetcher)
-  const stats = useMemo(() => (matches ? computeStats(matches) : null), [matches])
+  const [selectedMonth, setSelectedMonth] = useState('all')
+  const months = useMemo(() => {
+    const keys = new Set((matches ?? []).map((match) => match.played_on.slice(0, 7)))
+    return [...keys].sort((a, b) => b.localeCompare(a)).map((key) => {
+      const [year, month] = key.split('-').map(Number)
+      return { key, label: new Date(year, month - 1, 1).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }) }
+    })
+  }, [matches])
+  const filteredMatches = useMemo(() => {
+    if (!matches) return null
+    return selectedMonth === 'all' ? matches : matches.filter((match) => match.played_on.startsWith(selectedMonth))
+  }, [matches, selectedMonth])
+  const stats = useMemo(() => (filteredMatches ? computeStats(filteredMatches) : null), [filteredMatches])
 
   return (
     <main className="stats-page">
@@ -38,6 +50,16 @@ export default function StatsPage() {
           <h1>Estadísticas</h1>
           <p>Quién gana, qué se juega más y cómo viene la racha del grupo.</p>
         </div>
+
+        {matches && months.length > 0 && (
+          <div className="stats-filter">
+            <label htmlFor="stats-month">Período</label>
+            <select id="stats-month" value={selectedMonth} onChange={(event) => setSelectedMonth(event.target.value)}>
+              <option value="all">Todos los meses</option>
+              {months.map((month) => <option key={month.key} value={month.key}>{month.label}</option>)}
+            </select>
+          </div>
+        )}
 
         {isLoading && <p className="stats-status">Cargando estadísticas…</p>}
         {error && <p className="stats-status error" role="alert">No se pudieron cargar las estadísticas. Intentá de nuevo.</p>}
